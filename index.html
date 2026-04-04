@@ -1,0 +1,3307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ff6b35">
+<meta name="description" content="인디게임 기획 관리 시스템 — 호령 플래너">
+<link rel="manifest" href="./manifest.json">
+<title>HORYEONG PLANNER — 게임 기획 툴</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --accent: #ff6b35;
+    --accent2: #7c3aed;
+    --accent3: #06b6d4;
+    --text: #e8e8f0;
+    --text-dim: #6b6b8a;
+    --text-dimmer: #3a3a55;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --shadow: rgba(0,0,0,0.3);
+  }
+
+  /* ── Light Mode ── */
+  body.light {
+    --bg: #f2f3f7;
+    --surface: #ffffff;
+    --surface2: #eef0f6;
+    --border: #dde0ec;
+    --accent: #e85d2a;
+    --accent2: #6d28d9;
+    --accent3: #0891b2;
+    --text: #1a1a2e;
+    --text-dim: #6b7280;
+    --text-dimmer: #c4c7d4;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --shadow: rgba(0,0,0,0.08);
+  }
+
+  /* light mode scrollbar */
+  body.light ::-webkit-scrollbar-thumb { background: #c4c7d4; }
+  body.light tr:hover td { background: rgba(0,0,0,0.02); }
+  body.light .nav-item:hover { background: rgba(0,0,0,0.04); }
+  body.light .nav-item.active { background: rgba(232,93,42,0.08); }
+  body.light .mobile-nav { box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
+
+  /* ── Theme Toggle Button ── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px 4px 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-toggle-track {
+    width: 28px; height: 16px;
+    background: var(--border);
+    border-radius: 8px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  body.light .theme-toggle-track { background: var(--accent); }
+  .theme-toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 12px; height: 12px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  body.light .theme-toggle-thumb { transform: translateX(12px); }
+  .theme-icon { font-size: 14px; line-height: 1; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Layout ── */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    line-height: 1.15;
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .nav { padding: 12px 0; flex: 1; }
+
+  .nav-section {
+    padding: 6px 16px 2px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    font-size: 13px;
+    position: relative;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .nav-item.active {
+    color: var(--text);
+    border-left-color: var(--accent);
+    background: rgba(255,107,53,0.08);
+  }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent2);
+    color: white;
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Main ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    height: 52px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .topbar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  .topbar-crumb {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .topbar-sep { color: var(--text-dimmer); }
+
+  .spacer { flex: 1; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #ff8555; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-ghost { background: transparent; color: var(--text-dim); }
+  .btn-ghost:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+  .btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+  .content { flex: 1; overflow-y: auto; padding: 20px; }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .card-body { padding: 16px; }
+
+  /* ── Grid ── */
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+  /* ── Stat Cards ── */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.orange::before { background: var(--accent); }
+  .stat-card.purple::before { background: var(--accent2); }
+  .stat-card.cyan::before { background: var(--accent3); }
+  .stat-card.green::before { background: var(--success); }
+
+  .stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--text); margin: 4px 0 0; line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  /* ── Forms ── */
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.5px; }
+  .form-control {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-control:focus { border-color: var(--accent); }
+  .form-control::placeholder { color: var(--text-dimmer); }
+  textarea.form-control { resize: vertical; min-height: 80px; }
+  select.form-control { cursor: pointer; }
+
+  /* ── Tables ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .tag-orange { background: rgba(255,107,53,0.2); color: var(--accent); }
+  .tag-purple { background: rgba(124,58,237,0.2); color: #a78bfa; }
+  .tag-cyan { background: rgba(6,182,212,0.15); color: var(--accent3); }
+  .tag-green { background: rgba(16,185,129,0.15); color: var(--success); }
+  .tag-yellow { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .tag-gray { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title { font-weight: 700; font-size: 15px; }
+  .modal-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 18px; line-height: 1; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 20px; }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── Progress ── */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* ── Range slider ── */
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab {
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── Notice ── */
+  .notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .notice-info { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); color: var(--accent3); }
+  .notice-warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: var(--warning); }
+
+  /* ── Skill bar ── */
+  .skill-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .skill-name { width: 80px; font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
+  .skill-bar { flex: 1; }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-dim);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .empty-desc { font-size: 12px; }
+
+  /* ── Dashboard specific ── */
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .activity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .activity-text { font-size: 12px; line-height: 1.5; }
+  .activity-time { font-size: 10px; color: var(--text-dimmer); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Balance calculator ── */
+  .calc-display {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .calc-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+  .calc-total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; font-weight: 700; color: var(--accent); }
+
+  /* ── Story tree ── */
+  .quest-item {
+    position: relative;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quest-item:hover { border-color: var(--accent); }
+  .quest-item.main-quest { border-left: 3px solid var(--accent); }
+  .quest-item.sub-quest { border-left: 3px solid var(--accent2); margin-left: 20px; }
+  .quest-item.side-quest { border-left: 3px solid var(--accent3); margin-left: 40px; }
+  .quest-name { font-size: 13px; font-weight: 600; }
+  .quest-meta { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+  /* ── Responsive: Tablet ── */
+  @media (max-width: 900px) and (min-width: 601px) {
+    .sidebar { width: 180px; min-width: 180px; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── Mobile bottom nav ── */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 50;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-nav::-webkit-scrollbar { display: none; }
+  .mobile-nav-inner {
+    display: flex;
+    align-items: stretch;
+    min-width: max-content;
+    height: 100%;
+  }
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 18px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 10px;
+    white-space: nowrap;
+    transition: color 0.15s;
+    position: relative;
+    min-width: 60px;
+  }
+  .mobile-nav-item .m-icon { font-size: 20px; line-height: 1; }
+  .mobile-nav-item.active { color: var(--accent); }
+  .mobile-nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 0 0 3px 3px;
+  }
+  .mobile-nav-badge {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: var(--accent2);
+    color: white;
+    font-size: 8px;
+    min-width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Mobile topbar add button ── */
+  .mobile-add-btn {
+    display: none;
+    position: fixed;
+    bottom: 76px;
+    right: 16px;
+    width: 48px; height: 48px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 51;
+    box-shadow: 0 4px 16px rgba(255,107,53,0.5);
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .mobile-add-btn:active { transform: scale(0.93); }
+
+  /* ── Mobile: full override ── */
+  @media (max-width: 600px) {
+    .sidebar { display: none; }
+    .mobile-nav { display: block; }
+    .mobile-add-btn { display: flex; }
+
+    .app { flex-direction: column; height: 100dvh; }
+
+    .main { height: 100%; overflow: hidden; }
+
+    .topbar {
+      padding: 0 12px;
+      height: 48px;
+    }
+    .topbar-sep, .topbar-crumb { display: none; }
+    .topbar-title { font-size: 18px; }
+    /* hide desktop add/export from topbar on mobile, keep theme toggle */
+    .topbar .btn { display: none; }
+    .topbar .theme-toggle { display: flex; }
+
+    .content {
+      padding: 12px;
+      padding-bottom: 72px; /* space for bottom nav */
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* grids collapse to 1 or 2 col */
+    .grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-2 { grid-template-columns: 1fr; gap: 10px; }
+
+    /* stat cards smaller */
+    .stat-card { padding: 12px; }
+    .stat-value { font-size: 26px; }
+    .stat-sub { display: none; }
+
+    /* dashboard row → column */
+    .row { flex-direction: column; gap: 10px; }
+
+    /* quest indents too deep on mobile */
+    .quest-item.sub-quest { margin-left: 12px; }
+    .quest-item.side-quest { margin-left: 24px; }
+
+    /* doc page: stack vertically */
+    #page-docs .row { flex-direction: column; }
+    #page-docs .row > div:first-child { flex: none; }
+    #page-docs .row > div[id="doc-editor-wrap"] { flex: none; }
+
+    /* quests: hide the side panel below list on mobile */
+    #page-quests .row { flex-direction: column; }
+    #page-quests .row > div:last-child { flex: none; }
+
+    /* balance: single col */
+    #bal-stat .row, #bal-combat .row, #bal-economy .row { flex-direction: column; }
+
+    /* modal: full screen sheet */
+    .modal-overlay { align-items: flex-end; }
+    .modal {
+      width: 100%;
+      max-width: 100%;
+      max-height: 92dvh;
+      border-radius: 16px 16px 0 0;
+    }
+
+    /* table: horizontal scroll on mobile */
+    .table-wrap { -webkit-overflow-scrolling: touch; }
+
+    /* card header add button on mobile pages */
+    .card-header .btn { display: inline-flex; }
+
+    /* doc textarea shorter on mobile */
+    #doc-content { min-height: 260px !important; }
+    /* new pages mobile */
+    #page-world .grid-3, #page-script .row, #page-schedule .row { flex-direction:column; }
+    #page-script .row > div:first-child { flex:none; }
+    #page-schedule .row > div:last-child { flex:none; }
+    #page-world .grid-3 { display:flex; flex-direction:column; }
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dimmer); }
+
+  /* ── Animations ── */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .page.active { animation: fadeIn 0.2s ease; }
+
+  .row { display: flex; gap: 16px; }
+  .row > * { flex: 1; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  .text-dim { color: var(--text-dim); }
+  .text-accent { color: var(--accent); }
+  .text-sm { font-size: 11px; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mb-12 { margin-bottom: 12px; }
+  .flex { display: flex; }
+  .flex-center { display: flex; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .ml-auto { margin-left: auto; }
+
+  /* ── Character portrait placeholder ── */
+  .char-avatar {
+    width: 40px; height: 40px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title">HORYEONG<br>PLANNER</div>
+      <div class="logo-sub">게임 기획 관리 시스템</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">개요</div>
+      <div class="nav-item active" onclick="goPage('dashboard', this)">
+        <span class="icon">◈</span> 대시보드
+      </div>
+      <div class="nav-section" style="margin-top:8px;">데이터베이스</div>
+      <div class="nav-item" onclick="goPage('characters', this)">
+        <span class="icon">👤</span> 캐릭터
+        <span class="nav-badge" id="badge-chars">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('skills', this)">
+        <span class="icon">⚡</span> 스킬
+        <span class="nav-badge" id="badge-skills">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('items', this)">
+        <span class="icon">🎒</span> 아이템
+        <span class="nav-badge" id="badge-items">0</span>
+      </div>
+      <div class="nav-section" style="margin-top:8px;">기획</div>
+      <div class="nav-item" onclick="goPage('quests', this)">
+        <span class="icon">📜</span> 퀘스트
+        <span class="nav-badge" id="badge-quests">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('docs', this)">
+        <span class="icon">📄</span> 문서
+        <span class="nav-badge" id="badge-docs">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('world', this)">
+        <span class="icon">🗺️</span> 세계관
+        <span class="nav-badge" id="badge-world">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('script', this)">
+        <span class="icon">💬</span> 스크립트
+        <span class="nav-badge" id="badge-script">0</span>
+      </div>
+      <div class="nav-section" style="margin-top:8px;">관리</div>
+      <div class="nav-item" onclick="goPage('schedule', this)">
+        <span class="icon">📅</span> 일정
+        <span class="nav-badge" id="badge-schedule">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('tracker', this)">
+        <span class="icon">🐛</span> 트래커
+        <span class="nav-badge" id="badge-tracker">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('sound', this)">
+        <span class="icon">🎵</span> 사운드
+        <span class="nav-badge" id="badge-sound">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('art', this)">
+        <span class="icon">🎨</span> 아트 에셋
+        <span class="nav-badge" id="badge-art">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('revenue', this)">
+        <span class="icon">💰</span> 수익화
+      </div>
+      <div class="nav-item" onclick="goPage('playtest', this)">
+        <span class="icon">🎮</span> 플레이테스트
+        <span class="nav-badge" id="badge-playtest">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('balance', this)">
+        <span class="icon">⚖️</span> 밸런스
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">DASHBOARD</span>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-crumb" id="topbar-crumb">프로젝트 개요</span>
+      <div class="spacer"></div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="라이트/다크 전환">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+        <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
+        <span id="theme-label">다크</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="exportData()">📤 내보내기</button>
+      <button class="btn btn-primary btn-sm" onclick="handleAdd()">+ 추가</button>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="grid grid-4 mb-12">
+          <div class="stat-card orange">
+            <div class="stat-label">캐릭터</div>
+            <div class="stat-value" id="stat-chars">0</div>
+            <div class="stat-sub">등록된 캐릭터 수</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-label">스킬</div>
+            <div class="stat-value" id="stat-skills">0</div>
+            <div class="stat-sub">등록된 스킬 수</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-label">아이템</div>
+            <div class="stat-value" id="stat-items">0</div>
+            <div class="stat-sub">등록된 아이템 수</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">퀘스트</div>
+            <div class="stat-value" id="stat-quests">0</div>
+            <div class="stat-sub">등록된 퀘스트 수</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="card" style="flex:2;">
+            <div class="card-header">
+              <span class="card-title">📋 최근 활동</span>
+            </div>
+            <div class="card-body" id="activity-list">
+              <div class="empty">
+                <div class="empty-icon">🌑</div>
+                <div class="empty-title">아직 활동 없음</div>
+                <div class="empty-desc">캐릭터, 아이템, 퀘스트를 추가해보세요</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;flex:1;">
+            <div class="card">
+              <div class="card-header"><span class="card-title">⚡ 빠른 메모</span></div>
+              <div class="card-body">
+                <textarea class="form-control" id="quick-memo" rows="5" placeholder="아이디어, 메모를 자유롭게 입력하세요..." oninput="saveMemo()"></textarea>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🎮 프로젝트 정보</span></div>
+              <div class="card-body">
+                <div class="form-group" style="margin-bottom:10px;">
+                  <div class="form-label">프로젝트명</div>
+                  <input type="text" class="form-control" id="proj-name" placeholder="나의 게임" oninput="saveProjInfo()">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <div class="form-label">장르</div>
+                  <select class="form-control" id="proj-genre" onchange="saveProjInfo()">
+                    <option value="">선택하세요</option>
+                    <option>RPG</option>
+                    <option>전략</option>
+                    <option>액션</option>
+                    <option>캐주얼</option>
+                    <option>어드벤처</option>
+                    <option>시뮬레이션</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHARACTERS ═══ -->
+      <div class="page" id="page-characters">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">👤 캐릭터 DB</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('char')">+ 캐릭터 추가</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>이름</th>
+                  <th>직업/역할</th>
+                  <th>HP</th>
+                  <th>MP</th>
+                  <th>ATK</th>
+                  <th>DEF</th>
+                  <th>타입</th>
+                  <th>상태</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="chars-table">
+                <tr><td colspan="10"><div class="empty"><div class="empty-icon">👻</div><div class="empty-title">캐릭터 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SKILLS ═══ -->
+      <div class="page" id="page-skills">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">⚡ 스킬 DB</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('skill')">+ 스킬 추가</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>스킬명</th>
+                  <th>타입</th>
+                  <th>데미지</th>
+                  <th>MP 소모</th>
+                  <th>쿨타임</th>
+                  <th>사거리</th>
+                  <th>대상</th>
+                  <th>설명</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="skills-table">
+                <tr><td colspan="9"><div class="empty"><div class="empty-icon">✨</div><div class="empty-title">스킬 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ITEMS ═══ -->
+      <div class="page" id="page-items">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🎒 아이템 DB</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('item')">+ 아이템 추가</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>아이템명</th>
+                  <th>카테고리</th>
+                  <th>등급</th>
+                  <th>효과</th>
+                  <th>가격</th>
+                  <th>획득 경로</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="items-table">
+                <tr><td colspan="7"><div class="empty"><div class="empty-icon">💎</div><div class="empty-title">아이템 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ QUESTS ═══ -->
+      <div class="page" id="page-quests">
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="flex-center gap-8 mb-12">
+              <span style="font-size:13px;font-weight:700;">📜 퀘스트 구조</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('quest')">+ 퀘스트 추가</button>
+            </div>
+            <div id="quests-list">
+              <div class="empty"><div class="empty-icon">📜</div><div class="empty-title">퀘스트 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>
+            </div>
+          </div>
+          <div style="flex:0 0 260px;">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 현황</span></div>
+              <div class="card-body">
+                <div style="margin-bottom:10px;">
+                  <div class="flex-center gap-8 mb-12" style="margin-bottom:6px;"><span class="text-sm text-dim">메인 퀘스트</span><span class="ml-auto text-sm text-accent" id="cnt-main">0</span></div>
+                  <div class="progress-bar"><div class="progress-fill" id="prog-main" style="width:0%;background:var(--accent);"></div></div>
+                </div>
+                <div style="margin-bottom:10px;">
+                  <div class="flex-center gap-8" style="margin-bottom:6px;"><span class="text-sm text-dim">서브 퀘스트</span><span class="ml-auto text-sm" style="color:var(--accent2);" id="cnt-sub">0</span></div>
+                  <div class="progress-bar"><div class="progress-fill" id="prog-sub" style="width:0%;background:var(--accent2);"></div></div>
+                </div>
+                <div>
+                  <div class="flex-center gap-8" style="margin-bottom:6px;"><span class="text-sm text-dim">사이드 퀘스트</span><span class="ml-auto text-sm" style="color:var(--accent3);" id="cnt-side">0</span></div>
+                  <div class="progress-bar"><div class="progress-fill" id="prog-side" style="width:0%;background:var(--accent3);"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ DOCS ═══ -->
+      <div class="page" id="page-docs">
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:0 0 220px;">
+            <div class="flex-center gap-8 mb-12">
+              <span style="font-size:13px;font-weight:700;">📄 문서 목록</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('doc')">+</button>
+            </div>
+            <div id="docs-list">
+              <div class="empty" style="padding:24px 12px;"><div class="empty-icon">📁</div><div class="empty-title">문서 없음</div></div>
+            </div>
+          </div>
+          <div style="flex:1;" id="doc-editor-wrap">
+            <div class="card" style="height:100%;">
+              <div class="card-header">
+                <span class="card-title" id="doc-title-display">문서를 선택하세요</span>
+                <button class="btn btn-primary btn-sm ml-auto" onclick="saveDoc()" style="display:none;" id="btn-save-doc">저장</button>
+              </div>
+              <div class="card-body">
+                <div class="empty"><div class="empty-icon">📝</div><div class="empty-title">문서 없음</div><div class="empty-desc">좌측에서 문서를 선택하거나 새로 만드세요</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ BALANCE ═══ -->
+      <div class="page" id="page-balance">
+        <div class="notice notice-info">⚖️ 수치 밸런스 계산기 — 레벨별 스탯 곡선, 전투 DPS, 경제 밸런스를 계산합니다.</div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchBalanceTab('stat', this)">스탯 곡선</div>
+          <div class="tab" onclick="switchBalanceTab('combat', this)">전투 계산</div>
+          <div class="tab" onclick="switchBalanceTab('economy', this)">경제 밸런스</div>
+        </div>
+
+        <!-- Stat curve -->
+        <div id="bal-stat" class="bal-panel">
+          <div class="row">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📈 레벨 스탯 곡선 설정</span></div>
+              <div class="card-body">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <div class="form-label">기본 HP</div>
+                    <input type="number" class="form-control" id="base-hp" value="100" oninput="calcStatCurve()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">HP 성장률 (%)</div>
+                    <input type="number" class="form-control" id="hp-growth" value="15" oninput="calcStatCurve()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">기본 ATK</div>
+                    <input type="number" class="form-control" id="base-atk" value="20" oninput="calcStatCurve()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">ATK 성장률 (%)</div>
+                    <input type="number" class="form-control" id="atk-growth" value="10" oninput="calcStatCurve()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">최대 레벨</div>
+                    <input type="number" class="form-control" id="max-lv" value="50" min="1" max="200" oninput="calcStatCurve()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">성장 타입</div>
+                    <select class="form-control" id="growth-type" onchange="calcStatCurve()">
+                      <option value="linear">선형</option>
+                      <option value="exp" selected>지수형</option>
+                      <option value="log">로그형</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📋 레벨별 수치 미리보기</span></div>
+              <div class="card-body" id="stat-preview" style="max-height:300px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Combat -->
+        <div id="bal-combat" class="bal-panel" style="display:none;">
+          <div class="row">
+            <div class="card">
+              <div class="card-header"><span class="card-title">⚔️ 전투 계산기</span></div>
+              <div class="card-body">
+                <div style="margin-bottom:14px;font-size:12px;color:var(--text-dim);font-weight:600;">공격자</div>
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <div class="form-label">ATK</div>
+                    <input type="number" class="form-control" id="c-atk" value="150" oninput="calcCombat()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">스킬 계수 (%)</div>
+                    <input type="number" class="form-control" id="c-coef" value="180" oninput="calcCombat()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">크리티컬 확률 (%)</div>
+                    <input type="number" class="form-control" id="c-crit-rate" value="25" oninput="calcCombat()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">크리티컬 배율 (%)</div>
+                    <input type="number" class="form-control" id="c-crit-dmg" value="200" oninput="calcCombat()">
+                  </div>
+                </div>
+                <hr>
+                <div style="margin-bottom:14px;font-size:12px;color:var(--text-dim);font-weight:600;">방어자</div>
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <div class="form-label">DEF</div>
+                    <input type="number" class="form-control" id="c-def" value="80" oninput="calcCombat()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">HP</div>
+                    <input type="number" class="form-control" id="c-hp" value="2000" oninput="calcCombat()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 전투 결과</span></div>
+              <div class="card-body">
+                <div class="calc-display" id="combat-result">계산 중...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Economy -->
+        <div id="bal-economy" class="bal-panel" style="display:none;">
+          <div class="row">
+            <div class="card">
+              <div class="card-header"><span class="card-title">💰 경제 밸런스</span></div>
+              <div class="card-body">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <div class="form-label">일일 퀘스트 골드</div>
+                    <input type="number" class="form-control" id="eco-daily" value="500" oninput="calcEconomy()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">아이템 판매 골드</div>
+                    <input type="number" class="form-control" id="eco-sell" value="300" oninput="calcEconomy()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">소모품 구매 비용/일</div>
+                    <input type="number" class="form-control" id="eco-consume" value="200" oninput="calcEconomy()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">장비 강화 비용</div>
+                    <input type="number" class="form-control" id="eco-upgrade" value="1000" oninput="calcEconomy()">
+                  </div>
+                  <div class="form-group">
+                    <div class="form-label">목표 강화 기간 (일)</div>
+                    <input type="number" class="form-control" id="eco-days" value="14" oninput="calcEconomy()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 경제 분석</span></div>
+              <div class="card-body">
+                <div class="calc-display" id="eco-result">계산 중...</div>
+                <div class="notice notice-warn mt-8">⚠️ 수치는 참고용입니다. 실제 플레이 흐름을 반드시 테스트하세요.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ WORLD ═══ -->
+      <div class="page" id="page-world">
+        <div class="tabs">
+          <div class="tab active" onclick="switchWorldTab('regions',this)">🗺️ 지역·맵</div>
+          <div class="tab" onclick="switchWorldTab('factions',this)">⚔️ 세력</div>
+          <div class="tab" onclick="switchWorldTab('timeline',this)">📅 연표</div>
+        </div>
+        <!-- Regions -->
+        <div id="world-regions" class="world-panel">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">지역 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('region')">+ 지역 추가</button>
+          </div>
+          <div class="grid grid-3" id="regions-grid">
+            <div class="empty" style="grid-column:span 3;"><div class="empty-icon">🗺️</div><div class="empty-title">지역 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>
+          </div>
+        </div>
+        <!-- Factions -->
+        <div id="world-factions" class="world-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">세력 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('faction')">+ 세력 추가</button>
+          </div>
+          <div class="grid grid-3" id="factions-grid">
+            <div class="empty" style="grid-column:span 3;"><div class="empty-icon">⚔️</div><div class="empty-title">세력 없음</div></div>
+          </div>
+        </div>
+        <!-- Timeline -->
+        <div id="world-timeline" class="world-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">역사 연표</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('timeline')">+ 사건 추가</button>
+          </div>
+          <div id="timeline-list">
+            <div class="empty"><div class="empty-icon">📅</div><div class="empty-title">사건 없음</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCRIPT ═══ -->
+      <div class="page" id="page-script">
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:0 0 230px;">
+            <div class="flex-center gap-8 mb-12">
+              <span style="font-size:13px;font-weight:700;">💬 스크립트 목록</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('script')">+</button>
+            </div>
+            <div id="scripts-list">
+              <div class="empty" style="padding:24px 12px;"><div class="empty-icon">💬</div><div class="empty-title">스크립트 없음</div></div>
+            </div>
+          </div>
+          <div style="flex:1;" id="script-editor-wrap">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title" id="script-title-display">스크립트를 선택하세요</span>
+                <button class="btn btn-primary btn-sm ml-auto" onclick="saveScript()" style="display:none;" id="btn-save-script">저장</button>
+              </div>
+              <div class="card-body" id="script-editor-body">
+                <div class="empty"><div class="empty-icon">🎬</div><div class="empty-title">스크립트 없음</div><div class="empty-desc">좌측에서 선택하거나 새로 만드세요</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCHEDULE ═══ -->
+      <div class="page" id="page-schedule">
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="flex-center gap-8 mb-12">
+              <span style="font-size:13px;font-weight:700;">📅 마일스톤</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('milestone')">+ 마일스톤 추가</button>
+            </div>
+            <div id="milestones-list">
+              <div class="empty"><div class="empty-icon">📅</div><div class="empty-title">마일스톤 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>
+            </div>
+          </div>
+          <div style="flex:0 0 240px;">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 일정 현황</span></div>
+              <div class="card-body" id="schedule-stats">
+                <div class="text-sm text-dim" style="text-align:center;padding:12px 0;">마일스톤을 추가하세요</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TRACKER ═══ -->
+      <div class="page" id="page-tracker">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTrackerTab('bugs',this)">🐛 버그</div>
+          <div class="tab" onclick="switchTrackerTab('feedback',this)">💡 피드백</div>
+          <div class="tab" onclick="switchTrackerTab('todos',this)">✅ TODO</div>
+        </div>
+        <!-- Bugs -->
+        <div id="tracker-bugs" class="tracker-panel">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">버그 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('bug')">+ 버그 추가</button>
+          </div>
+          <div class="card"><div class="table-wrap"><table>
+            <thead><tr><th>#</th><th>제목</th><th>심각도</th><th>상태</th><th>담당</th><th></th></tr></thead>
+            <tbody id="bugs-table"><tr><td colspan="6"><div class="empty"><div class="empty-icon">🐛</div><div class="empty-title">버그 없음</div></div></td></tr></tbody>
+          </table></div></div>
+        </div>
+        <!-- Feedback -->
+        <div id="tracker-feedback" class="tracker-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">피드백 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('feedback')">+ 피드백 추가</button>
+          </div>
+          <div class="card"><div class="table-wrap"><table>
+            <thead><tr><th>내용</th><th>출처</th><th>카테고리</th><th>상태</th><th></th></tr></thead>
+            <tbody id="feedback-table"><tr><td colspan="5"><div class="empty"><div class="empty-icon">💡</div><div class="empty-title">피드백 없음</div></div></td></tr></tbody>
+          </table></div></div>
+        </div>
+        <!-- TODO -->
+        <div id="tracker-todos" class="tracker-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">TODO 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('todo')">+ TODO 추가</button>
+          </div>
+          <div id="todos-list">
+            <div class="empty"><div class="empty-icon">✅</div><div class="empty-title">TODO 없음</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SOUND ═══ -->
+      <div class="page" id="page-sound">
+        <div class="tabs">
+          <div class="tab active" onclick="switchSoundTab('bgm',this)">🎶 BGM</div>
+          <div class="tab" onclick="switchSoundTab('sfx',this)">💥 SFX</div>
+        </div>
+        <div id="sound-bgm" class="sound-panel">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">배경음악 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('sound','bgm')">+ BGM 추가</button>
+          </div>
+          <div class="card"><div class="table-wrap"><table>
+            <thead><tr><th>트랙명</th><th>분위기</th><th>사용 씬</th><th>루프</th><th>길이</th><th>상태</th><th></th></tr></thead>
+            <tbody id="bgm-table"><tr><td colspan="7"><div class="empty"><div class="empty-icon">🎶</div><div class="empty-title">BGM 없음</div></div></td></tr></tbody>
+          </table></div></div>
+        </div>
+        <div id="sound-sfx" class="sound-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">효과음 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('sound','sfx')">+ SFX 추가</button>
+          </div>
+          <div class="card"><div class="table-wrap"><table>
+            <thead><tr><th>효과음명</th><th>카테고리</th><th>트리거</th><th>길이</th><th>상태</th><th></th></tr></thead>
+            <tbody id="sfx-table"><tr><td colspan="6"><div class="empty"><div class="empty-icon">💥</div><div class="empty-title">SFX 없음</div></div></td></tr></tbody>
+          </table></div></div>
+        </div>
+      </div>
+
+      <!-- ═══ ART ═══ -->
+      <div class="page" id="page-art">
+        <div class="tabs">
+          <div class="tab active" onclick="switchArtTab('sprites',this)">🧍 스프라이트</div>
+          <div class="tab" onclick="switchArtTab('bg',this)">🖼️ 배경</div>
+          <div class="tab" onclick="switchArtTab('ui',this)">🖥️ UI</div>
+        </div>
+        <div id="art-sprites" class="art-panel">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">스프라이트 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('art','sprite')">+ 추가</button>
+          </div>
+          <div class="grid grid-4" id="sprites-grid">
+            <div class="empty" style="grid-column:span 4"><div class="empty-icon">🧍</div><div class="empty-title">스프라이트 없음</div></div>
+          </div>
+        </div>
+        <div id="art-bg" class="art-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">배경 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('art','bg')">+ 추가</button>
+          </div>
+          <div class="grid grid-4" id="bg-grid">
+            <div class="empty" style="grid-column:span 4"><div class="empty-icon">🖼️</div><div class="empty-title">배경 에셋 없음</div></div>
+          </div>
+        </div>
+        <div id="art-ui" class="art-panel" style="display:none;">
+          <div class="flex-center gap-8 mb-12">
+            <span style="font-size:13px;font-weight:700;">UI 에셋 목록</span>
+            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('art','ui')">+ 추가</button>
+          </div>
+          <div class="grid grid-4" id="ui-grid">
+            <div class="empty" style="grid-column:span 4"><div class="empty-icon">🖥️</div><div class="empty-title">UI 에셋 없음</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ REVENUE ═══ -->
+      <div class="page" id="page-revenue">
+        <div class="notice notice-info">💰 인디게임 수익화 설계 — 플랫폼별 수수료와 예상 매출을 시뮬레이션합니다.</div>
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="card mb-12">
+              <div class="card-header"><span class="card-title">🏪 플랫폼 & 가격 설정</span></div>
+              <div class="card-body">
+                <div class="grid grid-2">
+                  <div class="form-group"><div class="form-label">정가 (USD)</div><input type="number" class="form-control" id="rev-price" value="14.99" step="0.01" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">할인율 (%)</div><input type="number" class="form-control" id="rev-discount" value="0" min="0" max="100" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">Steam 수수료 (%)</div><input type="number" class="form-control" id="rev-steam-fee" value="30" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">예상 Steam 판매량</div><input type="number" class="form-control" id="rev-steam-sales" value="1000" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">itch.io 수수료 (%)</div><input type="number" class="form-control" id="rev-itch-fee" value="10" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">예상 itch.io 판매량</div><input type="number" class="form-control" id="rev-itch-sales" value="200" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">개발 비용 (USD)</div><input type="number" class="form-control" id="rev-cost" value="5000" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">세율 (%)</div><input type="number" class="form-control" id="rev-tax" value="25" oninput="calcRevenue()"></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🎁 DLC / 추가 수익</span></div>
+              <div class="card-body">
+                <div class="grid grid-2">
+                  <div class="form-group"><div class="form-label">DLC 가격 (USD)</div><input type="number" class="form-control" id="rev-dlc-price" value="4.99" step="0.01" oninput="calcRevenue()"></div>
+                  <div class="form-group"><div class="form-label">예상 DLC 판매량</div><input type="number" class="form-control" id="rev-dlc-sales" value="300" oninput="calcRevenue()"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:0 0 280px; display:flex; flex-direction:column; gap:12px;">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 수익 시뮬레이션</span></div>
+              <div class="card-body"><div class="calc-display" id="rev-result">입력값을 설정하세요</div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🎯 손익분기점</span></div>
+              <div class="card-body"><div class="calc-display" id="rev-bep">-</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PLAYTEST ═══ -->
+      <div class="page" id="page-playtest">
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="flex-center gap-8 mb-12">
+              <span style="font-size:13px;font-weight:700;">🎮 플레이테스트 세션</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('playtest')">+ 세션 추가</button>
+            </div>
+            <div id="playtest-list">
+              <div class="empty"><div class="empty-icon">🎮</div><div class="empty-title">세션 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>
+            </div>
+          </div>
+          <div style="flex:0 0 240px;">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📈 테스트 통계</span></div>
+              <div class="card-body" id="playtest-stats">
+                <div class="text-sm text-dim" style="text-align:center;padding:12px 0;">세션을 추가하세요</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── SW Update Toast ── -->
+<div id="sw-update-toast" style="
+  position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(120px);
+  background:var(--surface); border:1px solid var(--accent); border-radius:8px;
+  padding:12px 16px; display:flex; align-items:center; gap:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3); z-index:200;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  white-space:nowrap; font-size:13px;">
+  <span>🔄 새 버전이 있습니다</span>
+  <button id="sw-update-btn" style="
+    background:var(--accent);color:white;border:none;border-radius:4px;
+    padding:4px 10px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+    업데이트
+  </button>
+  <button id="sw-dismiss-btn" style="
+    background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;line-height:1;">
+    ✕
+  </button>
+</div>
+
+<!-- ── Offline Badge ── -->
+<div id="offline-badge" style="
+  display:none; position:fixed; top:52px; left:0; right:0;
+  background:#1a0a00; border-bottom:1px solid var(--accent);
+  color:var(--accent); font-size:11px; text-align:center;
+  padding:5px; z-index:90; letter-spacing:1px;">
+  ⚡ 오프라인 모드 — 캐시된 데이터로 동작 중
+</div>
+<nav class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-inner">
+    <div class="mobile-nav-item active" id="mnav-dashboard" onclick="goPage('dashboard', null, 'dashboard')">
+      <span class="m-icon">◈</span>
+      <span>홈</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-characters" onclick="goPage('characters', null, 'characters')">
+      <span class="m-icon">👤</span>
+      <span>캐릭터</span>
+      <span class="mobile-nav-badge" id="mbadge-chars" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-skills" onclick="goPage('skills', null, 'skills')">
+      <span class="m-icon">⚡</span>
+      <span>스킬</span>
+      <span class="mobile-nav-badge" id="mbadge-skills" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-items" onclick="goPage('items', null, 'items')">
+      <span class="m-icon">🎒</span>
+      <span>아이템</span>
+      <span class="mobile-nav-badge" id="mbadge-items" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-quests" onclick="goPage('quests', null, 'quests')">
+      <span class="m-icon">📜</span>
+      <span>퀘스트</span>
+      <span class="mobile-nav-badge" id="mbadge-quests" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-docs" onclick="goPage('docs', null, 'docs')">
+      <span class="m-icon">📄</span>
+      <span>문서</span>
+      <span class="mobile-nav-badge" id="mbadge-docs" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-balance" onclick="goPage('balance', null, 'balance')">
+      <span class="m-icon">⚖️</span>
+      <span>밸런스</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-world" onclick="goPage('world', null, 'world')">
+      <span class="m-icon">🗺️</span>
+      <span>세계관</span>
+      <span class="mobile-nav-badge" id="mbadge-world" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-script" onclick="goPage('script', null, 'script')">
+      <span class="m-icon">💬</span>
+      <span>스크립트</span>
+      <span class="mobile-nav-badge" id="mbadge-script" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-schedule" onclick="goPage('schedule', null, 'schedule')">
+      <span class="m-icon">📅</span>
+      <span>일정</span>
+      <span class="mobile-nav-badge" id="mbadge-schedule" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-tracker" onclick="goPage('tracker', null, 'tracker')">
+      <span class="m-icon">🐛</span>
+      <span>트래커</span>
+      <span class="mobile-nav-badge" id="mbadge-tracker" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-sound" onclick="goPage('sound', null, 'sound')">
+      <span class="m-icon">🎵</span>
+      <span>사운드</span>
+      <span class="mobile-nav-badge" id="mbadge-sound" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-art" onclick="goPage('art', null, 'art')">
+      <span class="m-icon">🎨</span>
+      <span>아트</span>
+      <span class="mobile-nav-badge" id="mbadge-art" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-revenue" onclick="goPage('revenue', null, 'revenue')">
+      <span class="m-icon">💰</span>
+      <span>수익화</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-playtest" onclick="goPage('playtest', null, 'playtest')">
+      <span class="m-icon">🎮</span>
+      <span>플테</span>
+      <span class="mobile-nav-badge" id="mbadge-playtest" style="display:none">0</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Mobile FAB ── -->
+<button class="mobile-add-btn" onclick="handleAdd()" title="추가">＋</button>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Character Modal -->
+<div class="modal-overlay" id="modal-char">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-char-title">캐릭터 추가</span>
+      <button class="modal-close" onclick="closeModal('char')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">이름 *</div><input type="text" class="form-control" id="ci-name" placeholder="캐릭터명"></div>
+        <div class="form-group"><div class="form-label">직업/역할</div><input type="text" class="form-control" id="ci-role" placeholder="전사, 마법사, 보스..."></div>
+        <div class="form-group"><div class="form-label">타입</div>
+          <select class="form-control" id="ci-type">
+            <option>플레이어</option><option>NPC</option><option>파티원</option><option>보스</option><option>일반 몬스터</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="ci-status">
+            <option>기획중</option><option>작성완료</option><option>검토중</option><option>확정</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">HP</div><input type="number" class="form-control" id="ci-hp" value="100"></div>
+        <div class="form-group"><div class="form-label">MP</div><input type="number" class="form-control" id="ci-mp" value="50"></div>
+        <div class="form-group"><div class="form-label">ATK</div><input type="number" class="form-control" id="ci-atk" value="20"></div>
+        <div class="form-group"><div class="form-label">DEF</div><input type="number" class="form-control" id="ci-def" value="10"></div>
+      </div>
+      <div class="form-group"><div class="form-label">특기/패시브</div><input type="text" class="form-control" id="ci-passive" placeholder="예: 물리 내성 20%, 화염 속성 공격"></div>
+      <div class="form-group"><div class="form-label">설명/배경</div><textarea class="form-control" id="ci-desc" placeholder="캐릭터 배경, 성격, 역할 설명..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('char')">취소</button>
+      <button class="btn btn-primary" onclick="saveChar()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Skill Modal -->
+<div class="modal-overlay" id="modal-skill">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">스킬 추가</span>
+      <button class="modal-close" onclick="closeModal('skill')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">스킬명 *</div><input type="text" class="form-control" id="si-name" placeholder="파이어볼"></div>
+        <div class="form-group"><div class="form-label">타입</div>
+          <select class="form-control" id="si-type">
+            <option>액티브</option><option>패시브</option><option>궁극기</option><option>버프</option><option>디버프</option><option>힐</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">데미지 계수 (%)</div><input type="number" class="form-control" id="si-dmg" value="150"></div>
+        <div class="form-group"><div class="form-label">MP 소모</div><input type="number" class="form-control" id="si-mp" value="30"></div>
+        <div class="form-group"><div class="form-label">쿨타임 (초)</div><input type="number" class="form-control" id="si-cd" value="5"></div>
+        <div class="form-group"><div class="form-label">사거리</div><input type="text" class="form-control" id="si-range" placeholder="근거리, 원거리, 전체..."></div>
+        <div class="form-group"><div class="form-label">대상</div>
+          <select class="form-control" id="si-target">
+            <option>단일</option><option>범위</option><option>전체</option><option>자신</option><option>파티</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">속성</div>
+          <select class="form-control" id="si-element">
+            <option>없음</option><option>화염</option><option>냉기</option><option>번개</option><option>물리</option><option>신성</option><option>암흑</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><div class="form-label">효과 설명</div><textarea class="form-control" id="si-desc" placeholder="스킬 효과 상세 설명..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('skill')">취소</button>
+      <button class="btn btn-primary" onclick="saveSkill()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Modal -->
+<div class="modal-overlay" id="modal-item">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">아이템 추가</span>
+      <button class="modal-close" onclick="closeModal('item')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">아이템명 *</div><input type="text" class="form-control" id="ii-name" placeholder="전설의 검"></div>
+        <div class="form-group"><div class="form-label">카테고리</div>
+          <select class="form-control" id="ii-cat">
+            <option>무기</option><option>방어구</option><option>소모품</option><option>재료</option><option>퀘스트</option><option>기타</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">등급</div>
+          <select class="form-control" id="ii-grade">
+            <option>일반</option><option>고급</option><option>희귀</option><option>영웅</option><option>전설</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">가격 (골드)</div><input type="number" class="form-control" id="ii-price" value="0"></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">효과/스탯</div><input type="text" class="form-control" id="ii-effect" placeholder="ATK +50, 공격속도 +10%..."></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">획득 경로</div><input type="text" class="form-control" id="ii-source" placeholder="던전 드랍, 상점 구매, 제작..."></div>
+      </div>
+      <div class="form-group"><div class="form-label">설명</div><textarea class="form-control" id="ii-desc" placeholder="아이템 설명..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('item')">취소</button>
+      <button class="btn btn-primary" onclick="saveItem()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quest Modal -->
+<div class="modal-overlay" id="modal-quest">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">퀘스트 추가</span>
+      <button class="modal-close" onclick="closeModal('quest')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">퀘스트명 *</div><input type="text" class="form-control" id="qi-name" placeholder="운명의 선택"></div>
+        <div class="form-group"><div class="form-label">종류</div>
+          <select class="form-control" id="qi-type">
+            <option>메인</option><option>서브</option><option>사이드</option><option>숨겨진</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">권장 레벨</div><input type="number" class="form-control" id="qi-lv" value="1"></div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="qi-status">
+            <option>기획중</option><option>작성완료</option><option>검토중</option><option>확정</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">보상</div><input type="text" class="form-control" id="qi-reward" placeholder="경험치 500, 골드 200, 아이템..."></div>
+      </div>
+      <div class="form-group"><div class="form-label">목표/내용</div><textarea class="form-control" id="qi-desc" placeholder="퀘스트 목표 및 스토리..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('quest')">취소</button>
+      <button class="btn btn-primary" onclick="saveQuest()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Doc Modal -->
+<div class="modal-overlay" id="modal-doc">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">문서 만들기</span>
+      <button class="modal-close" onclick="closeModal('doc')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><div class="form-label">문서 제목 *</div><input type="text" class="form-control" id="di-name" placeholder="게임 세계관 설정집"></div>
+      <div class="form-group"><div class="form-label">카테고리</div>
+        <select class="form-control" id="di-cat">
+          <option>기획서</option><option>세계관</option><option>스토리</option><option>시스템</option><option>아트</option><option>기타</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('doc')">취소</button>
+      <button class="btn btn-primary" onclick="saveDocNew()">만들기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Region Modal -->
+<div class="modal-overlay" id="modal-region">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">지역 추가</span><button class="modal-close" onclick="closeModal('region')">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">지역명 *</div><input type="text" class="form-control" id="ri-name" placeholder="어둠의 숲"></div>
+        <div class="form-group"><div class="form-label">타입</div>
+          <select class="form-control" id="ri-type"><option>던전</option><option>마을</option><option>필드</option><option>보스존</option><option>도시</option><option>특수</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">권장 레벨</div><input type="text" class="form-control" id="ri-lv" placeholder="Lv.10~20"></div>
+        <div class="form-group"><div class="form-label">세력</div><input type="text" class="form-control" id="ri-faction" placeholder="마족 지배구역"></div>
+      </div>
+      <div class="form-group"><div class="form-label">설명</div><textarea class="form-control" id="ri-desc" placeholder="지역 설명, 특징, 관련 퀘스트..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('region')">취소</button>
+      <button class="btn btn-primary" onclick="saveRegion()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Faction Modal -->
+<div class="modal-overlay" id="modal-faction">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">세력 추가</span><button class="modal-close" onclick="closeModal('faction')">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">세력명 *</div><input type="text" class="form-control" id="fi-name" placeholder="왕국 기사단"></div>
+        <div class="form-group"><div class="form-label">성향</div>
+          <select class="form-control" id="fi-align"><option>선</option><option>중립</option><option>악</option><option>혼돈</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">세력 규모</div>
+          <select class="form-control" id="fi-size"><option>소규모</option><option>중간</option><option>대규모</option><option>제국급</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">거점 지역</div><input type="text" class="form-control" id="fi-base" placeholder="왕도 아르카나"></div>
+      </div>
+      <div class="form-group"><div class="form-label">설명·목표</div><textarea class="form-control" id="fi-desc" placeholder="세력 배경, 목표, 플레이어와의 관계..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('faction')">취소</button>
+      <button class="btn btn-primary" onclick="saveFaction()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timeline Modal -->
+<div class="modal-overlay" id="modal-timeline">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">역사 사건 추가</span><button class="modal-close" onclick="closeModal('timeline')">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">연도/시기 *</div><input type="text" class="form-control" id="ti-year" placeholder="서기 1200년 / 대전쟁 3년차"></div>
+        <div class="form-group"><div class="form-label">중요도</div>
+          <select class="form-control" id="ti-importance"><option>대사건</option><option>중요</option><option>일반</option></select>
+        </div>
+      </div>
+      <div class="form-group"><div class="form-label">사건명 *</div><input type="text" class="form-control" id="ti-name" placeholder="암흑왕의 부활"></div>
+      <div class="form-group"><div class="form-label">내용</div><textarea class="form-control" id="ti-desc" placeholder="사건 내용, 영향..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('timeline')">취소</button>
+      <button class="btn btn-primary" onclick="saveTimeline()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Script Modal -->
+<div class="modal-overlay" id="modal-script">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header"><span class="modal-title">스크립트 만들기</span><button class="modal-close" onclick="closeModal('script')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><div class="form-label">제목 *</div><input type="text" class="form-control" id="sci-name" placeholder="오프닝 컷신"></div>
+      <div class="form-group"><div class="form-label">타입</div>
+        <select class="form-control" id="sci-type"><option>컷신</option><option>NPC 대화</option><option>퀘스트 대화</option><option>보스 대사</option><option>시스템 메시지</option></select>
+      </div>
+      <div class="form-group"><div class="form-label">관련 캐릭터</div><input type="text" class="form-control" id="sci-chars" placeholder="주인공, 마왕..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('script')">취소</button>
+      <button class="btn btn-primary" onclick="saveScriptNew()">만들기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Milestone Modal -->
+<div class="modal-overlay" id="modal-milestone">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">마일스톤 추가</span><button class="modal-close" onclick="closeModal('milestone')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><div class="form-label">마일스톤명 *</div><input type="text" class="form-control" id="mi-name" placeholder="알파 버전 완성"></div>
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">목표일</div><input type="date" class="form-control" id="mi-date"></div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="mi-status"><option>예정</option><option>진행중</option><option>완료</option><option>지연</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">진행률 (%)</div><input type="number" class="form-control" id="mi-progress" value="0" min="0" max="100"></div>
+        <div class="form-group"><div class="form-label">담당자</div><input type="text" class="form-control" id="mi-owner" placeholder="홍길동"></div>
+      </div>
+      <div class="form-group"><div class="form-label">상세 내용</div><textarea class="form-control" id="mi-desc" placeholder="마일스톤 목표 및 작업 내용..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('milestone')">취소</button>
+      <button class="btn btn-primary" onclick="saveMilestone()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bug Modal -->
+<div class="modal-overlay" id="modal-bug">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">버그 추가</span><button class="modal-close" onclick="closeModal('bug')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><div class="form-label">제목 *</div><input type="text" class="form-control" id="bi-name" placeholder="보스 HP가 음수가 됨"></div>
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">심각도</div>
+          <select class="form-control" id="bi-severity"><option>치명적</option><option>높음</option><option>보통</option><option>낮음</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="bi-status"><option>미확인</option><option>확인됨</option><option>수정중</option><option>해결됨</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">담당자</div><input type="text" class="form-control" id="bi-owner" placeholder="홍길동"></div>
+        <div class="form-group"><div class="form-label">발생 위치</div><input type="text" class="form-control" id="bi-location" placeholder="보스 전투 씬"></div>
+      </div>
+      <div class="form-group"><div class="form-label">재현 방법 / 설명</div><textarea class="form-control" id="bi-desc" placeholder="재현 방법, 예상 동작, 실제 동작..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('bug')">취소</button>
+      <button class="btn btn-primary" onclick="saveBug()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal-overlay" id="modal-feedback">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">피드백 추가</span><button class="modal-close" onclick="closeModal('feedback')">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">출처</div><input type="text" class="form-control" id="fbi-source" placeholder="팀원, 플레이테스터..."></div>
+        <div class="form-group"><div class="form-label">카테고리</div>
+          <select class="form-control" id="fbi-cat"><option>게임플레이</option><option>UI/UX</option><option>밸런스</option><option>스토리</option><option>그래픽</option><option>사운드</option><option>기타</option></select>
+        </div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">내용 *</div><textarea class="form-control" id="fbi-content" placeholder="피드백 내용..."></textarea></div>
+        <div class="form-group"><div class="form-label">우선순위</div>
+          <select class="form-control" id="fbi-priority"><option>높음</option><option>보통</option><option>낮음</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="fbi-status"><option>검토중</option><option>반영예정</option><option>반영완료</option><option>보류</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('feedback')">취소</button>
+      <button class="btn btn-primary" onclick="saveFeedback()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- TODO Modal -->
+<div class="modal-overlay" id="modal-todo">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header"><span class="modal-title">TODO 추가</span><button class="modal-close" onclick="closeModal('todo')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><div class="form-label">할 일 *</div><input type="text" class="form-control" id="toi-name" placeholder="보스 패턴 기획서 작성"></div>
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">우선순위</div>
+          <select class="form-control" id="toi-priority"><option>긴급</option><option>높음</option><option>보통</option><option>낮음</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">마감일</div><input type="date" class="form-control" id="toi-due"></div>
+        <div class="form-group"><div class="form-label">담당자</div><input type="text" class="form-control" id="toi-owner" placeholder="홍길동"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('todo')">취소</button>
+      <button class="btn btn-primary" onclick="saveTodo()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sound Modal -->
+<div class="modal-overlay" id="modal-sound">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title" id="modal-sound-title">사운드 추가</span><button class="modal-close" onclick="closeModal('sound')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="sound-mode" value="bgm">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">트랙명 *</div><input type="text" class="form-control" id="snd-name" placeholder="Main Theme"></div>
+        <div id="snd-mood-wrap" class="form-group"><div class="form-label">분위기</div>
+          <select class="form-control" id="snd-mood"><option>웅장</option><option>서정적</option><option>긴장감</option><option>슬픔</option><option>평화로운</option><option>액션</option><option>미스터리</option><option>기타</option></select>
+        </div>
+        <div id="snd-cat-wrap" class="form-group" style="display:none;"><div class="form-label">카테고리</div>
+          <select class="form-control" id="snd-cat"><option>전투</option><option>UI</option><option>환경</option><option>캐릭터</option><option>아이템</option><option>기타</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">길이</div><input type="text" class="form-control" id="snd-duration" placeholder="2:34"></div>
+        <div id="snd-loop-wrap" class="form-group"><div class="form-label">루프</div>
+          <select class="form-control" id="snd-loop"><option>루프</option><option>원샷</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="snd-status"><option>기획중</option><option>제작중</option><option>완료</option><option>외주</option></select>
+        </div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">사용 씬 / 트리거</div><input type="text" class="form-control" id="snd-scene" placeholder="던전 입장, 보스 전투 시작..."></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">메모</div><input type="text" class="form-control" id="snd-memo" placeholder="레퍼런스, 작곡가, 파일명..."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sound')">취소</button>
+      <button class="btn btn-primary" onclick="saveSound()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Art Modal -->
+<div class="modal-overlay" id="modal-art">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title" id="modal-art-title">에셋 추가</span><button class="modal-close" onclick="closeModal('art')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="art-mode" value="sprite">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">에셋명 *</div><input type="text" class="form-control" id="art-name" placeholder="player_idle"></div>
+        <div class="form-group"><div class="form-label">해상도</div><input type="text" class="form-control" id="art-res" placeholder="32x32 px"></div>
+        <div class="form-group"><div class="form-label">포맷</div>
+          <select class="form-control" id="art-format"><option>PNG</option><option>JPG</option><option>SVG</option><option>PSD</option><option>Aseprite</option><option>기타</option></select>
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="art-status"><option>기획중</option><option>스케치</option><option>제작중</option><option>완료</option><option>외주</option></select>
+        </div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">관련 캐릭터/씬</div><input type="text" class="form-control" id="art-ref" placeholder="주인공, 던전 1-1..."></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">메모</div><input type="text" class="form-control" id="art-memo" placeholder="애니메이션 프레임 수, 색상 팔레트..."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('art')">취소</button>
+      <button class="btn btn-primary" onclick="saveArt()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Playtest Modal -->
+<div class="modal-overlay" id="modal-playtest">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header"><span class="modal-title">플레이테스트 세션 추가</span><button class="modal-close" onclick="closeModal('playtest')">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">세션명 *</div><input type="text" class="form-control" id="pt-name" placeholder="알파 테스트 1회차"></div>
+        <div class="form-group"><div class="form-label">날짜</div><input type="date" class="form-control" id="pt-date"></div>
+        <div class="form-group"><div class="form-label">테스터 수</div><input type="number" class="form-control" id="pt-testers" value="1" min="1"></div>
+        <div class="form-group"><div class="form-label">완주율 (%)</div><input type="number" class="form-control" id="pt-completion" value="100" min="0" max="100"></div>
+        <div class="form-group"><div class="form-label">평균 플레이 시간</div><input type="text" class="form-control" id="pt-duration" placeholder="1시간 30분"></div>
+        <div class="form-group"><div class="form-label">전체 평점 (1-10)</div><input type="number" class="form-control" id="pt-rating" value="7" min="1" max="10"></div>
+      </div>
+      <div class="form-group"><div class="form-label">막힌 구간 / 주요 이슈</div><textarea class="form-control" id="pt-issues" placeholder="3-2 보스 난이도 너무 높음, 튜토리얼 설명 부족..."></textarea></div>
+      <div class="form-group"><div class="form-label">긍정적 피드백</div><textarea class="form-control" id="pt-positive" placeholder="전투 감각이 좋음, 스토리 몰입도 높음..."></textarea></div>
+      <div class="form-group"><div class="form-label">개선 제안</div><textarea class="form-control" id="pt-suggest" placeholder="조작 설명 추가, 체크포인트 간격 줄이기..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('playtest')">취소</button>
+      <button class="btn btn-primary" onclick="savePlaytest()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const state = {
+  chars: [], skills: [], items: [], quests: [], docs: [],
+  regions: [], factions: [], timelineEvents: [],
+  scripts: [], milestones: [], bugs: [], feedbacks: [], todos: [],
+  sounds: [], arts: [], playtests: [],
+  activity: [], memo: '', projName: '', projGenre: '',
+  activeDoc: null, activeScript: null
+};
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem('horyeong') || '{}');
+    Object.assign(state, s);
+  } catch(e) {}
+  renderAll();
+}
+
+function save() {
+  localStorage.setItem('horyeong', JSON.stringify(state));
+}
+
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+const pageMap = {
+  dashboard: {title:'DASHBOARD', crumb:'프로젝트 개요'},
+  characters: {title:'CHARACTERS', crumb:'캐릭터 데이터베이스'},
+  skills: {title:'SKILLS', crumb:'스킬 데이터베이스'},
+  items: {title:'ITEMS', crumb:'아이템 데이터베이스'},
+  quests: {title:'QUESTS', crumb:'퀘스트 구조'},
+  docs: {title:'DOCUMENTS', crumb:'기획 문서'},
+  balance: {title:'BALANCE', crumb:'수치 밸런스'},
+  world: {title:'WORLD', crumb:'세계관 설정'},
+  script: {title:'SCRIPT', crumb:'대화·컷신 스크립트'},
+  schedule: {title:'SCHEDULE', crumb:'마일스톤·개발 일정'},
+  tracker: {title:'TRACKER', crumb:'버그·피드백·TODO'},
+  sound: {title:'SOUND', crumb:'사운드 에셋 관리'},
+  art: {title:'ART', crumb:'아트 에셋 관리'},
+  revenue: {title:'REVENUE', crumb:'수익화 설계'},
+  playtest: {title:'PLAYTEST', crumb:'플레이테스트 기록'},
+};
+
+let currentPage = 'dashboard';
+
+function goPage(id, el, mobileId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const mEl = document.getElementById('mnav-'+(mobileId||id));
+  if(mEl) mEl.classList.add('active');
+  // also sync sidebar highlight without el
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const oc = n.getAttribute('onclick')||'';
+    if(oc.includes("'"+id+"'")) n.classList.add('active');
+  });
+  currentPage = id;
+  const m = pageMap[id];
+  document.getElementById('topbar-title').textContent = m.title;
+  document.getElementById('topbar-crumb').textContent = m.crumb;
+}
+
+function handleAdd() {
+  const map = {
+    characters:'char', skills:'skill', items:'item', quests:'quest',
+    docs:'doc', balance:null, dashboard:null,
+    world:null, script:'script', schedule:'milestone', tracker:null,
+    revenue:null, playtest:'playtest'
+  };
+  if(currentPage==='world'){
+    const a=document.querySelector('.world-panel:not([style*="none"])');
+    if(a?.id==='world-regions'){openModal('region');return;}
+    if(a?.id==='world-factions'){openModal('faction');return;}
+    if(a?.id==='world-timeline'){openModal('timeline');return;}
+    return;
+  }
+  if(currentPage==='tracker'){
+    const a=document.querySelector('.tracker-panel:not([style*="none"])');
+    if(a?.id==='tracker-bugs'){openModal('bug');return;}
+    if(a?.id==='tracker-feedback'){openModal('feedback');return;}
+    if(a?.id==='tracker-todos'){openModal('todo');return;}
+    return;
+  }
+  if(currentPage==='sound'){
+    const a=document.querySelector('.sound-panel:not([style*="none"])');
+    openModal('sound', a?.id==='sound-sfx'?'sfx':'bgm'); return;
+  }
+  if(currentPage==='art'){
+    const a=document.querySelector('.art-panel:not([style*="none"])');
+    const m={'art-sprites':'sprite','art-bg':'bg','art-ui':'ui'};
+    openModal('art', m[a?.id]||'sprite'); return;
+  }
+  const type=map[currentPage];
+  if(type) openModal(type);
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openModal(type, subtype) {
+  const el = document.getElementById('modal-'+type);
+  if(!el) return;
+  // configure sound modal
+  if(type==='sound' && subtype) {
+    document.getElementById('sound-mode').value = subtype;
+    const isBgm = subtype==='bgm';
+    document.getElementById('modal-sound-title').textContent = isBgm ? 'BGM 추가' : 'SFX 추가';
+    document.getElementById('snd-mood-wrap').style.display = isBgm ? '' : 'none';
+    document.getElementById('snd-cat-wrap').style.display = isBgm ? 'none' : '';
+    document.getElementById('snd-loop-wrap').style.display = isBgm ? '' : 'none';
+  }
+  // configure art modal
+  if(type==='art' && subtype) {
+    document.getElementById('art-mode').value = subtype;
+    const labels = {sprite:'스프라이트 추가', bg:'배경 에셋 추가', ui:'UI 에셋 추가'};
+    document.getElementById('modal-art-title').textContent = labels[subtype]||'에셋 추가';
+  }
+  el.classList.add('open');
+}
+function closeModal(type) {
+  document.getElementById('modal-'+type).classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// ACTIVITY LOG
+// ═══════════════════════════════════════
+function addActivity(text, color='var(--accent)') {
+  const now = new Date();
+  const time = now.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+  state.activity.unshift({text, color, time});
+  if(state.activity.length > 20) state.activity.pop();
+  renderActivity();
+}
+
+function renderActivity() {
+  const el = document.getElementById('activity-list');
+  if(!state.activity.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🌑</div><div class="empty-title">아직 활동 없음</div><div class="empty-desc">캐릭터, 아이템, 퀘스트를 추가해보세요</div></div>`;
+    return;
+  }
+  el.innerHTML = state.activity.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div class="flex-center" style="width:100%;">
+        <div class="activity-text">${a.text}</div>
+        <div class="activity-time ml-auto">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════
+function renderAll() {
+  renderStats();
+  renderChars(); renderSkills(); renderItems(); renderQuests(); renderDocs();
+  renderRegions(); renderFactions(); renderTimeline();
+  renderScripts(); renderMilestones(); renderScheduleStats();
+  renderBugs(); renderFeedback(); renderTodos();
+  renderSounds(); renderArts(); renderPlaytests(); renderPlaytestStats();
+  renderActivity(); updateBadges();
+  if(state.memo) document.getElementById('quick-memo').value = state.memo;
+  if(state.projName) document.getElementById('proj-name').value = state.projName;
+  if(state.projGenre) document.getElementById('proj-genre').value = state.projGenre;
+  calcStatCurve(); calcCombat(); calcEconomy(); calcRevenue();
+}
+
+function renderStats() {
+  document.getElementById('stat-chars').textContent = state.chars.length;
+  document.getElementById('stat-skills').textContent = state.skills.length;
+  document.getElementById('stat-items').textContent = state.items.length;
+  document.getElementById('stat-quests').textContent = state.quests.length;
+}
+
+function updateBadges() {
+  const counts = {
+    chars: state.chars.length, skills: state.skills.length, items: state.items.length,
+    quests: state.quests.length, docs: state.docs.length,
+    world: state.regions.length + state.factions.length + state.timelineEvents.length,
+    script: state.scripts.length,
+    schedule: state.milestones.length,
+    tracker: state.bugs.filter(b=>b.status!=='해결됨').length + state.todos.filter(t=>!t.done).length,
+    sound: state.sounds.length,
+    art: state.arts.length,
+    playtest: state.playtests.length,
+  };
+  for(const [key, val] of Object.entries(counts)) {
+    const d = document.getElementById('badge-'+key);
+    if(d) d.textContent = val;
+    const m = document.getElementById('mbadge-'+key);
+    if(m) { m.textContent = val; m.style.display = val > 0 ? 'flex' : 'none'; }
+  }
+}
+
+// ═══════════════════════════════════════
+// CHARACTERS
+// ═══════════════════════════════════════
+const typeTagMap = {
+  '플레이어':'tag-cyan', 'NPC':'tag-gray', '파티원':'tag-green',
+  '보스':'tag-red', '일반 몬스터':'tag-yellow'
+};
+const statusTagMap = {
+  '기획중':'tag-yellow', '작성완료':'tag-cyan', '검토중':'tag-purple', '확정':'tag-green'
+};
+
+function saveChar() {
+  const name = document.getElementById('ci-name').value.trim();
+  if(!name) { alert('이름을 입력하세요'); return; }
+  const c = {
+    id: Date.now(), name,
+    role: document.getElementById('ci-role').value,
+    type: document.getElementById('ci-type').value,
+    status: document.getElementById('ci-status').value,
+    hp: +document.getElementById('ci-hp').value,
+    mp: +document.getElementById('ci-mp').value,
+    atk: +document.getElementById('ci-atk').value,
+    def: +document.getElementById('ci-def').value,
+    passive: document.getElementById('ci-passive').value,
+    desc: document.getElementById('ci-desc').value,
+  };
+  state.chars.push(c);
+  addActivity(`캐릭터 <b>${name}</b> 추가됨`, 'var(--accent3)');
+  save(); renderChars(); renderStats(); updateBadges();
+  closeModal('char');
+  ['ci-name','ci-role','ci-passive','ci-desc'].forEach(id => document.getElementById(id).value='');
+}
+
+function renderChars() {
+  const tb = document.getElementById('chars-table');
+  if(!state.chars.length) {
+    tb.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">👻</div><div class="empty-title">캐릭터 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = state.chars.map(c => `
+    <tr>
+      <td><div class="char-avatar">${c.type==='보스'?'👹':c.type==='플레이어'?'🧑':c.type==='NPC'?'🗣️':c.type==='파티원'?'🤝':'⚔️'}</div></td>
+      <td><b>${c.name}</b>${c.passive?`<div class="text-sm text-dim">${c.passive}</div>`:''}</td>
+      <td>${c.role||'-'}</td>
+      <td class="mono">${c.hp}</td>
+      <td class="mono">${c.mp}</td>
+      <td class="mono">${c.atk}</td>
+      <td class="mono">${c.def}</td>
+      <td><span class="tag ${typeTagMap[c.type]||'tag-gray'}">${c.type}</span></td>
+      <td><span class="tag ${statusTagMap[c.status]||'tag-gray'}">${c.status}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteChar(${c.id})">삭제</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteChar(id) {
+  const c = state.chars.find(x=>x.id===id);
+  if(!c || !confirm(`"${c.name}" 삭제?`)) return;
+  state.chars = state.chars.filter(x=>x.id!==id);
+  addActivity(`캐릭터 <b>${c.name}</b> 삭제됨`, 'var(--danger)');
+  save(); renderChars(); renderStats(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// SKILLS
+// ═══════════════════════════════════════
+const skillTypeMap = {'액티브':'tag-orange','패시브':'tag-gray','궁극기':'tag-red','버프':'tag-green','디버프':'tag-yellow','힐':'tag-cyan'};
+
+function saveSkill() {
+  const name = document.getElementById('si-name').value.trim();
+  if(!name) { alert('스킬명을 입력하세요'); return; }
+  const s = {
+    id: Date.now(), name,
+    type: document.getElementById('si-type').value,
+    dmg: +document.getElementById('si-dmg').value,
+    mp: +document.getElementById('si-mp').value,
+    cd: +document.getElementById('si-cd').value,
+    range: document.getElementById('si-range').value,
+    target: document.getElementById('si-target').value,
+    element: document.getElementById('si-element').value,
+    desc: document.getElementById('si-desc').value,
+  };
+  state.skills.push(s);
+  addActivity(`스킬 <b>${name}</b> 추가됨`, 'var(--warning)');
+  save(); renderSkills(); renderStats(); updateBadges();
+  closeModal('skill');
+  ['si-name','si-range','si-desc'].forEach(id => document.getElementById(id).value='');
+}
+
+function renderSkills() {
+  const tb = document.getElementById('skills-table');
+  if(!state.skills.length) {
+    tb.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">✨</div><div class="empty-title">스킬 없음</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = state.skills.map(s => `
+    <tr>
+      <td><b>${s.name}</b></td>
+      <td><span class="tag ${skillTypeMap[s.type]||'tag-gray'}">${s.type}</span></td>
+      <td class="mono">${s.type==='패시브'?'-':s.dmg+'%'}</td>
+      <td class="mono">${s.type==='패시브'?'-':s.mp}</td>
+      <td class="mono">${s.cd}s</td>
+      <td>${s.range||'-'}</td>
+      <td>${s.target}</td>
+      <td class="text-dim" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.desc||'-'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id})">삭제</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteSkill(id) {
+  const s = state.skills.find(x=>x.id===id);
+  if(!s||!confirm(`"${s.name}" 삭제?`)) return;
+  state.skills = state.skills.filter(x=>x.id!==id);
+  save(); renderSkills(); renderStats(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// ITEMS
+// ═══════════════════════════════════════
+const gradeMap = {'일반':'tag-gray','고급':'tag-green','희귀':'tag-cyan','영웅':'tag-purple','전설':'tag-orange'};
+
+function saveItem() {
+  const name = document.getElementById('ii-name').value.trim();
+  if(!name) { alert('아이템명을 입력하세요'); return; }
+  const i = {
+    id: Date.now(), name,
+    cat: document.getElementById('ii-cat').value,
+    grade: document.getElementById('ii-grade').value,
+    price: +document.getElementById('ii-price').value,
+    effect: document.getElementById('ii-effect').value,
+    source: document.getElementById('ii-source').value,
+    desc: document.getElementById('ii-desc').value,
+  };
+  state.items.push(i);
+  addActivity(`아이템 <b>${name}</b> 추가됨`, 'var(--success)');
+  save(); renderItems(); renderStats(); updateBadges();
+  closeModal('item');
+  ['ii-name','ii-effect','ii-source','ii-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderItems() {
+  const tb = document.getElementById('items-table');
+  if(!state.items.length) {
+    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">💎</div><div class="empty-title">아이템 없음</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = state.items.map(i => `
+    <tr>
+      <td><b>${i.name}</b></td>
+      <td>${i.cat}</td>
+      <td><span class="tag ${gradeMap[i.grade]||'tag-gray'}">${i.grade}</span></td>
+      <td class="text-dim">${i.effect||'-'}</td>
+      <td class="mono">${i.price.toLocaleString()}G</td>
+      <td>${i.source||'-'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteItem(${i.id})">삭제</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteItem(id) {
+  const i = state.items.find(x=>x.id===id);
+  if(!i||!confirm(`"${i.name}" 삭제?`)) return;
+  state.items = state.items.filter(x=>x.id!==id);
+  save(); renderItems(); renderStats(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// QUESTS
+// ═══════════════════════════════════════
+function saveQuest() {
+  const name = document.getElementById('qi-name').value.trim();
+  if(!name) { alert('퀘스트명을 입력하세요'); return; }
+  const q = {
+    id: Date.now(), name,
+    type: document.getElementById('qi-type').value,
+    lv: +document.getElementById('qi-lv').value,
+    status: document.getElementById('qi-status').value,
+    reward: document.getElementById('qi-reward').value,
+    desc: document.getElementById('qi-desc').value,
+  };
+  state.quests.push(q);
+  addActivity(`퀘스트 <b>${name}</b> 추가됨`, 'var(--accent2)');
+  save(); renderQuests(); renderStats(); updateBadges();
+  closeModal('quest');
+  ['qi-name','qi-reward','qi-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderQuests() {
+  const el = document.getElementById('quests-list');
+  if(!state.quests.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📜</div><div class="empty-title">퀘스트 없음</div></div>`;
+  } else {
+    const typeOrder = {'메인':0,'서브':1,'사이드':2,'숨겨진':3};
+    const sorted = [...state.quests].sort((a,b)=>typeOrder[a.type]-typeOrder[b.type]);
+    el.innerHTML = sorted.map(q => {
+      const cls = q.type==='메인'?'main-quest':q.type==='서브'?'sub-quest':'side-quest';
+      const icon = q.type==='메인'?'⚔️':q.type==='서브'?'📌':q.type==='숨겨진'?'🔍':'💬';
+      return `<div class="quest-item ${cls}">
+        <div class="flex-center gap-8">
+          <span>${icon}</span>
+          <span class="quest-name">${q.name}</span>
+          <span class="ml-auto"><span class="tag ${statusTagMap[q.status]||'tag-gray'}">${q.status}</span></span>
+          <button class="btn btn-danger btn-sm" onclick="deleteQuest(${q.id})">삭제</button>
+        </div>
+        <div class="quest-meta">Lv.${q.lv} · ${q.type} ${q.reward?'· 보상: '+q.reward:''}</div>
+        ${q.desc?`<div class="text-sm text-dim mt-8">${q.desc}</div>`:''}
+      </div>`;
+    }).join('');
+  }
+  // update stats
+  const main = state.quests.filter(q=>q.type==='메인').length;
+  const sub = state.quests.filter(q=>q.type==='서브').length;
+  const side = state.quests.filter(q=>q.type==='사이드'||q.type==='숨겨진').length;
+  const total = main+sub+side || 1;
+  document.getElementById('cnt-main').textContent = main;
+  document.getElementById('cnt-sub').textContent = sub;
+  document.getElementById('cnt-side').textContent = side;
+  document.getElementById('prog-main').style.width = (main/total*100)+'%';
+  document.getElementById('prog-sub').style.width = (sub/total*100)+'%';
+  document.getElementById('prog-side').style.width = (side/total*100)+'%';
+}
+
+function deleteQuest(id) {
+  const q = state.quests.find(x=>x.id===id);
+  if(!q||!confirm(`"${q.name}" 삭제?`)) return;
+  state.quests = state.quests.filter(x=>x.id!==id);
+  save(); renderQuests(); renderStats(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// DOCS
+// ═══════════════════════════════════════
+function saveDocNew() {
+  const name = document.getElementById('di-name').value.trim();
+  if(!name) { alert('문서 제목을 입력하세요'); return; }
+  const d = {
+    id: Date.now(), name,
+    cat: document.getElementById('di-cat').value,
+    content: '',
+    updated: new Date().toLocaleDateString('ko-KR')
+  };
+  state.docs.push(d);
+  addActivity(`문서 <b>${name}</b> 생성됨`, 'var(--accent)');
+  save(); renderDocs(); updateBadges();
+  closeModal('doc');
+  document.getElementById('di-name').value = '';
+  openDoc(d.id);
+}
+
+function renderDocs() {
+  const el = document.getElementById('docs-list');
+  if(!state.docs.length) {
+    el.innerHTML = `<div class="empty" style="padding:24px 12px;"><div class="empty-icon">📁</div><div class="empty-title">문서 없음</div></div>`;
+    return;
+  }
+  el.innerHTML = state.docs.map(d => `
+    <div onclick="openDoc(${d.id})" style="padding:10px 12px;cursor:pointer;border:1px solid var(--border);border-radius:4px;margin-bottom:6px;background:var(--surface2);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:13px;font-weight:600;">${d.name}</div>
+      <div class="text-sm text-dim">${d.cat} · ${d.updated}</div>
+    </div>
+  `).join('');
+}
+
+function openDoc(id) {
+  const d = state.docs.find(x=>x.id===id);
+  if(!d) return;
+  state.activeDoc = id;
+  document.getElementById('doc-title-display').textContent = d.name;
+  document.getElementById('btn-save-doc').style.display = '';
+  document.getElementById('doc-editor-wrap').querySelector('.card-body').innerHTML = `
+    <div style="margin-bottom:8px;" class="flex-center gap-8">
+      <span class="tag tag-gray">${d.cat}</span>
+      <span class="text-sm text-dim">${d.updated} 수정</span>
+      <button class="btn btn-danger btn-sm ml-auto" onclick="deleteDoc(${d.id})">삭제</button>
+    </div>
+    <textarea class="form-control" id="doc-content" style="min-height:420px;font-size:13px;line-height:1.7;" placeholder="여기에 기획 내용을 작성하세요...">${d.content||''}</textarea>
+  `;
+}
+
+function saveDoc() {
+  if(!state.activeDoc) return;
+  const d = state.docs.find(x=>x.id===state.activeDoc);
+  if(!d) return;
+  d.content = document.getElementById('doc-content').value;
+  d.updated = new Date().toLocaleDateString('ko-KR');
+  save();
+  alert('저장되었습니다.');
+}
+
+function deleteDoc(id) {
+  const d = state.docs.find(x=>x.id===id);
+  if(!d||!confirm(`"${d.name}" 삭제?`)) return;
+  state.docs = state.docs.filter(x=>x.id!==id);
+  state.activeDoc = null;
+  document.getElementById('doc-title-display').textContent = '문서를 선택하세요';
+  document.getElementById('btn-save-doc').style.display = 'none';
+  document.getElementById('doc-editor-wrap').querySelector('.card-body').innerHTML = `<div class="empty"><div class="empty-icon">📝</div><div class="empty-title">문서 없음</div></div>`;
+  save(); renderDocs(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// MEMO / PROJ INFO
+// ═══════════════════════════════════════
+function saveMemo() {
+  state.memo = document.getElementById('quick-memo').value;
+  save();
+}
+function saveProjInfo() {
+  state.projName = document.getElementById('proj-name').value;
+  state.projGenre = document.getElementById('proj-genre').value;
+  save();
+}
+
+// ═══════════════════════════════════════
+// BALANCE — STAT CURVE
+// ═══════════════════════════════════════
+function calcStatCurve() {
+  const baseHP = +document.getElementById('base-hp')?.value||100;
+  const hpG = +document.getElementById('hp-growth')?.value/100||0.15;
+  const baseATK = +document.getElementById('base-atk')?.value||20;
+  const atkG = +document.getElementById('atk-growth')?.value/100||0.10;
+  const maxLv = Math.min(+document.getElementById('max-lv')?.value||50, 200);
+  const type = document.getElementById('growth-type')?.value||'exp';
+  const el = document.getElementById('stat-preview');
+  if(!el) return;
+
+  const calc = (base, rate, lv, t) => {
+    if(t==='linear') return Math.round(base + base*rate*(lv-1));
+    if(t==='exp') return Math.round(base * Math.pow(1+rate, lv-1));
+    if(t==='log') return Math.round(base + base*rate*Math.log(lv));
+    return base;
+  };
+
+  const preview = [];
+  const steps = maxLv <= 20 ? 1 : maxLv <= 50 ? 5 : 10;
+  for(let lv=1; lv<=maxLv; lv+=steps) {
+    preview.push({lv, hp: calc(baseHP,hpG,lv,type), atk: calc(baseATK,atkG,lv,type)});
+  }
+  if(preview[preview.length-1].lv !== maxLv)
+    preview.push({lv:maxLv, hp:calc(baseHP,hpG,maxLv,type), atk:calc(baseATK,atkG,maxLv,type)});
+
+  el.innerHTML = `<table style="width:100%;">
+    <thead><tr><th>레벨</th><th>HP</th><th>ATK</th></tr></thead>
+    <tbody>${preview.map(p=>`<tr><td class="mono">Lv.${p.lv}</td><td class="mono">${p.hp.toLocaleString()}</td><td class="mono">${p.atk.toLocaleString()}</td></tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ═══════════════════════════════════════
+// BALANCE — COMBAT
+// ═══════════════════════════════════════
+function calcCombat() {
+  const atk = +document.getElementById('c-atk').value||0;
+  const coef = +document.getElementById('c-coef').value/100||1;
+  const critRate = +document.getElementById('c-crit-rate').value/100||0;
+  const critDmg = +document.getElementById('c-crit-dmg').value/100||2;
+  const def = +document.getElementById('c-def').value||0;
+  const hp = +document.getElementById('c-hp').value||1;
+
+  const baseDmg = Math.max(1, atk * coef - def * 0.5);
+  const critDmgAmt = Math.max(1, atk * coef * critDmg - def * 0.5);
+  const avgDmg = baseDmg * (1-critRate) + critDmgAmt * critRate;
+  const hitsToKill = Math.ceil(hp / avgDmg);
+  const ttk = (hitsToKill * 2).toFixed(1);
+
+  const combatResult = document.getElementById('combat-result');
+  if(!combatResult) return;
+  combatResult.innerHTML = `
+    <div class="calc-row"><span>일반 데미지</span><span class="mono text-accent">${Math.round(baseDmg).toLocaleString()}</span></div>
+    <div class="calc-row"><span>크리티컬 데미지</span><span class="mono" style="color:var(--danger)">${Math.round(critDmgAmt).toLocaleString()}</span></div>
+    <div class="calc-row"><span>평균 기대 데미지</span><span class="mono">${Math.round(avgDmg).toLocaleString()}</span></div>
+    <div class="calc-row"><span>처치에 필요한 타수</span><span class="mono">${hitsToKill}타</span></div>
+    <div class="calc-row calc-total"><span>예상 처치 시간</span><span>${ttk}초</span></div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// BALANCE — ECONOMY
+// ═══════════════════════════════════════
+function calcEconomy() {
+  const daily = +document.getElementById('eco-daily').value||0;
+  const sell = +document.getElementById('eco-sell').value||0;
+  const consume = +document.getElementById('eco-consume').value||0;
+  const upgrade = +document.getElementById('eco-upgrade').value||0;
+  const days = +document.getElementById('eco-days').value||1;
+
+  const income = (daily + sell) * days;
+  const expense = consume * days + upgrade;
+  const balance = income - expense;
+  const ratio = income ? (expense/income*100).toFixed(1) : 0;
+
+  const ecoResult = document.getElementById('eco-result');
+  if(!ecoResult) return;
+  ecoResult.innerHTML = `
+    <div class="calc-row"><span>총 수입 (${days}일)</span><span class="mono" style="color:var(--success)">${income.toLocaleString()}G</span></div>
+    <div class="calc-row"><span>총 지출 (${days}일)</span><span class="mono" style="color:var(--danger)">${expense.toLocaleString()}G</span></div>
+    <div class="calc-row"><span>지출 비율</span><span class="mono">${ratio}%</span></div>
+    <div class="calc-row calc-total"><span>최종 잔액</span><span style="color:${balance>=0?'var(--success)':'var(--danger)'}">${balance>=0?'+':''}${balance.toLocaleString()}G</span></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text-dim);">
+      ${balance < 0 ? '⚠️ 지출이 수입을 초과합니다. 수익 구조를 재검토하세요.' :
+        ratio > 80 ? '⚠️ 지출 비율이 높습니다. 여유 자금 확보를 권장합니다.' :
+        '✅ 밸런스가 양호합니다.'}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// BALANCE TABS
+// ═══════════════════════════════════════
+function switchBalanceTab(id, el) {
+  document.querySelectorAll('.bal-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('bal-'+id).style.display='';
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════
+function exportData() {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `horyeong-${Date.now()}.json`;
+  a.click();
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if(e.target === el) el.classList.remove('open');
+  });
+});
+
+// ═══════════════════════════════════════
+// WORLD — TAB SWITCH
+// ═══════════════════════════════════════
+function switchWorldTab(id, el) {
+  document.querySelectorAll('.world-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.tab').forEach(t=>{ if(t.closest('#page-world')) t.classList.remove('active'); });
+  document.getElementById('world-'+id).style.display='';
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// WORLD — REGIONS
+// ═══════════════════════════════════════
+const regionTypeIcon = {던전:'⚔️',마을:'🏘️',필드:'🌿',보스존:'💀',도시:'🏰',특수:'✨'};
+
+function saveRegion() {
+  const name = document.getElementById('ri-name').value.trim();
+  if(!name) { alert('지역명을 입력하세요'); return; }
+  state.regions.push({ id:Date.now(), name,
+    type: document.getElementById('ri-type').value,
+    lv: document.getElementById('ri-lv').value,
+    faction: document.getElementById('ri-faction').value,
+    desc: document.getElementById('ri-desc').value,
+  });
+  addActivity(`지역 <b>${name}</b> 추가됨`, 'var(--success)');
+  save(); renderRegions(); updateBadges(); closeModal('region');
+  ['ri-name','ri-lv','ri-faction','ri-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderRegions() {
+  const el = document.getElementById('regions-grid');
+  if(!state.regions.length) {
+    el.innerHTML=`<div class="empty" style="grid-column:span 3;"><div class="empty-icon">🗺️</div><div class="empty-title">지역 없음</div></div>`; return;
+  }
+  el.innerHTML = state.regions.map(r=>`
+    <div class="card" style="position:relative;">
+      <div style="padding:14px 14px 10px;">
+        <div style="font-size:22px;margin-bottom:6px;">${regionTypeIcon[r.type]||'📍'}</div>
+        <div style="font-weight:700;font-size:13px;">${r.name}</div>
+        <div style="margin:4px 0;"><span class="tag tag-gray">${r.type}</span>${r.lv?` <span class="tag tag-cyan">${r.lv}</span>`:''}</div>
+        ${r.faction?`<div class="text-sm text-dim">세력: ${r.faction}</div>`:''}
+        ${r.desc?`<div class="text-sm text-dim" style="margin-top:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${r.desc}</div>`:''}
+      </div>
+      <div style="padding:6px 14px 10px;"><button class="btn btn-danger btn-sm" onclick="deleteRegion(${r.id})">삭제</button></div>
+    </div>
+  `).join('');
+}
+
+function deleteRegion(id) {
+  state.regions = state.regions.filter(x=>x.id!==id);
+  save(); renderRegions(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// WORLD — FACTIONS
+// ═══════════════════════════════════════
+const alignMap = {'선':'tag-cyan','중립':'tag-gray','악':'tag-red','혼돈':'tag-yellow'};
+const alignIcon = {'선':'🕊️','중립':'⚖️','악':'💀','혼돈':'🌀'};
+
+function saveFaction() {
+  const name = document.getElementById('fi-name').value.trim();
+  if(!name) { alert('세력명을 입력하세요'); return; }
+  state.factions.push({ id:Date.now(), name,
+    align: document.getElementById('fi-align').value,
+    size: document.getElementById('fi-size').value,
+    base: document.getElementById('fi-base').value,
+    desc: document.getElementById('fi-desc').value,
+  });
+  addActivity(`세력 <b>${name}</b> 추가됨`, 'var(--accent2)');
+  save(); renderFactions(); updateBadges(); closeModal('faction');
+  ['fi-name','fi-base','fi-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderFactions() {
+  const el = document.getElementById('factions-grid');
+  if(!state.factions.length) {
+    el.innerHTML=`<div class="empty" style="grid-column:span 3;"><div class="empty-icon">⚔️</div><div class="empty-title">세력 없음</div></div>`; return;
+  }
+  el.innerHTML = state.factions.map(f=>`
+    <div class="card">
+      <div style="padding:14px 14px 10px;">
+        <div style="font-size:22px;margin-bottom:6px;">${alignIcon[f.align]||'⚔️'}</div>
+        <div style="font-weight:700;font-size:13px;">${f.name}</div>
+        <div style="margin:4px 0;"><span class="tag ${alignMap[f.align]||'tag-gray'}">${f.align}</span> <span class="tag tag-gray">${f.size}</span></div>
+        ${f.base?`<div class="text-sm text-dim">거점: ${f.base}</div>`:''}
+        ${f.desc?`<div class="text-sm text-dim" style="margin-top:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${f.desc}</div>`:''}
+      </div>
+      <div style="padding:6px 14px 10px;"><button class="btn btn-danger btn-sm" onclick="deleteFaction(${f.id})">삭제</button></div>
+    </div>
+  `).join('');
+}
+function deleteFaction(id) { state.factions=state.factions.filter(x=>x.id!==id); save(); renderFactions(); updateBadges(); }
+
+// ═══════════════════════════════════════
+// WORLD — TIMELINE
+// ═══════════════════════════════════════
+const importanceMap = {'대사건':'tag-orange','중요':'tag-purple','일반':'tag-gray'};
+
+function saveTimeline() {
+  const name = document.getElementById('ti-name').value.trim();
+  const year = document.getElementById('ti-year').value.trim();
+  if(!name||!year) { alert('연도와 사건명을 입력하세요'); return; }
+  state.timelineEvents.push({ id:Date.now(), year, name,
+    importance: document.getElementById('ti-importance').value,
+    desc: document.getElementById('ti-desc').value,
+  });
+  state.timelineEvents.sort((a,b)=>a.year.localeCompare(b.year));
+  addActivity(`연표 사건 <b>${name}</b> 추가됨`, 'var(--warning)');
+  save(); renderTimeline(); updateBadges(); closeModal('timeline');
+  ['ti-year','ti-name','ti-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderTimeline() {
+  const el = document.getElementById('timeline-list');
+  if(!state.timelineEvents.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">사건 없음</div></div>`; return;
+  }
+  el.innerHTML = state.timelineEvents.map(t=>`
+    <div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;">
+      <div style="flex-shrink:0;text-align:right;min-width:100px;">
+        <div class="mono" style="font-size:11px;color:var(--accent);font-weight:700;">${t.year}</div>
+      </div>
+      <div style="width:2px;background:var(--border);flex-shrink:0;margin-top:4px;"></div>
+      <div class="card" style="flex:1;padding:10px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-weight:700;font-size:13px;">${t.name}</span>
+          <span class="tag ${importanceMap[t.importance]||'tag-gray'}">${t.importance}</span>
+          <button class="btn btn-danger btn-sm ml-auto" onclick="deleteTimeline(${t.id})">삭제</button>
+        </div>
+        ${t.desc?`<div class="text-sm text-dim">${t.desc}</div>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+function deleteTimeline(id) { state.timelineEvents=state.timelineEvents.filter(x=>x.id!==id); save(); renderTimeline(); updateBadges(); }
+
+// ═══════════════════════════════════════
+// SCRIPT
+// ═══════════════════════════════════════
+function saveScriptNew() {
+  const name = document.getElementById('sci-name').value.trim();
+  if(!name) { alert('제목을 입력하세요'); return; }
+  const s = { id:Date.now(), name,
+    type: document.getElementById('sci-type').value,
+    chars: document.getElementById('sci-chars').value,
+    content: '', updated: new Date().toLocaleDateString('ko-KR')
+  };
+  state.scripts.push(s);
+  addActivity(`스크립트 <b>${name}</b> 생성됨`, 'var(--accent3)');
+  save(); renderScripts(); updateBadges(); closeModal('script');
+  ['sci-name','sci-chars'].forEach(id=>document.getElementById(id).value='');
+  openScriptDoc(s.id);
+}
+
+function renderScripts() {
+  const el = document.getElementById('scripts-list');
+  if(!state.scripts.length) {
+    el.innerHTML=`<div class="empty" style="padding:24px 12px;"><div class="empty-icon">💬</div><div class="empty-title">스크립트 없음</div></div>`; return;
+  }
+  const typeIcon={'컷신':'🎬','NPC 대화':'💬','퀘스트 대화':'📜','보스 대사':'👹','시스템 메시지':'⚙️'};
+  el.innerHTML = state.scripts.map(s=>`
+    <div onclick="openScriptDoc(${s.id})" style="padding:10px 12px;cursor:pointer;border:1px solid var(--border);border-radius:4px;margin-bottom:6px;background:var(--surface2);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:13px;font-weight:600;">${typeIcon[s.type]||'💬'} ${s.name}</div>
+      <div class="text-sm text-dim">${s.type}${s.chars?' · '+s.chars:''}</div>
+    </div>
+  `).join('');
+}
+
+function openScriptDoc(id) {
+  const s = state.scripts.find(x=>x.id===id);
+  if(!s) return;
+  state.activeScript = id;
+  document.getElementById('script-title-display').textContent = s.name;
+  document.getElementById('btn-save-script').style.display='';
+  document.getElementById('script-editor-body').innerHTML=`
+    <div class="flex-center gap-8" style="margin-bottom:10px;">
+      <span class="tag tag-gray">${s.type}</span>
+      ${s.chars?`<span class="text-sm text-dim">${s.chars}</span>`:''}
+      <button class="btn btn-danger btn-sm ml-auto" onclick="deleteScript(${s.id})">삭제</button>
+    </div>
+    <div class="notice notice-info" style="margin-bottom:10px;">💡 형식 예: [캐릭터명] 대사 내용 / (지문) 행동 묘사</div>
+    <textarea class="form-control" id="script-content" style="min-height:360px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;" placeholder="[주인공] 이게... 운명인가.\n(잠시 침묵)\n[마왕] 어리석은 자여, 이제 모든 것이 끝났다.">${s.content||''}</textarea>
+  `;
+}
+
+function saveScript() {
+  if(!state.activeScript) return;
+  const s = state.scripts.find(x=>x.id===state.activeScript);
+  if(!s) return;
+  s.content = document.getElementById('script-content').value;
+  s.updated = new Date().toLocaleDateString('ko-KR');
+  save(); alert('저장됐습니다.');
+}
+
+function deleteScript(id) {
+  if(!confirm('삭제하시겠어요?')) return;
+  state.scripts = state.scripts.filter(x=>x.id!==id);
+  state.activeScript = null;
+  document.getElementById('script-title-display').textContent='스크립트를 선택하세요';
+  document.getElementById('btn-save-script').style.display='none';
+  document.getElementById('script-editor-body').innerHTML=`<div class="empty"><div class="empty-icon">🎬</div><div class="empty-title">스크립트 없음</div></div>`;
+  save(); renderScripts(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// SCHEDULE / MILESTONES
+// ═══════════════════════════════════════
+const mStatusMap = {'예정':'tag-gray','진행중':'tag-cyan','완료':'tag-green','지연':'tag-red'};
+
+function saveMilestone() {
+  const name = document.getElementById('mi-name').value.trim();
+  if(!name) { alert('마일스톤명을 입력하세요'); return; }
+  state.milestones.push({ id:Date.now(), name,
+    date: document.getElementById('mi-date').value,
+    status: document.getElementById('mi-status').value,
+    progress: +document.getElementById('mi-progress').value||0,
+    owner: document.getElementById('mi-owner').value,
+    desc: document.getElementById('mi-desc').value,
+  });
+  addActivity(`마일스톤 <b>${name}</b> 추가됨`, 'var(--accent)');
+  save(); renderMilestones(); renderScheduleStats(); updateBadges(); closeModal('milestone');
+  ['mi-name','mi-date','mi-owner','mi-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mi-progress').value=0;
+}
+
+function renderMilestones() {
+  const el = document.getElementById('milestones-list');
+  if(!state.milestones.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">마일스톤 없음</div></div>`; return;
+  }
+  el.innerHTML = state.milestones.map(m=>`
+    <div class="card" style="margin-bottom:10px;padding:14px 16px;">
+      <div class="flex-center gap-8" style="margin-bottom:8px;">
+        <span style="font-weight:700;font-size:14px;">${m.name}</span>
+        <span class="tag ${mStatusMap[m.status]||'tag-gray'}">${m.status}</span>
+        <span class="ml-auto text-sm text-dim">${m.date||'날짜 미정'}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteMilestone(${m.id})">삭제</button>
+      </div>
+      <div class="flex-center gap-8" style="margin-bottom:4px;">
+        <span class="text-sm text-dim" style="width:36px;">${m.progress}%</span>
+        <div class="progress-bar" style="flex:1;height:6px;"><div class="progress-fill" style="width:${m.progress}%;background:${m.status==='완료'?'var(--success)':m.status==='지연'?'var(--danger)':'var(--accent)'};"></div></div>
+      </div>
+      ${m.owner?`<div class="text-sm text-dim">담당: ${m.owner}</div>`:''}
+      ${m.desc?`<div class="text-sm text-dim" style="margin-top:4px;">${m.desc}</div>`:''}
+    </div>
+  `).join('');
+}
+
+function renderScheduleStats() {
+  const el = document.getElementById('schedule-stats');
+  const total = state.milestones.length;
+  if(!total) { el.innerHTML=`<div class="text-sm text-dim" style="text-align:center;padding:12px 0;">마일스톤을 추가하세요</div>`; return; }
+  const done = state.milestones.filter(m=>m.status==='완료').length;
+  const inprog = state.milestones.filter(m=>m.status==='진행중').length;
+  const delayed = state.milestones.filter(m=>m.status==='지연').length;
+  const avgProg = Math.round(state.milestones.reduce((s,m)=>s+m.progress,0)/total);
+  el.innerHTML=`
+    <div class="calc-row"><span>전체 마일스톤</span><span class="mono">${total}</span></div>
+    <div class="calc-row"><span>완료</span><span style="color:var(--success)">${done}</span></div>
+    <div class="calc-row"><span>진행중</span><span style="color:var(--accent3)">${inprog}</span></div>
+    <div class="calc-row"><span>지연</span><span style="color:var(--danger)">${delayed}</span></div>
+    <div class="calc-row calc-total"><span>평균 진행률</span><span>${avgProg}%</span></div>
+    <div class="progress-bar" style="margin-top:10px;height:6px;"><div class="progress-fill" style="width:${avgProg}%;"></div></div>
+  `;
+}
+
+function deleteMilestone(id) {
+  state.milestones=state.milestones.filter(x=>x.id!==id);
+  save(); renderMilestones(); renderScheduleStats(); updateBadges();
+}
+
+// ═══════════════════════════════════════
+// TRACKER — TAB SWITCH
+// ═══════════════════════════════════════
+function switchTrackerTab(id, el) {
+  document.querySelectorAll('.tracker-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('#page-tracker .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tracker-'+id).style.display='';
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// TRACKER — BUGS
+// ═══════════════════════════════════════
+const sevMap={'치명적':'tag-red','높음':'tag-orange','보통':'tag-yellow','낮음':'tag-gray'};
+const bugStatusMap={'미확인':'tag-gray','확인됨':'tag-cyan','수정중':'tag-purple','해결됨':'tag-green'};
+
+function saveBug() {
+  const name=document.getElementById('bi-name').value.trim();
+  if(!name){alert('제목을 입력하세요');return;}
+  state.bugs.push({id:Date.now(),name,
+    severity:document.getElementById('bi-severity').value,
+    status:document.getElementById('bi-status').value,
+    owner:document.getElementById('bi-owner').value,
+    location:document.getElementById('bi-location').value,
+    desc:document.getElementById('bi-desc').value,
+  });
+  addActivity(`버그 <b>${name}</b> 등록됨`,'var(--danger)');
+  save();renderBugs();updateBadges();closeModal('bug');
+  ['bi-name','bi-owner','bi-location','bi-desc'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderBugs() {
+  const tb=document.getElementById('bugs-table');
+  if(!state.bugs.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">🐛</div><div class="empty-title">버그 없음</div></div></td></tr>`;return;}
+  tb.innerHTML=state.bugs.map((b,i)=>`
+    <tr>
+      <td class="mono text-dim">#${i+1}</td>
+      <td><b>${b.name}</b>${b.location?`<div class="text-sm text-dim">${b.location}</div>`:''}</td>
+      <td><span class="tag ${sevMap[b.severity]||'tag-gray'}">${b.severity}</span></td>
+      <td><span class="tag ${bugStatusMap[b.status]||'tag-gray'}">${b.status}</span></td>
+      <td>${b.owner||'-'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteBug(${b.id})">삭제</button></td>
+    </tr>
+  `).join('');
+}
+function deleteBug(id){state.bugs=state.bugs.filter(x=>x.id!==id);save();renderBugs();updateBadges();}
+
+// ═══════════════════════════════════════
+// TRACKER — FEEDBACK
+// ═══════════════════════════════════════
+const fbStatusMap={'검토중':'tag-gray','반영예정':'tag-cyan','반영완료':'tag-green','보류':'tag-yellow'};
+const fbPriMap={'높음':'tag-red','보통':'tag-yellow','낮음':'tag-gray'};
+
+function saveFeedback() {
+  const content=document.getElementById('fbi-content').value.trim();
+  if(!content){alert('내용을 입력하세요');return;}
+  state.feedbacks.push({id:Date.now(),content,
+    source:document.getElementById('fbi-source').value,
+    cat:document.getElementById('fbi-cat').value,
+    priority:document.getElementById('fbi-priority').value,
+    status:document.getElementById('fbi-status').value,
+  });
+  addActivity('피드백 등록됨','var(--accent2)');
+  save();renderFeedback();updateBadges();closeModal('feedback');
+  ['fbi-source','fbi-content'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderFeedback() {
+  const tb=document.getElementById('feedback-table');
+  if(!state.feedbacks.length){tb.innerHTML=`<tr><td colspan="5"><div class="empty"><div class="empty-icon">💡</div><div class="empty-title">피드백 없음</div></div></td></tr>`;return;}
+  tb.innerHTML=state.feedbacks.map(f=>`
+    <tr>
+      <td style="max-width:240px;">${f.content}</td>
+      <td class="text-dim">${f.source||'-'}</td>
+      <td><span class="tag tag-gray">${f.cat}</span></td>
+      <td><span class="tag ${fbStatusMap[f.status]||'tag-gray'}">${f.status}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteFeedback(${f.id})">삭제</button></td>
+    </tr>
+  `).join('');
+}
+function deleteFeedback(id){state.feedbacks=state.feedbacks.filter(x=>x.id!==id);save();renderFeedback();updateBadges();}
+
+// ═══════════════════════════════════════
+// TRACKER — TODO
+// ═══════════════════════════════════════
+const todoPriMap={'긴급':'tag-red','높음':'tag-orange','보통':'tag-yellow','낮음':'tag-gray'};
+
+function saveTodo() {
+  const name=document.getElementById('toi-name').value.trim();
+  if(!name){alert('할 일을 입력하세요');return;}
+  state.todos.push({id:Date.now(),name,done:false,
+    priority:document.getElementById('toi-priority').value,
+    due:document.getElementById('toi-due').value,
+    owner:document.getElementById('toi-owner').value,
+  });
+  addActivity(`TODO <b>${name}</b> 추가됨`,'var(--text-dim)');
+  save();renderTodos();updateBadges();closeModal('todo');
+  ['toi-name','toi-due','toi-owner'].forEach(id=>document.getElementById(id).value='');
+}
+
+function toggleTodo(id) {
+  const t=state.todos.find(x=>x.id===id);
+  if(t) { t.done=!t.done; save(); renderTodos(); updateBadges(); }
+}
+
+function renderTodos() {
+  const el=document.getElementById('todos-list');
+  if(!state.todos.length){el.innerHTML=`<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">TODO 없음</div></div>`;return;}
+  const open=state.todos.filter(t=>!t.done);
+  const done=state.todos.filter(t=>t.done);
+  const renderItem=t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;${t.done?'opacity:0.5;':''}" >
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${t.id})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);">
+      <span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:var(--text-dim);':''}">${t.name}</span>
+      <span class="tag ${todoPriMap[t.priority]||'tag-gray'}">${t.priority}</span>
+      ${t.due?`<span class="mono text-sm text-dim">${t.due}</span>`:''}
+      ${t.owner?`<span class="text-sm text-dim">${t.owner}</span>`:''}
+      <button class="btn btn-danger btn-sm" onclick="deleteTodo(${t.id})">삭제</button>
+    </div>
+  `;
+  el.innerHTML=(open.length?open.map(renderItem).join(''):'')+(done.length?`<div class="text-sm text-dim" style="margin:10px 0 6px;">완료됨 (${done.length})</div>`+done.map(renderItem).join(''):'');
+}
+function deleteTodo(id){state.todos=state.todos.filter(x=>x.id!==id);save();renderTodos();updateBadges();}
+
+
+// ═══════════════════════════════════════
+// SOUND
+// ═══════════════════════════════════════
+const sndStatusMap={'기획중':'tag-yellow','제작중':'tag-cyan','완료':'tag-green','외주':'tag-purple'};
+const moodTagMap={'웅장':'tag-orange','서정적':'tag-cyan','긴장감':'tag-red','슬픔':'tag-purple','평화로운':'tag-green','액션':'tag-orange','미스터리':'tag-purple','기타':'tag-gray'};
+
+function switchSoundTab(id, el) {
+  document.querySelectorAll('.sound-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('#page-sound .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sound-'+id).style.display=''; el.classList.add('active');
+}
+
+function saveSound() {
+  const name=document.getElementById('snd-name').value.trim();
+  if(!name){alert('트랙명을 입력하세요');return;}
+  const mode=document.getElementById('sound-mode').value;
+  state.sounds.push({id:Date.now(), name, mode,
+    mood: mode==='bgm'?document.getElementById('snd-mood').value:'',
+    cat: mode==='sfx'?document.getElementById('snd-cat').value:'',
+    duration:document.getElementById('snd-duration').value,
+    loop: mode==='bgm'?document.getElementById('snd-loop').value:'',
+    status:document.getElementById('snd-status').value,
+    scene:document.getElementById('snd-scene').value,
+    memo:document.getElementById('snd-memo').value,
+  });
+  addActivity(`사운드 <b>${name}</b> 추가됨`,'var(--accent2)');
+  save(); renderSounds(); updateBadges(); closeModal('sound');
+  ['snd-name','snd-duration','snd-scene','snd-memo'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderSounds() {
+  const bgm=state.sounds.filter(s=>s.mode==='bgm');
+  const sfx=state.sounds.filter(s=>s.mode==='sfx');
+  const renderBgm=arr=>{
+    const tb=document.getElementById('bgm-table');
+    if(!tb) return;
+    if(!arr.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="empty-icon">🎶</div><div class="empty-title">BGM 없음</div></div></td></tr>`;return;}
+    tb.innerHTML=arr.map(s=>`<tr>
+      <td><b>${s.name}</b>${s.memo?`<div class="text-sm text-dim">${s.memo}</div>`:''}</td>
+      <td><span class="tag ${moodTagMap[s.mood]||'tag-gray'}">${s.mood}</span></td>
+      <td class="text-dim">${s.scene||'-'}</td>
+      <td>${s.loop||'-'}</td>
+      <td class="mono">${s.duration||'-'}</td>
+      <td><span class="tag ${sndStatusMap[s.status]||'tag-gray'}">${s.status}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteSound(${s.id})">삭제</button></td>
+    </tr>`).join('');
+  };
+  const renderSfx=arr=>{
+    const tb=document.getElementById('sfx-table');
+    if(!tb) return;
+    if(!arr.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">💥</div><div class="empty-title">SFX 없음</div></div></td></tr>`;return;}
+    tb.innerHTML=arr.map(s=>`<tr>
+      <td><b>${s.name}</b></td>
+      <td><span class="tag tag-gray">${s.cat||'-'}</span></td>
+      <td class="text-dim">${s.scene||'-'}</td>
+      <td class="mono">${s.duration||'-'}</td>
+      <td><span class="tag ${sndStatusMap[s.status]||'tag-gray'}">${s.status}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteSound(${s.id})">삭제</button></td>
+    </tr>`).join('');
+  };
+  renderBgm(bgm); renderSfx(sfx);
+}
+function deleteSound(id){state.sounds=state.sounds.filter(x=>x.id!==id);save();renderSounds();updateBadges();}
+
+// ═══════════════════════════════════════
+// ART ASSETS
+// ═══════════════════════════════════════
+const artStatusMap={'기획중':'tag-yellow','스케치':'tag-gray','제작중':'tag-cyan','완료':'tag-green','외주':'tag-purple'};
+const artModeIcon={sprite:'🧍',bg:'🖼️',ui:'🖥️'};
+
+function switchArtTab(id, el) {
+  document.querySelectorAll('.art-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('#page-art .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('art-'+id).style.display=''; el.classList.add('active');
+}
+
+function saveArt() {
+  const name=document.getElementById('art-name').value.trim();
+  if(!name){alert('에셋명을 입력하세요');return;}
+  const mode=document.getElementById('art-mode').value;
+  state.arts.push({id:Date.now(), name, mode,
+    res:document.getElementById('art-res').value,
+    format:document.getElementById('art-format').value,
+    status:document.getElementById('art-status').value,
+    ref:document.getElementById('art-ref').value,
+    memo:document.getElementById('art-memo').value,
+  });
+  addActivity(`아트 에셋 <b>${name}</b> 추가됨`,'var(--accent3)');
+  save(); renderArts(); updateBadges(); closeModal('art');
+  ['art-name','art-res','art-ref','art-memo'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderArts() {
+  const groups={sprite:'sprites-grid', bg:'bg-grid', ui:'ui-grid'};
+  for(const [mode, gridId] of Object.entries(groups)) {
+    const el=document.getElementById(gridId);
+    if(!el) continue;
+    const items=state.arts.filter(a=>a.mode===mode);
+    const labels={sprite:'스프라이트',bg:'배경',ui:'UI 에셋'};
+    if(!items.length){
+      el.innerHTML=`<div class="empty" style="grid-column:span 4"><div class="empty-icon">${artModeIcon[mode]}</div><div class="empty-title">${labels[mode]} 없음</div></div>`;
+      continue;
+    }
+    el.innerHTML=items.map(a=>`
+      <div class="card" style="padding:12px;">
+        <div style="font-size:24px;margin-bottom:6px;">${artModeIcon[a.mode]}</div>
+        <div style="font-weight:700;font-size:12px;word-break:break-all;">${a.name}</div>
+        <div style="margin:4px 0;display:flex;flex-wrap:wrap;gap:3px;">
+          <span class="tag tag-gray">${a.format}</span>
+          <span class="tag ${artStatusMap[a.status]||'tag-gray'}">${a.status}</span>
+        </div>
+        ${a.res?`<div class="text-sm text-dim">${a.res}</div>`:''}
+        ${a.ref?`<div class="text-sm text-dim">${a.ref}</div>`:''}
+        <button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;" onclick="deleteArt(${a.id})">삭제</button>
+      </div>
+    `).join('');
+  }
+}
+function deleteArt(id){state.arts=state.arts.filter(x=>x.id!==id);save();renderArts();updateBadges();}
+
+// ═══════════════════════════════════════
+// REVENUE
+// ═══════════════════════════════════════
+function calcRevenue() {
+  const price=+document.getElementById('rev-price')?.value||0;
+  const discount=+document.getElementById('rev-discount')?.value||0;
+  const steamFee=+document.getElementById('rev-steam-fee')?.value/100||0.3;
+  const steamSales=+document.getElementById('rev-steam-sales')?.value||0;
+  const itchFee=+document.getElementById('rev-itch-fee')?.value/100||0.1;
+  const itchSales=+document.getElementById('rev-itch-sales')?.value||0;
+  const cost=+document.getElementById('rev-cost')?.value||0;
+  const tax=+document.getElementById('rev-tax')?.value/100||0.25;
+  const dlcPrice=+document.getElementById('rev-dlc-price')?.value||0;
+  const dlcSales=+document.getElementById('rev-dlc-sales')?.value||0;
+
+  const finalPrice=price*(1-discount/100);
+  const steamNet=finalPrice*(1-steamFee)*steamSales;
+  const itchNet=finalPrice*(1-itchFee)*itchSales;
+  const dlcNet=dlcPrice*(1-steamFee)*dlcSales;
+  const grossRevenue=steamNet+itchNet+dlcNet;
+  const afterTax=grossRevenue*(1-tax);
+  const netProfit=afterTax-cost;
+  const roi=cost>0?(netProfit/cost*100).toFixed(1):0;
+
+  const fmt=n=>'$'+Math.round(n).toLocaleString();
+  const revResult = document.getElementById('rev-result');
+  if(revResult) revResult.innerHTML=`
+    <div class="calc-row"><span>할인 적용 가격</span><span class="mono">${fmt(finalPrice)}</span></div>
+    <div class="calc-row"><span>Steam 순수익</span><span class="mono">${fmt(steamNet)}</span></div>
+    <div class="calc-row"><span>itch.io 순수익</span><span class="mono">${fmt(itchNet)}</span></div>
+    <div class="calc-row"><span>DLC 순수익</span><span class="mono">${fmt(dlcNet)}</span></div>
+    <div class="calc-row"><span>세전 총수익</span><span class="mono">${fmt(grossRevenue)}</span></div>
+    <div class="calc-row"><span>세후 수익</span><span class="mono">${fmt(afterTax)}</span></div>
+    <div class="calc-row calc-total"><span>순이익 (비용 제외)</span><span style="color:${netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(netProfit)}</span></div>
+    <div class="calc-row" style="margin-top:4px;"><span>투자수익률(ROI)</span><span class="mono" style="color:${netProfit>=0?'var(--success)':'var(--danger)'}">${roi}%</span></div>
+  `;
+  // BEP
+  const netPerUnit=finalPrice*(1-steamFee)*(1-tax);
+  const bepUnits=netPerUnit>0?Math.ceil(cost/netPerUnit):0;
+  const revBep = document.getElementById('rev-bep');
+  if(revBep) revBep.innerHTML=`
+    <div class="calc-row"><span>Steam 단위당 순수익</span><span class="mono">${fmt(netPerUnit)}</span></div>
+    <div class="calc-row calc-total"><span>손익분기 판매량</span><span>${bepUnits.toLocaleString()}장</span></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text-dim);">${steamSales>=bepUnits?'✅ 목표 판매량이 BEP 초과':'⚠️ 목표 판매량이 BEP 미달 — 판매량 또는 가격을 높이세요'}</div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// PLAYTEST
+// ═══════════════════════════════════════
+function savePlaytest() {
+  const name=document.getElementById('pt-name').value.trim();
+  if(!name){alert('세션명을 입력하세요');return;}
+  state.playtests.push({id:Date.now(), name,
+    date:document.getElementById('pt-date').value,
+    testers:+document.getElementById('pt-testers').value||1,
+    completion:+document.getElementById('pt-completion').value||100,
+    duration:document.getElementById('pt-duration').value,
+    rating:+document.getElementById('pt-rating').value||7,
+    issues:document.getElementById('pt-issues').value,
+    positive:document.getElementById('pt-positive').value,
+    suggest:document.getElementById('pt-suggest').value,
+  });
+  addActivity(`플레이테스트 <b>${name}</b> 기록됨`,'var(--success)');
+  save(); renderPlaytests(); renderPlaytestStats(); updateBadges(); closeModal('playtest');
+  ['pt-name','pt-date','pt-duration','pt-issues','pt-positive','pt-suggest'].forEach(id=>document.getElementById(id).value='');
+}
+
+function renderPlaytests() {
+  const el=document.getElementById('playtest-list');
+  if(!el) return;
+  if(!state.playtests.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🎮</div><div class="empty-title">세션 없음</div></div>`;return;}
+  el.innerHTML=[...state.playtests].reverse().map(p=>`
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header">
+        <span class="card-title">🎮 ${p.name}</span>
+        <span class="ml-auto mono text-dim text-sm">${p.date||''}</span>
+        <button class="btn btn-danger btn-sm" style="margin-left:8px;" onclick="deletePlaytest(${p.id})">삭제</button>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+          <div style="text-align:center;">
+            <div class="stat-label">테스터</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent3);">${p.testers}명</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="stat-label">완주율</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${p.completion>=80?'var(--success)':p.completion>=50?'var(--warning)':'var(--danger)'};">${p.completion}%</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="stat-label">평점</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${p.rating>=8?'var(--success)':p.rating>=5?'var(--warning)':'var(--danger)'};">${p.rating}/10</div>
+          </div>
+          ${p.duration?`<div style="text-align:center;"><div class="stat-label">플레이 시간</div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;padding-top:4px;">${p.duration}</div></div>`:''}
+        </div>
+        ${p.issues?`<div style="margin-bottom:8px;"><div class="form-label" style="color:var(--danger);margin-bottom:4px;">⚠️ 이슈 / 막힌 구간</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">${p.issues}</div></div>`:''}
+        ${p.positive?`<div style="margin-bottom:8px;"><div class="form-label" style="color:var(--success);margin-bottom:4px;">✅ 긍정적 피드백</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">${p.positive}</div></div>`:''}
+        ${p.suggest?`<div><div class="form-label" style="color:var(--accent3);margin-bottom:4px;">💡 개선 제안</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">${p.suggest}</div></div>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPlaytestStats() {
+  const el=document.getElementById('playtest-stats');
+  if(!el) return;
+  if(!state.playtests.length){el.innerHTML=`<div class="text-sm text-dim" style="text-align:center;padding:12px 0;">세션을 추가하세요</div>`;return;}
+  const total=state.playtests.length;
+  const totalTesters=state.playtests.reduce((s,p)=>s+p.testers,0);
+  const avgCompletion=Math.round(state.playtests.reduce((s,p)=>s+p.completion,0)/total);
+  const avgRating=(state.playtests.reduce((s,p)=>s+p.rating,0)/total).toFixed(1);
+  el.innerHTML=`
+    <div class="calc-row"><span>총 세션 수</span><span class="mono">${total}</span></div>
+    <div class="calc-row"><span>총 테스터 수</span><span class="mono">${totalTesters}명</span></div>
+    <div class="calc-row"><span>평균 완주율</span><span style="color:${avgCompletion>=80?'var(--success)':avgCompletion>=50?'var(--warning)':'var(--danger)'};">${avgCompletion}%</span></div>
+    <div class="calc-row calc-total"><span>평균 평점</span><span style="color:${avgRating>=8?'var(--success)':avgRating>=5?'var(--warning)':'var(--danger)'}">${avgRating} / 10</span></div>
+    <div class="progress-bar" style="margin-top:10px;height:6px;"><div class="progress-fill" style="width:${avgCompletion}%;"></div></div>
+  `;
+}
+function deletePlaytest(id){state.playtests=state.playtests.filter(x=>x.id!==id);save();renderPlaytests();renderPlaytestStats();updateBadges();}
+
+// ═══════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-icon').textContent = isLight ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = isLight ? '라이트' : '다크';
+  localStorage.setItem('horyeong-theme', isLight ? 'light' : 'dark');
+}
+
+function applyTheme() {
+  const saved = localStorage.getItem('horyeong-theme');
+  if(saved === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-icon').textContent = '☀️';
+    document.getElementById('theme-label').textContent = '라이트';
+  }
+}
+
+// ── Init ──
+load();
+applyTheme();
+
+// ── Service Worker 등록 ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      // 새 SW 대기 중이면 업데이트 토스트 표시
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateToast(newWorker);
+          }
+        });
+      });
+    }).catch(err => console.warn('[SW] 등록 실패:', err));
+
+    // SW 활성화 후 페이지 자동 새로고침
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) { refreshing = true; location.reload(); }
+    });
+  });
+}
+
+// ── 오프라인 감지 ──
+function updateOnlineStatus() {
+  const badge = document.getElementById('offline-badge');
+  if (!badge) return;
+  badge.style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+function showUpdateToast(worker) {
+  if (!toast) return;
+  toast.style.transform = 'translateY(0)';
+  document.getElementById('sw-update-btn').onclick = () => {
+    worker.postMessage('skipWaiting');
+    toast.style.transform = '';
+  };
+  document.getElementById('sw-dismiss-btn').onclick = () => {
+    toast.style.transform = '';
+  };
+}
+</script>
+</body>
+</html>
