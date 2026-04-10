@@ -592,8 +592,8 @@
   /* ── Mobile: full override ── */
   @media (max-width: 600px) {
     .sidebar { display: none; }
-    .mobile-nav { display: block; }
-    .mobile-add-btn { display: flex; }
+    .mobile-nav.visible { display: block; }
+    .mobile-add-btn.visible { display: flex; }
 
     .app { flex-direction: column; height: 100dvh; }
 
@@ -605,9 +605,10 @@
     }
     .topbar-sep, .topbar-crumb { display: none; }
     .topbar-title { font-size: 18px; }
-    /* hide desktop add/export from topbar on mobile, keep theme toggle */
+    /* hide desktop add/export from topbar on mobile, keep theme toggle + home btn */
     .topbar .btn { display: none; }
     .topbar .theme-toggle { display: flex; }
+    .topbar .btn-home { display: inline-flex; }
 
     .content {
       padding: 12px;
@@ -667,7 +668,37 @@
     #page-script .row > div:first-child { flex:none; }
     #page-schedule .row > div:last-child { flex:none; }
     #page-world .grid-3 { display:flex; flex-direction:column; }
+
+    /* dashboard mobile: single column, natural order */
+    #dash-layout {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "proj"
+        "memo"
+        "devlog"
+        "summary"
+        "activity";
+    }
   }
+
+  /* ── Dashboard grid layout ── */
+  #dash-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "devlog proj"
+      "devlog memo"
+      "devlog summary"
+      "devlog activity";
+    gap: 12px;
+    align-items: start;
+  }
+  #dash-devlog  { grid-area: devlog; }
+  #dash-proj    { grid-area: proj; }
+  #dash-memo    { grid-area: memo; }
+  #dash-summary { grid-area: summary; }
+  #dash-activity{ grid-area: activity; }
 
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -707,16 +738,246 @@
     font-size: 20px;
     flex-shrink: 0;
   }
+
+  /* ══════════════════════════════════════
+     HOME SCREEN
+  ══════════════════════════════════════ */
+  #home-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--bg);
+  }
+
+  .home-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .home-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .home-logo span {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .home-body {
+    flex: 1;
+    padding: 36px 40px;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .home-section-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .project-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow);
+  }
+  .project-card:hover::before { opacity: 1; }
+
+  .project-card-new {
+    border-style: dashed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 140px;
+    color: var(--text-dim);
+    transition: border-color 0.15s, color 0.15s, transform 0.15s;
+  }
+  .project-card-new:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .project-card-new .new-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+  .project-card-new .new-label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .project-emoji {
+    font-size: 32px;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+  .project-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .project-genre {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .project-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .project-stat {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .project-stat b { color: var(--text); }
+  .project-date {
+    font-size: 10px;
+    color: var(--text-dimmer);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 12px;
+  }
+  .project-actions {
+    position: absolute;
+    top: 10px; right: 10px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .project-card:hover .project-actions { opacity: 1; }
+  .project-action-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 7px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.1s;
+  }
+  .project-action-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+  /* ── New Project Modal ── */
+  #modal-new-project .modal { max-width: 420px; }
+
+  /* ── Home mobile ── */
+  @media (max-width: 600px) {
+    .home-header { padding: 16px 16px 14px; }
+    .home-body { padding: 20px 16px; }
+    .projects-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  }
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ══════════════════════════════════════
+     HOME SCREEN
+══════════════════════════════════════ -->
+<div id="home-screen">
+  <div class="home-header">
+    <div class="home-logo">HORYEONG PLANNER<span>게임 기획 관리 시스템</span></div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="라이트/다크 전환">
+      <span class="theme-icon" id="theme-icon-home">🌙</span>
+      <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
+      <span id="theme-label-home">다크</span>
+    </button>
+  </div>
+  <div class="home-body">
+    <div class="home-section-title">프로젝트 목록</div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </div>
+</div>
+
+<!-- ── New Project Modal ── -->
+<div class="modal-overlay" id="modal-new-project">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">새 프로젝트</span>
+      <button class="modal-close" onclick="closeNewProjectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label">프로젝트 이름 *</div>
+        <input type="text" class="form-control" id="np-name" placeholder="나의 인디게임" maxlength="30">
+      </div>
+      <div class="form-group">
+        <div class="form-label">장르</div>
+        <select class="form-control" id="np-genre">
+          <option value="">선택 안함</option>
+          <option>RPG</option><option>전략</option><option>액션</option>
+          <option>캐주얼</option><option>어드벤처</option><option>시뮬레이션</option>
+          <option>공포</option><option>퍼즐</option><option>기타</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <div class="form-label">아이콘</div>
+        <div id="emoji-picker" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeNewProjectModal()">취소</button>
+      <button class="btn btn-primary" onclick="createProject()">만들기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SCREEN (기존 앱)
+══════════════════════════════════════ -->
+<div class="app" id="app-screen" style="display:none;">
 
   <!-- ── Sidebar ── -->
   <aside class="sidebar">
-    <div class="logo">
+    <div class="logo" style="cursor:pointer;" onclick="goHome()" title="홈으로">
       <div class="logo-title">HORYEONG<br>PLANNER</div>
-      <div class="logo-sub">게임 기획 관리 시스템</div>
+      <div class="logo-sub" id="sidebar-proj-name">게임 기획 관리 시스템</div>
     </div>
     <nav class="nav">
       <div class="nav-section">개요</div>
@@ -753,6 +1014,14 @@
         <span class="icon">💬</span> 스크립트
         <span class="nav-badge" id="badge-script">0</span>
       </div>
+      <div class="nav-item" onclick="goPage('puzzles', this)">
+        <span class="icon">🧩</span> 퍼즐
+        <span class="nav-badge" id="badge-puzzles">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('scenes', this)">
+        <span class="icon">🚪</span> 씬/맵
+        <span class="nav-badge" id="badge-scenes">0</span>
+      </div>
       <div class="nav-section" style="margin-top:8px;">관리</div>
       <div class="nav-item" onclick="goPage('schedule', this)">
         <span class="icon">📅</span> 일정
@@ -788,6 +1057,7 @@
 
     <!-- Topbar -->
     <div class="topbar">
+      <button class="btn btn-home btn-ghost btn-sm" onclick="goHome()" title="홈으로" style="font-size:16px;padding:6px 8px;">🏠</button>
       <span class="topbar-title" id="topbar-title">DASHBOARD</span>
       <span class="topbar-sep">/</span>
       <span class="topbar-crumb" id="topbar-crumb">프로젝트 개요</span>
@@ -805,49 +1075,29 @@
 
       <!-- ═══ DASHBOARD ═══ -->
       <div class="page active" id="page-dashboard">
-        <div class="grid grid-4 mb-12">
-          <div class="stat-card orange">
-            <div class="stat-label">캐릭터</div>
-            <div class="stat-value" id="stat-chars">0</div>
-            <div class="stat-sub">등록된 캐릭터 수</div>
-          </div>
-          <div class="stat-card purple">
-            <div class="stat-label">스킬</div>
-            <div class="stat-value" id="stat-skills">0</div>
-            <div class="stat-sub">등록된 스킬 수</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-label">아이템</div>
-            <div class="stat-value" id="stat-items">0</div>
-            <div class="stat-sub">등록된 아이템 수</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-label">퀘스트</div>
-            <div class="stat-value" id="stat-quests">0</div>
-            <div class="stat-sub">등록된 퀘스트 수</div>
-          </div>
-        </div>
+        <div id="dash-layout">
 
-        <div class="row">
-          <div class="card" style="flex:2;">
-            <div class="card-header">
-              <span class="card-title">📋 최근 활동</span>
-            </div>
-            <div class="card-body" id="activity-list">
-              <div class="empty">
-                <div class="empty-icon">🌑</div>
-                <div class="empty-title">아직 활동 없음</div>
-                <div class="empty-desc">캐릭터, 아이템, 퀘스트를 추가해보세요</div>
+          <!-- A: DEV LOG (데스크탑 좌, 모바일 3번째) -->
+          <div id="dash-devlog">
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-header">
+                <span class="card-title">📓 DEV LOG</span>
+                <span class="text-sm text-dim ml-auto" id="devlog-date-display" style="font-family:'JetBrains Mono',monospace;"></span>
+              </div>
+              <div class="card-body" style="padding-bottom:10px;">
+                <textarea class="form-control" id="devlog-input" rows="3"
+                  placeholder="오늘 작업한 내용, 아이디어, 막힌 부분..."
+                  style="resize:none;margin-bottom:8px;"></textarea>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button class="btn btn-primary btn-sm" onclick="saveDevLog()">기록</button>
+                </div>
               </div>
             </div>
+            <div id="devlog-list"></div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:16px;flex:1;">
-            <div class="card">
-              <div class="card-header"><span class="card-title">⚡ 빠른 메모</span></div>
-              <div class="card-body">
-                <textarea class="form-control" id="quick-memo" rows="5" placeholder="아이디어, 메모를 자유롭게 입력하세요..." oninput="saveMemo()"></textarea>
-              </div>
-            </div>
+
+          <!-- B: 프로젝트 정보 (데스크탑 우상단 1번, 모바일 1번째) -->
+          <div id="dash-proj">
             <div class="card">
               <div class="card-header"><span class="card-title">🎮 프로젝트 정보</span></div>
               <div class="card-body">
@@ -859,49 +1109,60 @@
                   <div class="form-label">장르</div>
                   <select class="form-control" id="proj-genre" onchange="saveProjInfo()">
                     <option value="">선택하세요</option>
-                    <option>RPG</option>
-                    <option>전략</option>
-                    <option>액션</option>
-                    <option>캐주얼</option>
-                    <option>어드벤처</option>
-                    <option>시뮬레이션</option>
+                    <option>RPG</option><option>전략</option><option>액션</option>
+                    <option>캐주얼</option><option>어드벤처</option><option>시뮬레이션</option>
                   </select>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- C: 빠른 메모 (데스크탑 우 2번, 모바일 2번째) -->
+          <div id="dash-memo">
+            <div class="card">
+              <div class="card-header"><span class="card-title">⚡ 빠른 메모</span></div>
+              <div class="card-body">
+                <textarea class="form-control" id="quick-memo" rows="4" placeholder="아이디어, 메모를 자유롭게 입력하세요..." oninput="saveMemo()"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- D: 데이터 현황 (데스크탑 우 3번, 모바일 4번째) -->
+          <div id="dash-summary">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 데이터 현황</span></div>
+              <div class="card-body" style="padding:10px 16px;">
+                <div id="dash-summary-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- E: 최근 활동 (데스크탑 우 4번, 모바일 5번째) -->
+          <div id="dash-activity">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📋 최근 활동</span></div>
+              <div class="card-body" id="activity-list">
+                <div class="empty">
+                  <div class="empty-icon">🌑</div>
+                  <div class="empty-title">아직 활동 없음</div>
+                  <div class="empty-desc">캐릭터, 아이템, 퀘스트를 추가해보세요</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <!-- ═══ CHARACTERS ═══ -->
       <div class="page" id="page-characters">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">👤 캐릭터 DB</span>
-            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('char')">+ 캐릭터 추가</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>이름</th>
-                  <th>직업/역할</th>
-                  <th>HP</th>
-                  <th>MP</th>
-                  <th>ATK</th>
-                  <th>DEF</th>
-                  <th>타입</th>
-                  <th>상태</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="chars-table">
-                <tr><td colspan="10"><div class="empty"><div class="empty-icon">👻</div><div class="empty-title">캐릭터 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
-              </tbody>
-            </table>
-          </div>
+        <!-- 카테고리 탭 -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="tabs" id="char-cat-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="openCharGroupModal()" style="white-space:nowrap;">⚙ 그룹 관리</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('char')" style="white-space:nowrap;">+ 캐릭터 추가</button>
         </div>
+        <div id="chars-groups"></div>
       </div>
 
       <!-- ═══ SKILLS ═══ -->
@@ -1020,6 +1281,29 @@
             </div>
           </div>
         </div>
+      </div>
+
+
+      <!-- ═══ PUZZLES ═══ -->
+      <div class="page" id="page-puzzles">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="tabs" id="puzzle-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;">
+            <div class="tab active" onclick="switchPuzzleTab('all',this)">전체</div>
+            <div class="tab" onclick="switchPuzzleTab('미해결',this)">미해결</div>
+            <div class="tab" onclick="switchPuzzleTab('해결됨',this)">해결됨</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('puzzle')">+ 퍼즐 추가</button>
+        </div>
+        <div id="puzzle-list"></div>
+      </div>
+
+      <!-- ═══ SCENES ═══ -->
+      <div class="page" id="page-scenes">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:700;">🚪 씬 / 맵 구조</span>
+          <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('scene')">+ 씬 추가</button>
+        </div>
+        <div id="scene-list"></div>
       </div>
 
       <!-- ═══ BALANCE ═══ -->
@@ -1534,7 +1818,7 @@
 </nav>
 
 <!-- ── Mobile FAB ── -->
-<button class="mobile-add-btn" onclick="handleAdd()" title="추가">＋</button>
+<button class="mobile-add-btn" id="mobile-fab" onclick="handleAdd()" title="추가">＋</button>
 
 <!-- ═══ MODALS ═══ -->
 
@@ -1546,9 +1830,41 @@
       <button class="modal-close" onclick="closeModal('char')">✕</button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="ci-edit-id" value="">
+      <!-- 이미지 업로드 -->
+      <div class="form-group" style="display:flex;gap:16px;align-items:flex-start;margin-bottom:18px;">
+        <div id="ci-img-preview" onclick="document.getElementById('ci-img-input').click()" style="
+          width:96px;height:96px;min-width:96px;border-radius:8px;
+          border:2px dashed var(--border);background:var(--surface2);
+          display:flex;align-items:center;justify-content:center;
+          cursor:pointer;overflow:hidden;position:relative;
+          transition:border-color 0.15s;flex-shrink:0;">
+          <span id="ci-img-placeholder" style="font-size:28px;">🧑</span>
+          <img id="ci-img-thumb" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;justify-content:center;">
+          <div class="form-label" style="margin-bottom:0;">캐릭터 이미지</div>
+          <input type="file" id="ci-img-input" accept="image/*" style="display:none;" onchange="handleCharImg(this)">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('ci-img-input').click()" style="width:fit-content;">📁 이미지 선택</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ci-img-clear" onclick="clearCharImg()" style="width:fit-content;display:none;color:var(--danger);">✕ 제거</button>
+          <div class="text-sm text-dim">JPG·PNG·WEBP 권장 · 최대 2MB</div>
+        </div>
+      </div>
       <div class="grid grid-2">
         <div class="form-group"><div class="form-label">이름 *</div><input type="text" class="form-control" id="ci-name" placeholder="캐릭터명"></div>
         <div class="form-group"><div class="form-label">직업/역할</div><input type="text" class="form-control" id="ci-role" placeholder="전사, 마법사, 보스..."></div>
+        <div class="form-group"><div class="form-label">카테고리</div>
+          <select class="form-control" id="ci-cat-sel" onchange="updateCiGroupSel()">
+            <option value="player">PLAYER</option>
+            <option value="npc">NPC</option>
+            <option value="enemy">ENEMY</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">그룹 (선택)</div>
+          <select class="form-control" id="ci-group-sel">
+            <option value="">— 없음 —</option>
+          </select>
+        </div>
         <div class="form-group"><div class="form-label">타입</div>
           <select class="form-control" id="ci-type">
             <option>플레이어</option><option>NPC</option><option>파티원</option><option>보스</option><option>일반 몬스터</option>
@@ -1565,11 +1881,130 @@
         <div class="form-group"><div class="form-label">DEF</div><input type="number" class="form-control" id="ci-def" value="10"></div>
       </div>
       <div class="form-group"><div class="form-label">특기/패시브</div><input type="text" class="form-control" id="ci-passive" placeholder="예: 물리 내성 20%, 화염 속성 공격"></div>
+      <div class="form-group">
+        <div class="form-label">역할 태그</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="char-tag-presets">
+          <!-- preset tag buttons rendered by JS -->
+        </div>
+        <input type="text" class="form-control" id="ci-tag-input" placeholder="직접 입력 후 Enter (예: 주인공, 히로인, 라이벌...)" style="margin-top:4px;">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="ci-tags-display"></div>
+      </div>
       <div class="form-group"><div class="form-label">설명/배경</div><textarea class="form-control" id="ci-desc" placeholder="캐릭터 배경, 성격, 역할 설명..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('char')">취소</button>
-      <button class="btn btn-primary" onclick="saveChar()">저장</button>
+      <button class="btn btn-primary" id="ci-save-btn" onclick="saveChar()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Char Group Manager Modal -->
+<div class="modal-overlay" id="modal-char-group">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙ 그룹 관리</span>
+      <button class="modal-close" onclick="closeModal('char-group')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs" style="margin-bottom:14px;">
+        <div class="tab active" id="cgtab-player" onclick="switchGroupMgrTab('player',this)">PLAYER</div>
+        <div class="tab" id="cgtab-npc"    onclick="switchGroupMgrTab('npc',this)">NPC</div>
+        <div class="tab" id="cgtab-enemy"  onclick="switchGroupMgrTab('enemy',this)">ENEMY</div>
+      </div>
+      <div id="char-group-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-group-name" placeholder="새 그룹 이름 (예: 항구 마을, 간부...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addCharGroup()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('char-group')">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- Puzzle Modal -->
+<div class="modal-overlay" id="modal-puzzle">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-puzzle-title">퍼즐 추가</span>
+      <button class="modal-close" onclick="closeModal('puzzle')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pz-edit-id">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">퍼즐명 *</div><input type="text" class="form-control" id="pz-name" placeholder="잠긴 금고"></div>
+        <div class="form-group"><div class="form-label">유형</div>
+          <select class="form-control" id="pz-type">
+            <option>자물쇠/암호</option><option>오브젝트 조작</option><option>순서/패턴</option>
+            <option>논리 추리</option><option>탐색/발견</option><option>미니게임</option><option>기타</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">난이도</div>
+          <select class="form-control" id="pz-difficulty">
+            <option>쉬움</option><option>보통</option><option>어려움</option><option>매우 어려움</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">위치 (씬)</div>
+          <input type="text" class="form-control" id="pz-scene" placeholder="지하실, 서재...">
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="pz-status">
+            <option>기획중</option><option>제작중</option><option>테스트중</option><option>완료</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">선행 퍼즐</div>
+          <input type="text" class="form-control" id="pz-prereq" placeholder="먼저 풀어야 하는 퍼즐명">
+        </div>
+      </div>
+      <div class="form-group"><div class="form-label">입력 조건 / 퍼즐 설명</div><textarea class="form-control" id="pz-condition" placeholder="플레이어가 무엇을 해야 하는지..."></textarea></div>
+      <div class="form-group"><div class="form-label">정답 / 해결 방법</div><textarea class="form-control" id="pz-answer" placeholder="정답 또는 해결 조건..."></textarea></div>
+      <div class="form-group"><div class="form-label">힌트 1단계</div><input type="text" class="form-control" id="pz-hint1" placeholder="가장 약한 힌트"></div>
+      <div class="form-group"><div class="form-label">힌트 2단계</div><input type="text" class="form-control" id="pz-hint2" placeholder="중간 힌트"></div>
+      <div class="form-group"><div class="form-label">힌트 3단계 (거의 정답)</div><input type="text" class="form-control" id="pz-hint3" placeholder="강한 힌트"></div>
+      <div class="form-group"><div class="form-label">보상 / 해결 시 트리거</div><input type="text" class="form-control" id="pz-reward" placeholder="금고 열림, 새 단서 획득..."></div>
+      <div class="form-group"><div class="form-label">메모</div><textarea class="form-control" id="pz-memo" placeholder="기획 메모..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('puzzle')">취소</button>
+      <button class="btn btn-primary" id="pz-save-btn" onclick="savePuzzle()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scene Modal -->
+<div class="modal-overlay" id="modal-scene">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-scene-title">씬 추가</span>
+      <button class="modal-close" onclick="closeModal('scene')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="sc-edit-id">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">씬명 *</div><input type="text" class="form-control" id="sc-name" placeholder="지하실, 서재, 복도..."></div>
+        <div class="form-group"><div class="form-label">장소 유형</div>
+          <select class="form-control" id="sc-type">
+            <option>실내</option><option>실외</option><option>비밀공간</option><option>이동구간</option><option>기타</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">상태</div>
+          <select class="form-control" id="sc-status">
+            <option>기획중</option><option>제작중</option><option>완료</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">진입 조건</div>
+          <input type="text" class="form-control" id="sc-entry" placeholder="열쇠 필요, 퍼즐 해결 후...">
+        </div>
+      </div>
+      <div class="form-group"><div class="form-label">포함 오브젝트 / 단서</div><textarea class="form-control" id="sc-objects" placeholder="책상, 금고, 혈흔, 쪽지..."></textarea></div>
+      <div class="form-group"><div class="form-label">연결된 퍼즐</div><input type="text" class="form-control" id="sc-puzzles" placeholder="금고 퍼즐, 암호문 퍼즐..."></div>
+      <div class="form-group"><div class="form-label">연결된 씬</div><input type="text" class="form-control" id="sc-links" placeholder="복도, 2층 침실..."></div>
+      <div class="form-group"><div class="form-label">분위기 / 연출 메모</div><textarea class="form-control" id="sc-memo" placeholder="어둡고 습한 분위기, 서가에서 삐걱 소리..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('scene')">취소</button>
+      <button class="btn btn-primary" id="sc-save-btn" onclick="saveScene()">저장</button>
     </div>
   </div>
 </div>
@@ -1964,6 +2399,165 @@
 
 <script>
 // ═══════════════════════════════════════
+// PROJECTS (홈 화면)
+// ═══════════════════════════════════════
+const PROJECTS_KEY = 'horyeong-projects';
+const EMOJIS = ['🎮','⚔️','🧙','🚀','🏰','🌲','👾','🔮','🎲','🦁','🐉','🌙'];
+let selectedEmoji = '🎮';
+let currentProjectId = null;
+
+function loadProjects() {
+  try { return JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveProjects(projects) {
+  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+}
+
+function renderHome() {
+  const projects = loadProjects();
+  const grid = document.getElementById('projects-grid');
+  const newCard = `
+    <div class="project-card project-card-new" onclick="openNewProjectModal()">
+      <div class="new-icon">＋</div>
+      <div class="new-label">새 프로젝트</div>
+    </div>`;
+
+  if (!projects.length) {
+    grid.innerHTML = newCard;
+    return;
+  }
+
+  grid.innerHTML = projects.map(p => {
+    const data = getProjectData(p.id);
+    const chars = (data.chars||[]).length;
+    const quests = (data.quests||[]).length;
+    const items = (data.items||[]).length;
+    const date = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('ko-KR') : '날짜 없음';
+    return `
+      <div class="project-card" onclick="openProject('${p.id}')">
+        <div class="project-actions">
+          <button class="project-action-btn" onclick="event.stopPropagation();renameProject('${p.id}')">✏️</button>
+          <button class="project-action-btn" onclick="event.stopPropagation();deleteProject('${p.id}')">🗑️</button>
+        </div>
+        <div class="project-emoji">${p.emoji||'🎮'}</div>
+        <div class="project-name">${p.name}</div>
+        <div class="project-genre">${p.genre||'장르 미정'}</div>
+        <div class="project-stats">
+          <span class="project-stat"><b>${chars}</b> 캐릭터</span>
+          <span class="project-stat"><b>${quests}</b> 퀘스트</span>
+          <span class="project-stat"><b>${items}</b> 아이템</span>
+        </div>
+        <div class="project-date">수정: ${date}</div>
+      </div>`;
+  }).join('') + newCard;
+}
+
+function getProjectData(id) {
+  try { return JSON.parse(localStorage.getItem('horyeong-proj-' + id) || '{}'); }
+  catch(e) { return {}; }
+}
+
+function openNewProjectModal() {
+  selectedEmoji = '🎮';
+  document.getElementById('np-name').value = '';
+  document.getElementById('np-genre').value = '';
+  // render emoji picker
+  const picker = document.getElementById('emoji-picker');
+  picker.innerHTML = EMOJIS.map(e => `
+    <span onclick="selectEmoji(this,'${e}')"
+      style="font-size:24px;cursor:pointer;padding:6px;border-radius:6px;
+             border:2px solid ${e===selectedEmoji?'var(--accent)':'transparent'};
+             transition:all 0.1s;">${e}</span>
+  `).join('');
+  document.getElementById('modal-new-project').classList.add('open');
+  setTimeout(() => document.getElementById('np-name').focus(), 100);
+}
+
+function closeNewProjectModal() {
+  document.getElementById('modal-new-project').classList.remove('open');
+}
+
+function selectEmoji(el, emoji) {
+  selectedEmoji = emoji;
+  document.querySelectorAll('#emoji-picker span').forEach(s => {
+    s.style.borderColor = 'transparent';
+  });
+  el.style.borderColor = 'var(--accent)';
+}
+
+function createProject() {
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) { document.getElementById('np-name').focus(); return; }
+  const genre = document.getElementById('np-genre').value;
+  const id = 'p' + Date.now();
+  const projects = loadProjects();
+  projects.unshift({ id, name, genre, emoji: selectedEmoji, createdAt: Date.now(), updatedAt: Date.now() });
+  saveProjects(projects);
+  closeNewProjectModal();
+  openProject(id);
+}
+
+function openProject(id) {
+  currentProjectId = id;
+  const projects = loadProjects();
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+
+  document.getElementById('sidebar-proj-name').textContent = proj.emoji + ' ' + proj.name;
+
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'flex';
+  document.getElementById('mobile-nav').classList.add('visible');
+  document.getElementById('mobile-fab').classList.add('visible');
+
+  load();
+  goPage('dashboard', null, 'dashboard');
+}
+
+function goHome() {
+  if (currentProjectId) {
+    save();
+    const projects = loadProjects();
+    const proj = projects.find(p => p.id === currentProjectId);
+    if (proj) { proj.updatedAt = Date.now(); saveProjects(projects); }
+  }
+  currentProjectId = null;
+
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('mobile-nav').classList.remove('visible');
+  document.getElementById('mobile-fab').classList.remove('visible');
+  document.getElementById('home-screen').style.display = 'flex';
+  document.getElementById('home-screen').style.flexDirection = 'column';
+
+  renderHome();
+}
+
+function renameProject(id) {
+  const projects = loadProjects();
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+  const newName = prompt('새 프로젝트 이름:', proj.name);
+  if (!newName || !newName.trim()) return;
+  proj.name = newName.trim();
+  proj.updatedAt = Date.now();
+  saveProjects(projects);
+  renderHome();
+}
+
+function deleteProject(id) { id=+id;
+  const projects = loadProjects();
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+  customConfirm(`"${proj.name}" 프로젝트를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`, () => {
+    saveProjects(projects.filter(p => p.id !== id));
+    localStorage.removeItem('horyeong-proj-' + id);
+    renderHome();
+  }, '프로젝트 삭제');
+}
+
+// ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
 const state = {
@@ -1972,19 +2566,38 @@ const state = {
   scripts: [], milestones: [], bugs: [], feedbacks: [], todos: [],
   sounds: [], arts: [], playtests: [],
   activity: [], memo: '', projName: '', projGenre: '',
-  activeDoc: null, activeScript: null
+  activeDoc: null, activeScript: null,
+  charGroups: {},
+  devlogs: [],
+  puzzles: [],
+  scenes: [],
 };
 
 function load() {
+  // state 초기화
+  Object.assign(state, {
+    chars:[], skills:[], items:[], quests:[], docs:[],
+    regions:[], factions:[], timelineEvents:[],
+    scripts:[], milestones:[], bugs:[], feedbacks:[], todos:[],
+    sounds:[], arts:[], playtests:[],
+    activity:[], memo:'', projName:'', projGenre:'',
+    activeDoc:null, activeScript:null,
+    charGroups:{},
+    devlogs:[],
+    puzzles:[],
+    scenes:[],
+  });
   try {
-    const s = JSON.parse(localStorage.getItem('horyeong') || '{}');
+    const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
+    const s = JSON.parse(localStorage.getItem(key) || '{}');
     Object.assign(state, s);
   } catch(e) {}
   renderAll();
 }
 
 function save() {
-  localStorage.setItem('horyeong', JSON.stringify(state));
+  const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
+  localStorage.setItem(key, JSON.stringify(state));
 }
 
 // ═══════════════════════════════════════
@@ -2006,6 +2619,8 @@ const pageMap = {
   art: {title:'ART', crumb:'아트 에셋 관리'},
   revenue: {title:'REVENUE', crumb:'수익화 설계'},
   playtest: {title:'PLAYTEST', crumb:'플레이테스트 기록'},
+  puzzles: {title:'PUZZLES', crumb:'퍼즐 데이터베이스'},
+  scenes:  {title:'SCENES',  crumb:'씬 · 맵 구조'},
 };
 
 let currentPage = 'dashboard';
@@ -2034,7 +2649,8 @@ function handleAdd() {
     characters:'char', skills:'skill', items:'item', quests:'quest',
     docs:'doc', balance:null, dashboard:null,
     world:null, script:'script', schedule:'milestone', tracker:null,
-    revenue:null, playtest:'playtest'
+    revenue:null, playtest:'playtest',
+    puzzles:'puzzle', scenes:'scene'
   };
   if(currentPage==='world'){
     const a=document.querySelector('.world-panel:not([style*="none"])');
@@ -2066,26 +2682,7 @@ function handleAdd() {
 // ═══════════════════════════════════════
 // MODAL
 // ═══════════════════════════════════════
-function openModal(type, subtype) {
-  const el = document.getElementById('modal-'+type);
-  if(!el) return;
-  // configure sound modal
-  if(type==='sound' && subtype) {
-    document.getElementById('sound-mode').value = subtype;
-    const isBgm = subtype==='bgm';
-    document.getElementById('modal-sound-title').textContent = isBgm ? 'BGM 추가' : 'SFX 추가';
-    document.getElementById('snd-mood-wrap').style.display = isBgm ? '' : 'none';
-    document.getElementById('snd-cat-wrap').style.display = isBgm ? 'none' : '';
-    document.getElementById('snd-loop-wrap').style.display = isBgm ? '' : 'none';
-  }
-  // configure art modal
-  if(type==='art' && subtype) {
-    document.getElementById('art-mode').value = subtype;
-    const labels = {sprite:'스프라이트 추가', bg:'배경 에셋 추가', ui:'UI 에셋 추가'};
-    document.getElementById('modal-art-title').textContent = labels[subtype]||'에셋 추가';
-  }
-  el.classList.add('open');
-}
+// openModal is defined in the CHARACTERS section (handles char modal too)
 function closeModal(type) {
   document.getElementById('modal-'+type).classList.remove('open');
 }
@@ -2123,7 +2720,12 @@ function renderActivity() {
 // ═══════════════════════════════════════
 function renderAll() {
   renderStats();
-  renderChars(); renderSkills(); renderItems(); renderQuests(); renderDocs();
+  renderDashSummary();
+  renderDevLog();
+  renderCharCatTabs();
+  renderChars();
+  renderPuzzles();
+  renderScenes(); renderSkills(); renderItems(); renderQuests(); renderDocs();
   renderRegions(); renderFactions(); renderTimeline();
   renderScripts(); renderMilestones(); renderScheduleStats();
   renderBugs(); renderFeedback(); renderTodos();
@@ -2136,10 +2738,93 @@ function renderAll() {
 }
 
 function renderStats() {
-  document.getElementById('stat-chars').textContent = state.chars.length;
-  document.getElementById('stat-skills').textContent = state.skills.length;
-  document.getElementById('stat-items').textContent = state.items.length;
-  document.getElementById('stat-quests').textContent = state.quests.length;
+  // stat-* 요소는 대시보드에서 제거됐으므로 존재할 때만 업데이트
+  ['chars','skills','items','quests'].forEach(k => {
+    const el = document.getElementById('stat-'+k);
+    if(el) el.textContent = state[k].length;
+  });
+}
+
+// ── 데이터 현황 요약 리스트 ──
+function renderDashSummary() {
+  const el = document.getElementById('dash-summary-list');
+  if(!el) return;
+  const items = [
+    { icon:'👤', label:'캐릭터',    val: state.chars.length,      page:'characters' },
+    { icon:'⚡', label:'스킬',      val: state.skills.length,     page:'skills' },
+    { icon:'🎒', label:'아이템',    val: state.items.length,      page:'items' },
+    { icon:'📜', label:'퀘스트',    val: state.quests.length,     page:'quests' },
+    { icon:'📄', label:'문서',      val: state.docs.length,       page:'docs' },
+    { icon:'💬', label:'스크립트',  val: state.scripts.length,    page:'script' },
+    { icon:'🐛', label:'미해결 버그', val: state.bugs.filter(b=>b.status!=='해결됨').length, page:'tracker' },
+    { icon:'✅', label:'미완료 TODO', val: state.todos.filter(t=>!t.done).length, page:'tracker' },
+  ];
+  el.innerHTML = items.map(it => `
+    <div onclick="goPage('${it.page}')"
+         style="display:flex;align-items:center;gap:10px;padding:7px 0;
+                border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;border-radius:3px;"
+         onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+         onmouseout="this.style.background=''">
+      <span style="font-size:14px;width:20px;text-align:center;flex-shrink:0;">${it.icon}</span>
+      <span style="flex:1;font-size:12px;color:var(--text-dim);">${it.label}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;
+                   color:${it.val>0?'var(--text)':'var(--text-dimmer)'};">${it.val}</span>
+    </div>`).join('');
+}
+
+// ── DEV LOG ──
+function _todayStr() {
+  return new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\.\s*/g,'-').replace(/-$/,'');
+}
+
+function initDevLogDate() {
+  const el = document.getElementById('devlog-date-display');
+  if(el) el.textContent = _todayStr();
+}
+
+function saveDevLog() {
+  const inp = document.getElementById('devlog-input');
+  const text = inp.value.trim();
+  if(!text) { showToast('내용을 입력하세요', 'warn'); return; }
+  if(!state.devlogs) state.devlogs = [];
+  state.devlogs.unshift({ id: Date.now(), date: _todayStr(), text });
+  inp.value = '';
+  save(); renderDevLog();
+}
+
+function deleteDevLog(id) {
+  state.devlogs = state.devlogs.filter(d => d.id !== id);
+  save(); renderDevLog();
+}
+
+function renderDevLog() {
+  initDevLogDate();
+  const el = document.getElementById('devlog-list');
+  if(!el) return;
+  if(!state.devlogs || !state.devlogs.length) {
+    el.innerHTML = '';
+    return;
+  }
+  // 날짜별 그룹
+  const grouped = {};
+  state.devlogs.forEach(d => {
+    if(!grouped[d.date]) grouped[d.date] = [];
+    grouped[d.date].push(d);
+  });
+  el.innerHTML = Object.entries(grouped).map(([date, logs]) => `
+    <div style="margin-bottom:12px;">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);
+                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;
+                  text-transform:uppercase;">${date}</div>
+      ${logs.map(d => `
+        <div class="card" style="margin-bottom:6px;">
+          <div class="card-body" style="padding:10px 14px;display:flex;align-items:flex-start;gap:10px;">
+            <div style="flex:1;font-size:13px;line-height:1.7;white-space:pre-wrap;">${d.text}</div>
+            <button class="btn btn-ghost btn-sm" onclick="deleteDevLog(${d.id})"
+              style="color:var(--text-dimmer);flex-shrink:0;padding:2px 6px;">✕</button>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
 }
 
 function updateBadges() {
@@ -2153,12 +2838,50 @@ function updateBadges() {
     sound: state.sounds.length,
     art: state.arts.length,
     playtest: state.playtests.length,
+    puzzles: state.puzzles.length,
+    scenes: state.scenes.length,
   };
   for(const [key, val] of Object.entries(counts)) {
     const d = document.getElementById('badge-'+key);
     if(d) d.textContent = val;
     const m = document.getElementById('mbadge-'+key);
     if(m) { m.textContent = val; m.style.display = val > 0 ? 'flex' : 'none'; }
+  }
+}
+
+// ═══════════════════════════════════════
+// CHARACTERS — 이미지 처리
+// ═══════════════════════════════════════
+let _ciImgData = null;
+
+function handleCharImg(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 2 * 1024 * 1024) { showToast('이미지가 2MB를 초과합니다', 'warn'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => { _ciImgData = e.target.result; _updateCharImgPreview(_ciImgData); };
+  reader.readAsDataURL(file);
+}
+
+function clearCharImg() {
+  _ciImgData = null;
+  _updateCharImgPreview(null);
+  document.getElementById('ci-img-input').value = '';
+}
+
+function _updateCharImgPreview(src) {
+  const thumb = document.getElementById('ci-img-thumb');
+  const ph = document.getElementById('ci-img-placeholder');
+  const clr = document.getElementById('ci-img-clear');
+  const box = document.getElementById('ci-img-preview');
+  if(src) {
+    thumb.src = src; thumb.style.display='block'; ph.style.display='none';
+    clr.style.display='inline-flex';
+    box.style.borderStyle='solid'; box.style.borderColor='var(--accent)';
+  } else {
+    thumb.src=''; thumb.style.display='none'; ph.style.display='block';
+    clr.style.display='none';
+    box.style.borderStyle='dashed'; box.style.borderColor='var(--border)';
   }
 }
 
@@ -2172,57 +2895,643 @@ const typeTagMap = {
 const statusTagMap = {
   '기획중':'tag-yellow', '작성완료':'tag-cyan', '검토중':'tag-purple', '확정':'tag-green'
 };
+const CHAR_TAG_PRESETS = ['주인공','히로인','조연','단역','라이벌','멘토','악역','보조','중립','비밀캐릭터'];
+let _ciTags = [];
 
-function saveChar() {
-  const name = document.getElementById('ci-name').value.trim();
-  if(!name) { alert('이름을 입력하세요'); return; }
-  const c = {
-    id: Date.now(), name,
-    role: document.getElementById('ci-role').value,
-    type: document.getElementById('ci-type').value,
-    status: document.getElementById('ci-status').value,
-    hp: +document.getElementById('ci-hp').value,
-    mp: +document.getElementById('ci-mp').value,
-    atk: +document.getElementById('ci-atk').value,
-    def: +document.getElementById('ci-def').value,
-    passive: document.getElementById('ci-passive').value,
-    desc: document.getElementById('ci-desc').value,
-  };
-  state.chars.push(c);
-  addActivity(`캐릭터 <b>${name}</b> 추가됨`, 'var(--accent3)');
-  save(); renderChars(); renderStats(); updateBadges();
-  closeModal('char');
-  ['ci-name','ci-role','ci-passive','ci-desc'].forEach(id => document.getElementById(id).value='');
+// ═══════════════════════════════════════
+// CHARACTERS — 카테고리 / 그룹 시스템
+// ═══════════════════════════════════════
+const CHAR_CATS = [
+  { key:'player', label:'PLAYER', color:'#06b6d4' },
+  { key:'npc',    label:'NPC',    color:'#a78bfa' },
+  { key:'enemy',  label:'ENEMY',  color:'#ef4444' },
+];
+
+function getCharGroups(cat) {
+  if(!state.charGroups) state.charGroups = {};
+  if(!state.charGroups[cat]) state.charGroups[cat] = [];
+  return state.charGroups[cat];
 }
 
-function renderChars() {
-  const tb = document.getElementById('chars-table');
-  if(!state.chars.length) {
-    tb.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">👻</div><div class="empty-title">캐릭터 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>`;
+// ── 탭 렌더 ──
+let currentCharCat = 'all';
+
+function renderCharCatTabs() {
+  const wrap = document.getElementById('char-cat-tabs');
+  if(!wrap) return;
+  wrap.innerHTML =
+    `<div class="tab ${currentCharCat==='all'?'active':''}" onclick="switchCharCat('all')">ALL</div>` +
+    CHAR_CATS.map(cat => `
+      <div class="tab ${currentCharCat===cat.key?'active':''}"
+           onclick="switchCharCat('${cat.key}')"
+           style="${currentCharCat===cat.key?'color:'+cat.color+';border-bottom-color:'+cat.color+';':''}">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cat.color};margin-right:5px;vertical-align:middle;"></span>${cat.label}
+      </div>`).join('');
+}
+
+function switchCharCat(cat) {
+  currentCharCat = cat;
+  renderCharCatTabs();
+  renderChars();
+}
+
+// ── 그룹 관리 모달 ──
+let _groupMgrCat = 'player';
+
+function openCharGroupModal() {
+  _groupMgrCat = 'player';
+  document.querySelectorAll('#modal-char-group .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('cgtab-player').classList.add('active');
+  renderCharGroupList();
+  document.getElementById('modal-char-group').classList.add('open');
+}
+
+function switchGroupMgrTab(cat, el) {
+  _groupMgrCat = cat;
+  document.querySelectorAll('#modal-char-group .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('new-group-name').value = '';
+  renderCharGroupList();
+}
+
+function renderCharGroupList() {
+  const el = document.getElementById('char-group-list');
+  if(!el) return;
+  const groups = getCharGroups(_groupMgrCat);
+  if(!groups.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">그룹 없음 — 아래에서 추가하세요</div>`;
     return;
   }
-  tb.innerHTML = state.chars.map(c => `
-    <tr>
-      <td><div class="char-avatar">${c.type==='보스'?'👹':c.type==='플레이어'?'🧑':c.type==='NPC'?'🗣️':c.type==='파티원'?'🤝':'⚔️'}</div></td>
-      <td><b>${c.name}</b>${c.passive?`<div class="text-sm text-dim">${c.passive}</div>`:''}</td>
-      <td>${c.role||'-'}</td>
-      <td class="mono">${c.hp}</td>
-      <td class="mono">${c.mp}</td>
-      <td class="mono">${c.atk}</td>
-      <td class="mono">${c.def}</td>
-      <td><span class="tag ${typeTagMap[c.type]||'tag-gray'}">${c.type}</span></td>
-      <td><span class="tag ${statusTagMap[c.status]||'tag-gray'}">${c.status}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteChar(${c.id})">삭제</button></td>
-    </tr>
+  el.innerHTML = groups.map((g,i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <input type="text" value="${g}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameCharGroup('${_groupMgrCat}',${i},this.value)">
+      <button class="btn btn-danger btn-sm" onclick="deleteCharGroup('${_groupMgrCat}',${i})">삭제</button>
+    </div>`).join('');
+}
+
+function addCharGroup() {
+  const inp = document.getElementById('new-group-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  getCharGroups(_groupMgrCat).push(name);
+  inp.value = '';
+  save(); renderCharGroupList(); updateCiGroupSel();
+}
+
+function renameCharGroup(cat, idx, newName) {
+  if(!newName.trim()) return;
+  getCharGroups(cat)[idx] = newName.trim();
+  save(); updateCiGroupSel(); renderChars();
+}
+
+function deleteCharGroup(cat, idx) {
+  const groups = getCharGroups(cat);
+  const name = groups[idx];
+  const count = state.chars.filter(ch=>ch.cat===cat && ch.group===name).length;
+  const msg = count > 0
+    ? `"${name}" 그룹을 삭제하면 소속 캐릭터 ${count}명의 그룹이 해제됩니다.`
+    : `"${name}" 그룹을 삭제할까요?`;
+  customConfirm(msg, () => {
+    groups.splice(idx, 1);
+    state.chars.forEach(ch => { if(ch.cat===cat && ch.group===name) ch.group=''; });
+    save(); renderCharGroupList(); updateCiGroupSel(); renderChars();
+  }, '그룹 삭제');
+}
+
+// ── 모달 내 그룹 select 업데이트 ──
+function updateCiGroupSel() {
+  const catSel   = document.getElementById('ci-cat-sel');
+  const groupSel = document.getElementById('ci-group-sel');
+  if(!catSel || !groupSel) return;
+  const cat = catSel.value;
+  const groups = getCharGroups(cat);
+  const cur = groupSel.value;
+  groupSel.innerHTML = `<option value="">— 없음 —</option>` +
+    groups.map(g => `<option value="${g}" ${g===cur?'selected':''}>${g}</option>`).join('');
+}
+
+function openModal(type, subtype) {
+  const el = document.getElementById('modal-'+type);
+  if(!el) return;
+  if(type==='sound' && subtype) {
+    document.getElementById('sound-mode').value = subtype;
+    const isBgm = subtype==='bgm';
+    document.getElementById('modal-sound-title').textContent = isBgm ? 'BGM 추가' : 'SFX 추가';
+    document.getElementById('snd-mood-wrap').style.display = isBgm ? '' : 'none';
+    document.getElementById('snd-cat-wrap').style.display = isBgm ? 'none' : '';
+    document.getElementById('snd-loop-wrap').style.display = isBgm ? '' : 'none';
+  }
+  if(type==='art' && subtype) {
+    document.getElementById('art-mode').value = subtype;
+    const labels = {sprite:'스프라이트 추가', bg:'배경 에셋 추가', ui:'UI 에셋 추가'};
+    document.getElementById('modal-art-title').textContent = labels[subtype]||'에셋 추가';
+  }
+  if(type==='char') { _openCharModal(); }
+  if(type==='puzzle') { openPuzzleModal(); return; }
+  if(type==='scene')  { openSceneModal();  return; }
+  el.classList.add('open');
+}
+
+function _openCharModal(editId) {
+  _ciTags = [];
+  _ciImgData = null;
+  document.getElementById('ci-edit-id').value = editId || '';
+  document.getElementById('modal-char-title').textContent = editId ? '캐릭터 수정' : '캐릭터 추가';
+  document.getElementById('ci-save-btn').textContent = editId ? '수정 완료' : '저장';
+
+  if(editId) {
+    const ch = state.chars.find(x=>x.id===+editId);
+    if(!ch) return;
+    document.getElementById('ci-name').value    = ch.name    || '';
+    document.getElementById('ci-role').value    = ch.role    || '';
+    document.getElementById('ci-cat-sel').value = ch.cat     || 'player';
+    document.getElementById('ci-type').value    = ch.type    || '플레이어';
+    document.getElementById('ci-status').value  = ch.status  || '기획중';
+    document.getElementById('ci-hp').value      = ch.hp      || 100;
+    document.getElementById('ci-mp').value      = ch.mp      || 50;
+    document.getElementById('ci-atk').value     = ch.atk     || 20;
+    document.getElementById('ci-def').value     = ch.def     || 10;
+    document.getElementById('ci-passive').value = ch.passive || '';
+    document.getElementById('ci-desc').value    = ch.desc    || '';
+    _ciTags  = Array.isArray(ch.tags) ? [...ch.tags] : [];
+    _ciImgData = ch.img || null;
+    updateCiGroupSel();
+    document.getElementById('ci-group-sel').value = ch.group || '';
+  } else {
+    const defaultCat = (currentCharCat !== 'all') ? currentCharCat : 'player';
+    document.getElementById('ci-cat-sel').value = defaultCat;
+    ['ci-name','ci-role','ci-passive','ci-desc'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('ci-hp').value  = 100;
+    document.getElementById('ci-mp').value  = 50;
+    document.getElementById('ci-atk').value = 20;
+    document.getElementById('ci-def').value = 10;
+    updateCiGroupSel();
+  }
+  document.getElementById('ci-tag-input').value = '';
+  document.getElementById('ci-img-input').value = '';
+  _updateCharImgPreview(_ciImgData);
+  _renderCharTagPresets();
+  _renderCiTagsDisplay();
+}
+
+function _renderCharTagPresets() {
+  const el = document.getElementById('char-tag-presets');
+  if(!el) return;
+  el.innerHTML = CHAR_TAG_PRESETS.map(t => {
+    const active = _ciTags.includes(t);
+    return `<span onclick="_togglePresetTag('${t}')" style="cursor:pointer;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;border:1px solid ${active?'var(--accent)':'var(--border)'};background:${active?'rgba(255,107,53,0.15)':'var(--surface2)'};color:${active?'var(--accent)':'var(--text-dim)'};transition:all 0.15s;">${t}</span>`;
+  }).join('');
+}
+
+function _togglePresetTag(t) {
+  if(_ciTags.includes(t)) _ciTags = _ciTags.filter(x=>x!==t);
+  else _ciTags.push(t);
+  _renderCharTagPresets();
+  _renderCiTagsDisplay();
+}
+
+function _renderCiTagsDisplay() {
+  const el = document.getElementById('ci-tags-display');
+  if(!el) return;
+  // only show custom tags (not presets)
+  const custom = _ciTags.filter(t=>!CHAR_TAG_PRESETS.includes(t));
+  el.innerHTML = custom.map(t=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);">
+      ${t}<span onclick="_removeCustomTag('${t}')" style="cursor:pointer;opacity:0.7;">✕</span>
+    </span>
   `).join('');
 }
 
-function deleteChar(id) {
-  const c = state.chars.find(x=>x.id===id);
-  if(!c || !confirm(`"${c.name}" 삭제?`)) return;
-  state.chars = state.chars.filter(x=>x.id!==id);
-  addActivity(`캐릭터 <b>${c.name}</b> 삭제됨`, 'var(--danger)');
+function _removeCustomTag(t) {
+  _ciTags = _ciTags.filter(x=>x!==t);
+  _renderCiTagsDisplay();
+}
+
+
+function editChar(id) {
+  _openCharModal(id);
+  document.getElementById('modal-char').classList.add('open');
+}
+
+function saveChar() {
+  const name = document.getElementById('ci-name').value.trim();
+  if(!name) { showToast('이름을 입력하세요', 'warn'); return; }
+
+  // flush tag input
+  const tagInput = document.getElementById('ci-tag-input').value.trim();
+  if(tagInput && !_ciTags.includes(tagInput)) _ciTags.push(tagInput);
+
+  const editId = document.getElementById('ci-edit-id').value;
+
+  const data = {
+    name,
+    role:    document.getElementById('ci-role').value,
+    cat:     document.getElementById('ci-cat-sel').value   || 'player',
+    group:   document.getElementById('ci-group-sel').value || '',
+    type:    document.getElementById('ci-type').value,
+    status:  document.getElementById('ci-status').value,
+    hp:  +document.getElementById('ci-hp').value,
+    mp:  +document.getElementById('ci-mp').value,
+    atk: +document.getElementById('ci-atk').value,
+    def: +document.getElementById('ci-def').value,
+    passive: document.getElementById('ci-passive').value,
+    desc:    document.getElementById('ci-desc').value,
+    tags: [..._ciTags],
+    img:  _ciImgData,
+  };
+
+  if(editId) {
+    const idx = state.chars.findIndex(x=>x.id===+editId);
+    if(idx !== -1) {
+      state.chars[idx] = { ...state.chars[idx], ...data };
+      addActivity(`캐릭터 <b>${name}</b> 수정됨`, 'var(--warning)');
+    }
+  } else {
+    state.chars.push({ id: Date.now(), ...data });
+    addActivity(`캐릭터 <b>${name}</b> 추가됨`, 'var(--accent3)');
+  }
   save(); renderChars(); renderStats(); updateBadges();
+  closeModal('char');
+}
+
+// ── 드래그 앤 드롭 상태 ──
+let _dragCharId = null;
+let _dragOverId = null;
+let _charMoveSelId = null; // 클릭 선택 이동용
+
+function charSelectForMove(id, tdEl) {
+  id = +id;
+
+  // 이미 선택된 상태에서 같은 행 클릭 → 선택 해제
+  if (_charMoveSelId === id) {
+    _charMoveSelId = null;
+    _syncCharMoveHighlight();
+    return;
+  }
+
+  // 선택된 행이 있고 다른 행 클릭 → 이동 실행
+  if (_charMoveSelId !== null) {
+    const fromIdx = state.chars.findIndex(x => x.id === _charMoveSelId);
+    const toIdx   = state.chars.findIndex(x => x.id === id);
+    if (fromIdx !== -1 && toIdx !== -1) {
+      const [moved] = state.chars.splice(fromIdx, 1);
+      state.chars.splice(toIdx, 0, moved);
+      _charMoveSelId = null;
+      save(); renderChars();
+      return;
+    }
+  }
+
+  // 새로 선택
+  _charMoveSelId = id;
+  _syncCharMoveHighlight();
+}
+
+function _syncCharMoveHighlight() {
+  document.querySelectorAll('tr[data-char-id]').forEach(tr => {
+    const isSel = +tr.dataset.charId === _charMoveSelId;
+    tr.style.background = isSel ? 'rgba(255,107,53,0.12)' : '';
+    const handle = tr.querySelector('td[title]');
+    if (handle) handle.style.color = isSel ? 'var(--accent)' : 'var(--text-dimmer)';
+  });
+}
+
+function renderChars() {
+  const wrap = document.getElementById('chars-groups');
+  if(!wrap) return;
+
+  if(!state.chars.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-icon">👻</div><div class="empty-title">캐릭터 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>`;
+    return;
+  }
+
+  // 표시할 카테고리 결정
+  const catsToShow = currentCharCat === 'all'
+    ? CHAR_CATS
+    : CHAR_CATS.filter(cat => cat.key === currentCharCat);
+
+  let html = '';
+
+  for(const cat of catsToShow) {
+    const catChars = state.chars.filter(ch => (ch.cat || 'player') === cat.key);
+    if(!catChars.length) continue;
+
+    // 그룹별로 분류
+    const groups = getCharGroups(cat.key);
+    const sections = [];
+
+    // 그룹 있는 것들
+    for(const g of groups) {
+      const gChars = catChars.filter(ch => ch.group === g);
+      if(gChars.length) sections.push({ label: g, chars: gChars, sub: true });
+    }
+    // 그룹 없는 것들 (group이 '' 또는 undefined)
+    const ungrouped = catChars.filter(ch => !ch.group || !groups.includes(ch.group));
+    if(ungrouped.length) sections.push({ label: null, chars: ungrouped, sub: false });
+
+    // 카테고리 헤더
+    html += `
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${cat.color};display:inline-block;"></span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:2px;color:${cat.color};">${cat.label}</span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catChars.length}</span>
+        </div>`;
+
+    for(const sec of sections) {
+      const rows = sec.chars.map(ch => {
+        const tagsHtml = (ch.tags||[]).map(t =>
+          `<span style="padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(124,58,237,0.25);">${t}</span>`
+        ).join('');
+        const avatarHtml = ch.img
+          ? `<div class="char-avatar" style="padding:0;overflow:hidden;"><img src="${ch.img}" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`
+          : `<div class="char-avatar">${ch.type==='보스'?'👹':ch.type==='플레이어'?'🧑':ch.type==='NPC'?'🗣️':ch.type==='파티원'?'🤝':'⚔️'}</div>`;
+        return `
+          <tr data-char-id="${ch.id}" style="transition:opacity 0.15s,background 0.1s;">
+            <td onclick="charSelectForMove(${ch.id}, this)" style="padding:0 8px;cursor:pointer;font-size:15px;text-align:center;user-select:none;color:var(--text-dimmer);transition:color 0.15s;" title="클릭 → 다른 행 클릭으로 이동">⠿</td>
+            <td>${avatarHtml}</td>
+            <td>
+              <b>${ch.name}</b>
+              ${ch.passive?'<div class="text-sm text-dim">'+ch.passive+'</div>':''}
+              ${tagsHtml?'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;">'+tagsHtml+'</div>':''}
+            </td>
+            <td>${ch.role||'-'}</td>
+            <td class="mono">${ch.hp}</td>
+            <td class="mono">${ch.mp}</td>
+            <td class="mono">${ch.atk}</td>
+            <td class="mono">${ch.def}</td>
+            <td><span class="tag ${typeTagMap[ch.type]||'tag-gray'}">${ch.type}</span></td>
+            <td><span class="tag ${statusTagMap[ch.status]||'tag-gray'}">${ch.status}</span></td>
+            <td style="white-space:nowrap;">
+              <button class="btn btn-secondary btn-sm" onclick="editChar(${ch.id})" style="margin-right:4px;">수정</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteChar(${ch.id})">삭제</button>
+            </td>
+          </tr>`;
+      }).join('');
+
+      const groupHeader = sec.sub
+        ? `<div style="padding:6px 12px 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);background:var(--surface2);border-bottom:1px solid var(--border);">${sec.label} <span style="color:var(--text-dimmer);">${sec.chars.length}</span></div>`
+        : '';
+
+      html += `
+        <div class="card" style="margin-bottom:10px;${sec.sub?'margin-left:12px;border-left:2px solid var(--border);':''}">
+          ${groupHeader}
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th style="width:28px;font-size:9px;color:var(--text-dimmer);">순서</th>
+                <th style="width:40px;"></th>
+                <th>이름</th><th>직업/역할</th>
+                <th>HP</th><th>MP</th><th>ATK</th><th>DEF</th>
+                <th>타입</th><th>상태</th><th></th>
+              </tr></thead>
+              <tbody id="chars-tbody-${cat.key}-${sec.sub?sec.label.replace(/\s/g,'_'):'ungrouped'}">${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    html += `</div>`;
+  }
+
+  wrap.innerHTML = html || `<div class="empty"><div class="empty-icon">👻</div><div class="empty-title">캐릭터 없음</div></div>`;
+
+  wrap.querySelectorAll('tbody[id^="chars-tbody-"]').forEach(tbody => {
+    _attachCharDragEvents(tbody);
+  });
+}
+
+function deleteChar(id) { id=+id;
+  const c = state.chars.find(x=>x.id===id);
+  if(!c) return;
+  customConfirm(`"${c.name}" 캐릭터를 삭제할까요?`, () => {
+    state.chars = state.chars.filter(x=>x.id!==id);
+    addActivity(`캐릭터 <b>${c.name}</b> 삭제됨`, 'var(--danger)');
+    save(); renderChars(); renderStats(); updateBadges();
+  });
+}
+
+function _attachCharDragEvents(tbody) {
+  // 클릭 선택 방식은 charSelectForMove 가 처리 — 여기선 아무것도 안 해도 됨
+}
+
+// ═══════════════════════════════════════
+// PUZZLES
+// ═══════════════════════════════════════
+const difficultyColor = {'쉬움':'tag-green','보통':'tag-cyan','어려움':'tag-yellow','매우 어려움':'tag-red'};
+const puzzleStatusColor = {'기획중':'tag-yellow','제작중':'tag-purple','테스트중':'tag-cyan','완료':'tag-green'};
+
+let currentPuzzleTab = 'all';
+
+function switchPuzzleTab(tab, el) {
+  currentPuzzleTab = tab;
+  document.querySelectorAll('#puzzle-tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPuzzles();
+}
+
+function openPuzzleModal(editId) {
+  const fields = ['pz-name','pz-scene','pz-prereq','pz-condition','pz-answer','pz-hint1','pz-hint2','pz-hint3','pz-reward','pz-memo'];
+  fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('pz-edit-id').value = editId || '';
+  document.getElementById('modal-puzzle-title').textContent = editId ? '퍼즐 수정' : '퍼즐 추가';
+  document.getElementById('pz-save-btn').textContent = editId ? '수정 완료' : '저장';
+  if(editId) {
+    const p = state.puzzles.find(x => x.id === +editId);
+    if(!p) return;
+    document.getElementById('pz-name').value       = p.name || '';
+    document.getElementById('pz-type').value       = p.type || '자물쇠/암호';
+    document.getElementById('pz-difficulty').value = p.difficulty || '보통';
+    document.getElementById('pz-scene').value      = p.scene || '';
+    document.getElementById('pz-status').value     = p.status || '기획중';
+    document.getElementById('pz-prereq').value     = p.prereq || '';
+    document.getElementById('pz-condition').value  = p.condition || '';
+    document.getElementById('pz-answer').value     = p.answer || '';
+    document.getElementById('pz-hint1').value      = p.hint1 || '';
+    document.getElementById('pz-hint2').value      = p.hint2 || '';
+    document.getElementById('pz-hint3').value      = p.hint3 || '';
+    document.getElementById('pz-reward').value     = p.reward || '';
+    document.getElementById('pz-memo').value       = p.memo || '';
+  }
+  document.getElementById('modal-puzzle').classList.add('open');
+}
+
+function savePuzzle() {
+  const name = document.getElementById('pz-name').value.trim();
+  if(!name) { showToast('퍼즐명을 입력하세요', 'warn'); return; }
+  const editId = document.getElementById('pz-edit-id').value;
+  const data = {
+    name,
+    type:       document.getElementById('pz-type').value,
+    difficulty: document.getElementById('pz-difficulty').value,
+    scene:      document.getElementById('pz-scene').value,
+    status:     document.getElementById('pz-status').value,
+    prereq:     document.getElementById('pz-prereq').value,
+    condition:  document.getElementById('pz-condition').value,
+    answer:     document.getElementById('pz-answer').value,
+    hint1:      document.getElementById('pz-hint1').value,
+    hint2:      document.getElementById('pz-hint2').value,
+    hint3:      document.getElementById('pz-hint3').value,
+    reward:     document.getElementById('pz-reward').value,
+    memo:       document.getElementById('pz-memo').value,
+  };
+  if(editId) {
+    const idx = state.puzzles.findIndex(x => x.id === +editId);
+    if(idx !== -1) { state.puzzles[idx] = { ...state.puzzles[idx], ...data }; addActivity(`퍼즐 <b>${name}</b> 수정됨`, 'var(--accent2)'); }
+  } else {
+    state.puzzles.push({ id: Date.now(), ...data });
+    addActivity(`퍼즐 <b>${name}</b> 추가됨`, 'var(--accent2)');
+  }
+  save(); renderPuzzles(); updateBadges(); closeModal('puzzle');
+}
+
+function renderPuzzles() {
+  const el = document.getElementById('puzzle-list');
+  if(!el) return;
+  let list = state.puzzles || [];
+  if(currentPuzzleTab !== 'all') list = list.filter(p => p.status === currentPuzzleTab || (currentPuzzleTab === '미해결' && p.status !== '완료') || (currentPuzzleTab === '해결됨' && p.status === '완료'));
+  if(!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🧩</div><div class="empty-title">퍼즐 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(p => `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-header" style="cursor:pointer;" onclick="togglePuzzleDetail(${p.id})">
+        <span style="font-size:16px;margin-right:6px;">🧩</span>
+        <span class="card-title">${p.name}</span>
+        <span class="tag ${difficultyColor[p.difficulty]||'tag-gray'}" style="margin-left:8px;">${p.difficulty}</span>
+        <span class="tag tag-gray" style="margin-left:4px;">${p.type}</span>
+        <span class="tag ${puzzleStatusColor[p.status]||'tag-gray'}" style="margin-left:4px;">${p.status}</span>
+        ${p.scene ? `<span class="text-sm text-dim" style="margin-left:8px;">📍 ${p.scene}</span>` : ''}
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openPuzzleModal(${p.id})">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deletePuzzle(${p.id})">삭제</button>
+        </div>
+      </div>
+      <div id="puzzle-detail-${p.id}" style="display:none;">
+        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          ${p.prereq ? `<div><div class="form-label">선행 퍼즐</div><div class="text-sm">${p.prereq}</div></div>` : ''}
+          ${p.reward ? `<div><div class="form-label">보상 / 트리거</div><div class="text-sm">${p.reward}</div></div>` : ''}
+          ${p.condition ? `<div style="grid-column:span 2;"><div class="form-label">입력 조건 / 설명</div><div class="text-sm" style="white-space:pre-wrap;">${p.condition}</div></div>` : ''}
+          ${p.answer ? `<div style="grid-column:span 2;"><div class="form-label" style="color:var(--success);">✅ 정답 / 해결 방법</div><div class="text-sm" style="white-space:pre-wrap;">${p.answer}</div></div>` : ''}
+          ${(p.hint1||p.hint2||p.hint3) ? `<div style="grid-column:span 2;">
+            <div class="form-label" style="color:var(--warning);margin-bottom:6px;">💡 힌트</div>
+            ${p.hint1 ? `<div class="text-sm" style="padding:4px 0;border-bottom:1px solid var(--border);">① ${p.hint1}</div>` : ''}
+            ${p.hint2 ? `<div class="text-sm" style="padding:4px 0;border-bottom:1px solid var(--border);">② ${p.hint2}</div>` : ''}
+            ${p.hint3 ? `<div class="text-sm" style="padding:4px 0;">③ ${p.hint3}</div>` : ''}
+          </div>` : ''}
+          ${p.memo ? `<div style="grid-column:span 2;"><div class="form-label">메모</div><div class="text-sm text-dim" style="white-space:pre-wrap;">${p.memo}</div></div>` : ''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function togglePuzzleDetail(id) {
+  const el = document.getElementById('puzzle-detail-' + id);
+  if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function deletePuzzle(id) {
+  const p = state.puzzles.find(x => x.id === +id);
+  if(!p) return;
+  customConfirm(`"${p.name}" 퍼즐을 삭제할까요?`, () => {
+    state.puzzles = state.puzzles.filter(x => x.id !== +id);
+    addActivity(`퍼즐 <b>${p.name}</b> 삭제됨`, 'var(--danger)');
+    save(); renderPuzzles(); updateBadges();
+  });
+}
+
+// ═══════════════════════════════════════
+// SCENES
+// ═══════════════════════════════════════
+const sceneStatusColor = {'기획중':'tag-yellow','제작중':'tag-purple','완료':'tag-green'};
+const sceneTypeIcon = {'실내':'🏠','실외':'🌿','비밀공간':'🔒','이동구간':'🚶','기타':'📍'};
+
+function openSceneModal(editId) {
+  const fields = ['sc-name','sc-entry','sc-objects','sc-puzzles','sc-links','sc-memo'];
+  fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('sc-edit-id').value = editId || '';
+  document.getElementById('modal-scene-title').textContent = editId ? '씬 수정' : '씬 추가';
+  document.getElementById('sc-save-btn').textContent = editId ? '수정 완료' : '저장';
+  if(editId) {
+    const s = state.scenes.find(x => x.id === +editId);
+    if(!s) return;
+    document.getElementById('sc-name').value    = s.name    || '';
+    document.getElementById('sc-type').value    = s.type    || '실내';
+    document.getElementById('sc-status').value  = s.status  || '기획중';
+    document.getElementById('sc-entry').value   = s.entry   || '';
+    document.getElementById('sc-objects').value = s.objects || '';
+    document.getElementById('sc-puzzles').value = s.puzzles || '';
+    document.getElementById('sc-links').value   = s.links   || '';
+    document.getElementById('sc-memo').value    = s.memo    || '';
+  }
+  document.getElementById('modal-scene').classList.add('open');
+}
+
+function saveScene() {
+  const name = document.getElementById('sc-name').value.trim();
+  if(!name) { showToast('씬 이름을 입력하세요', 'warn'); return; }
+  const editId = document.getElementById('sc-edit-id').value;
+  const data = {
+    name,
+    type:    document.getElementById('sc-type').value,
+    status:  document.getElementById('sc-status').value,
+    entry:   document.getElementById('sc-entry').value,
+    objects: document.getElementById('sc-objects').value,
+    puzzles: document.getElementById('sc-puzzles').value,
+    links:   document.getElementById('sc-links').value,
+    memo:    document.getElementById('sc-memo').value,
+  };
+  if(editId) {
+    const idx = state.scenes.findIndex(x => x.id === +editId);
+    if(idx !== -1) { state.scenes[idx] = { ...state.scenes[idx], ...data }; addActivity(`씬 <b>${name}</b> 수정됨`, 'var(--accent3)'); }
+  } else {
+    state.scenes.push({ id: Date.now(), ...data });
+    addActivity(`씬 <b>${name}</b> 추가됨`, 'var(--accent3)');
+  }
+  save(); renderScenes(); updateBadges(); closeModal('scene');
+}
+
+function renderScenes() {
+  const el = document.getElementById('scene-list');
+  if(!el) return;
+  if(!state.scenes || !state.scenes.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🚪</div><div class="empty-title">씬 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">` +
+    state.scenes.map(s => `
+      <div class="card">
+        <div class="card-header">
+          <span style="font-size:18px;margin-right:6px;">${sceneTypeIcon[s.type]||'📍'}</span>
+          <span class="card-title">${s.name}</span>
+          <span class="tag ${sceneStatusColor[s.status]||'tag-gray'}" style="margin-left:auto;">${s.status}</span>
+        </div>
+        <div class="card-body" style="font-size:12px;display:flex;flex-direction:column;gap:8px;">
+          ${s.entry   ? `<div><span class="form-label" style="display:inline;">진입 조건</span> <span class="text-dim">${s.entry}</span></div>` : ''}
+          ${s.objects ? `<div><div class="form-label">오브젝트 / 단서</div><div class="text-dim" style="white-space:pre-wrap;">${s.objects}</div></div>` : ''}
+          ${s.puzzles ? `<div><span class="form-label" style="display:inline;">🧩 연결 퍼즐</span> <span class="text-dim">${s.puzzles}</span></div>` : ''}
+          ${s.links   ? `<div><span class="form-label" style="display:inline;">🔗 연결 씬</span> <span class="text-dim">${s.links}</span></div>` : ''}
+          ${s.memo    ? `<div class="text-dim" style="font-style:italic;white-space:pre-wrap;">${s.memo}</div>` : ''}
+          <div style="display:flex;gap:6px;margin-top:4px;">
+            <button class="btn btn-secondary btn-sm" onclick="openSceneModal(${s.id})">수정</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteScene(${s.id})">삭제</button>
+          </div>
+        </div>
+      </div>`).join('') + `</div>`;
+}
+
+function deleteScene(id) {
+  const s = state.scenes.find(x => x.id === +id);
+  if(!s) return;
+  customConfirm(`"${s.name}" 씬을 삭제할까요?`, () => {
+    state.scenes = state.scenes.filter(x => x.id !== +id);
+    addActivity(`씬 <b>${s.name}</b> 삭제됨`, 'var(--danger)');
+    save(); renderScenes(); updateBadges();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -2232,7 +3541,7 @@ const skillTypeMap = {'액티브':'tag-orange','패시브':'tag-gray','궁극기
 
 function saveSkill() {
   const name = document.getElementById('si-name').value.trim();
-  if(!name) { alert('스킬명을 입력하세요'); return; }
+  if(!name) { showToast('스킬명을 입력하세요', 'warn');  return; }
   const s = {
     id: Date.now(), name,
     type: document.getElementById('si-type').value,
@@ -2272,11 +3581,13 @@ function renderSkills() {
   `).join('');
 }
 
-function deleteSkill(id) {
+function deleteSkill(id) { id=+id;
   const s = state.skills.find(x=>x.id===id);
-  if(!s||!confirm(`"${s.name}" 삭제?`)) return;
-  state.skills = state.skills.filter(x=>x.id!==id);
-  save(); renderSkills(); renderStats(); updateBadges();
+  if(!s) return;
+  customConfirm(`"${s.name}" 스킬을 삭제할까요?`, () => {
+    state.skills = state.skills.filter(x=>x.id!==id);
+    save(); renderSkills(); renderStats(); updateBadges();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -2286,7 +3597,7 @@ const gradeMap = {'일반':'tag-gray','고급':'tag-green','희귀':'tag-cyan','
 
 function saveItem() {
   const name = document.getElementById('ii-name').value.trim();
-  if(!name) { alert('아이템명을 입력하세요'); return; }
+  if(!name) { showToast('아이템명을 입력하세요', 'warn');  return; }
   const i = {
     id: Date.now(), name,
     cat: document.getElementById('ii-cat').value,
@@ -2322,11 +3633,13 @@ function renderItems() {
   `).join('');
 }
 
-function deleteItem(id) {
+function deleteItem(id) { id=+id;
   const i = state.items.find(x=>x.id===id);
-  if(!i||!confirm(`"${i.name}" 삭제?`)) return;
-  state.items = state.items.filter(x=>x.id!==id);
-  save(); renderItems(); renderStats(); updateBadges();
+  if(!i) return;
+  customConfirm(`"${i.name}" 아이템을 삭제할까요?`, () => {
+    state.items = state.items.filter(x=>x.id!==id);
+    save(); renderItems(); renderStats(); updateBadges();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -2334,7 +3647,7 @@ function deleteItem(id) {
 // ═══════════════════════════════════════
 function saveQuest() {
   const name = document.getElementById('qi-name').value.trim();
-  if(!name) { alert('퀘스트명을 입력하세요'); return; }
+  if(!name) { showToast('퀘스트명을 입력하세요', 'warn');  return; }
   const q = {
     id: Date.now(), name,
     type: document.getElementById('qi-type').value,
@@ -2368,7 +3681,7 @@ function renderQuests() {
           <button class="btn btn-danger btn-sm" onclick="deleteQuest(${q.id})">삭제</button>
         </div>
         <div class="quest-meta">Lv.${q.lv} · ${q.type} ${q.reward?'· 보상: '+q.reward:''}</div>
-        ${q.desc?`<div class="text-sm text-dim mt-8">${q.desc}</div>`:''}
+        ${q.desc?'<div class="text-sm text-dim mt-8">'+q.desc+'</div>':''}
       </div>`;
     }).join('');
   }
@@ -2385,11 +3698,13 @@ function renderQuests() {
   document.getElementById('prog-side').style.width = (side/total*100)+'%';
 }
 
-function deleteQuest(id) {
+function deleteQuest(id) { id=+id;
   const q = state.quests.find(x=>x.id===id);
-  if(!q||!confirm(`"${q.name}" 삭제?`)) return;
-  state.quests = state.quests.filter(x=>x.id!==id);
-  save(); renderQuests(); renderStats(); updateBadges();
+  if(!q) return;
+  customConfirm(`"${q.name}" 퀘스트를 삭제할까요?`, () => {
+    state.quests = state.quests.filter(x=>x.id!==id);
+    save(); renderQuests(); renderStats(); updateBadges();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -2397,7 +3712,7 @@ function deleteQuest(id) {
 // ═══════════════════════════════════════
 function saveDocNew() {
   const name = document.getElementById('di-name').value.trim();
-  if(!name) { alert('문서 제목을 입력하세요'); return; }
+  if(!name) { showToast('문서 제목을 입력하세요', 'warn');  return; }
   const d = {
     id: Date.now(), name,
     cat: document.getElementById('di-cat').value,
@@ -2426,7 +3741,7 @@ function renderDocs() {
   `).join('');
 }
 
-function openDoc(id) {
+function openDoc(id) { id=+id;
   const d = state.docs.find(x=>x.id===id);
   if(!d) return;
   state.activeDoc = id;
@@ -2449,18 +3764,20 @@ function saveDoc() {
   d.content = document.getElementById('doc-content').value;
   d.updated = new Date().toLocaleDateString('ko-KR');
   save();
-  alert('저장되었습니다.');
+  showToast('저장되었습니다.');
 }
 
-function deleteDoc(id) {
+function deleteDoc(id) { id=+id;
   const d = state.docs.find(x=>x.id===id);
-  if(!d||!confirm(`"${d.name}" 삭제?`)) return;
-  state.docs = state.docs.filter(x=>x.id!==id);
-  state.activeDoc = null;
-  document.getElementById('doc-title-display').textContent = '문서를 선택하세요';
-  document.getElementById('btn-save-doc').style.display = 'none';
-  document.getElementById('doc-editor-wrap').querySelector('.card-body').innerHTML = `<div class="empty"><div class="empty-icon">📝</div><div class="empty-title">문서 없음</div></div>`;
-  save(); renderDocs(); updateBadges();
+  if(!d) return;
+  customConfirm(`"${d.name}" 문서를 삭제할까요?`, () => {
+    state.docs = state.docs.filter(x=>x.id!==id);
+    state.activeDoc = null;
+    document.getElementById('doc-title-display').textContent = '문서를 선택하세요';
+    document.getElementById('btn-save-doc').style.display = 'none';
+    document.getElementById('doc-editor-wrap').querySelector('.card-body').innerHTML = `<div class="empty"><div class="empty-icon">📝</div><div class="empty-title">문서 없음</div></div>`;
+    save(); renderDocs(); updateBadges();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -2582,12 +3899,15 @@ function switchBalanceTab(id, el) {
 // EXPORT
 // ═══════════════════════════════════════
 function exportData() {
+  const projects = loadProjects();
+  const proj = currentProjectId ? projects.find(p=>p.id===currentProjectId) : null;
+  const filename = proj ? `horyeong-${proj.name}-${Date.now()}.json` : `horyeong-${Date.now()}.json`;
   const json = JSON.stringify(state, null, 2);
   const blob = new Blob([json], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `horyeong-${Date.now()}.json`;
+  a.download = filename;
   a.click();
 }
 
@@ -2615,7 +3935,7 @@ const regionTypeIcon = {던전:'⚔️',마을:'🏘️',필드:'🌿',보스존
 
 function saveRegion() {
   const name = document.getElementById('ri-name').value.trim();
-  if(!name) { alert('지역명을 입력하세요'); return; }
+  if(!name) { showToast('지역명을 입력하세요', 'warn');  return; }
   state.regions.push({ id:Date.now(), name,
     type: document.getElementById('ri-type').value,
     lv: document.getElementById('ri-lv').value,
@@ -2637,16 +3957,16 @@ function renderRegions() {
       <div style="padding:14px 14px 10px;">
         <div style="font-size:22px;margin-bottom:6px;">${regionTypeIcon[r.type]||'📍'}</div>
         <div style="font-weight:700;font-size:13px;">${r.name}</div>
-        <div style="margin:4px 0;"><span class="tag tag-gray">${r.type}</span>${r.lv?` <span class="tag tag-cyan">${r.lv}</span>`:''}</div>
-        ${r.faction?`<div class="text-sm text-dim">세력: ${r.faction}</div>`:''}
-        ${r.desc?`<div class="text-sm text-dim" style="margin-top:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${r.desc}</div>`:''}
+        <div style="margin:4px 0;"><span class="tag tag-gray">${r.type}</span>${r.lv?'<span class="tag tag-cyan">'+r.lv+'</span>':''}</div>
+        ${r.faction?'<div class="text-sm text-dim">세력: '+r.faction+'</div>':''}
+        ${r.desc?'<div class="text-sm text-dim" style="margin-top:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">'+r.desc+'</div>':''}
       </div>
       <div style="padding:6px 14px 10px;"><button class="btn btn-danger btn-sm" onclick="deleteRegion(${r.id})">삭제</button></div>
     </div>
   `).join('');
 }
 
-function deleteRegion(id) {
+function deleteRegion(id) { id=+id;
   state.regions = state.regions.filter(x=>x.id!==id);
   save(); renderRegions(); updateBadges();
 }
@@ -2659,7 +3979,7 @@ const alignIcon = {'선':'🕊️','중립':'⚖️','악':'💀','혼돈':'🌀
 
 function saveFaction() {
   const name = document.getElementById('fi-name').value.trim();
-  if(!name) { alert('세력명을 입력하세요'); return; }
+  if(!name) { showToast('세력명을 입력하세요', 'warn');  return; }
   state.factions.push({ id:Date.now(), name,
     align: document.getElementById('fi-align').value,
     size: document.getElementById('fi-size').value,
@@ -2682,14 +4002,14 @@ function renderFactions() {
         <div style="font-size:22px;margin-bottom:6px;">${alignIcon[f.align]||'⚔️'}</div>
         <div style="font-weight:700;font-size:13px;">${f.name}</div>
         <div style="margin:4px 0;"><span class="tag ${alignMap[f.align]||'tag-gray'}">${f.align}</span> <span class="tag tag-gray">${f.size}</span></div>
-        ${f.base?`<div class="text-sm text-dim">거점: ${f.base}</div>`:''}
-        ${f.desc?`<div class="text-sm text-dim" style="margin-top:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${f.desc}</div>`:''}
+        ${f.base?'<div class="text-sm text-dim">거점: '+f.base+'</div>':''}
+        ${f.desc?'<div class="text-sm text-dim" style="margin-top:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">'+f.desc+'</div>':''}
       </div>
       <div style="padding:6px 14px 10px;"><button class="btn btn-danger btn-sm" onclick="deleteFaction(${f.id})">삭제</button></div>
     </div>
   `).join('');
 }
-function deleteFaction(id) { state.factions=state.factions.filter(x=>x.id!==id); save(); renderFactions(); updateBadges(); }
+function deleteFaction(id) { id=+id; state.factions=state.factions.filter(x=>x.id!==id); save(); renderFactions(); updateBadges(); }
 
 // ═══════════════════════════════════════
 // WORLD — TIMELINE
@@ -2699,7 +4019,7 @@ const importanceMap = {'대사건':'tag-orange','중요':'tag-purple','일반':'
 function saveTimeline() {
   const name = document.getElementById('ti-name').value.trim();
   const year = document.getElementById('ti-year').value.trim();
-  if(!name||!year) { alert('연도와 사건명을 입력하세요'); return; }
+  if(!name||!year) { showToast('연도와 사건명을 입력하세요', 'warn');  return; }
   state.timelineEvents.push({ id:Date.now(), year, name,
     importance: document.getElementById('ti-importance').value,
     desc: document.getElementById('ti-desc').value,
@@ -2727,19 +4047,19 @@ function renderTimeline() {
           <span class="tag ${importanceMap[t.importance]||'tag-gray'}">${t.importance}</span>
           <button class="btn btn-danger btn-sm ml-auto" onclick="deleteTimeline(${t.id})">삭제</button>
         </div>
-        ${t.desc?`<div class="text-sm text-dim">${t.desc}</div>`:''}
+        ${t.desc?'<div class="text-sm text-dim">'+t.desc+'</div>':''}
       </div>
     </div>
   `).join('');
 }
-function deleteTimeline(id) { state.timelineEvents=state.timelineEvents.filter(x=>x.id!==id); save(); renderTimeline(); updateBadges(); }
+function deleteTimeline(id) { id=+id; state.timelineEvents=state.timelineEvents.filter(x=>x.id!==id); save(); renderTimeline(); updateBadges(); }
 
 // ═══════════════════════════════════════
 // SCRIPT
 // ═══════════════════════════════════════
 function saveScriptNew() {
   const name = document.getElementById('sci-name').value.trim();
-  if(!name) { alert('제목을 입력하세요'); return; }
+  if(!name) { showToast('제목을 입력하세요', 'warn');  return; }
   const s = { id:Date.now(), name,
     type: document.getElementById('sci-type').value,
     chars: document.getElementById('sci-chars').value,
@@ -2766,7 +4086,7 @@ function renderScripts() {
   `).join('');
 }
 
-function openScriptDoc(id) {
+function openScriptDoc(id) { id=+id;
   const s = state.scripts.find(x=>x.id===id);
   if(!s) return;
   state.activeScript = id;
@@ -2775,7 +4095,7 @@ function openScriptDoc(id) {
   document.getElementById('script-editor-body').innerHTML=`
     <div class="flex-center gap-8" style="margin-bottom:10px;">
       <span class="tag tag-gray">${s.type}</span>
-      ${s.chars?`<span class="text-sm text-dim">${s.chars}</span>`:''}
+      ${s.chars?'<span class="text-sm text-dim">'+s.chars+'</span>':''}
       <button class="btn btn-danger btn-sm ml-auto" onclick="deleteScript(${s.id})">삭제</button>
     </div>
     <div class="notice notice-info" style="margin-bottom:10px;">💡 형식 예: [캐릭터명] 대사 내용 / (지문) 행동 묘사</div>
@@ -2789,17 +4109,18 @@ function saveScript() {
   if(!s) return;
   s.content = document.getElementById('script-content').value;
   s.updated = new Date().toLocaleDateString('ko-KR');
-  save(); alert('저장됐습니다.');
+  save(); showToast('저장됐습니다.');
 }
 
-function deleteScript(id) {
-  if(!confirm('삭제하시겠어요?')) return;
-  state.scripts = state.scripts.filter(x=>x.id!==id);
-  state.activeScript = null;
-  document.getElementById('script-title-display').textContent='스크립트를 선택하세요';
-  document.getElementById('btn-save-script').style.display='none';
-  document.getElementById('script-editor-body').innerHTML=`<div class="empty"><div class="empty-icon">🎬</div><div class="empty-title">스크립트 없음</div></div>`;
-  save(); renderScripts(); updateBadges();
+function deleteScript(id) { id=+id;
+  customConfirm('이 스크립트를 삭제할까요?', () => {
+    state.scripts = state.scripts.filter(x=>x.id!==id);
+    state.activeScript = null;
+    document.getElementById('script-title-display').textContent='스크립트를 선택하세요';
+    document.getElementById('btn-save-script').style.display='none';
+    document.getElementById('script-editor-body').innerHTML=`<div class="empty"><div class="empty-icon">🎬</div><div class="empty-title">스크립트 없음</div></div>`;
+    save(); renderScripts(); updateBadges();
+  });
 }
 
 // ═══════════════════════════════════════
@@ -2809,7 +4130,7 @@ const mStatusMap = {'예정':'tag-gray','진행중':'tag-cyan','완료':'tag-gre
 
 function saveMilestone() {
   const name = document.getElementById('mi-name').value.trim();
-  if(!name) { alert('마일스톤명을 입력하세요'); return; }
+  if(!name) { showToast('마일스톤명을 입력하세요', 'warn');  return; }
   state.milestones.push({ id:Date.now(), name,
     date: document.getElementById('mi-date').value,
     status: document.getElementById('mi-status').value,
@@ -2840,8 +4161,8 @@ function renderMilestones() {
         <span class="text-sm text-dim" style="width:36px;">${m.progress}%</span>
         <div class="progress-bar" style="flex:1;height:6px;"><div class="progress-fill" style="width:${m.progress}%;background:${m.status==='완료'?'var(--success)':m.status==='지연'?'var(--danger)':'var(--accent)'};"></div></div>
       </div>
-      ${m.owner?`<div class="text-sm text-dim">담당: ${m.owner}</div>`:''}
-      ${m.desc?`<div class="text-sm text-dim" style="margin-top:4px;">${m.desc}</div>`:''}
+      ${m.owner?'<div class="text-sm text-dim">담당: '+m.owner+'</div>':''}
+      ${m.desc?'<div class="text-sm text-dim" style="margin-top:4px;">'+m.desc+'</div>':''}
     </div>
   `).join('');
 }
@@ -2864,7 +4185,7 @@ function renderScheduleStats() {
   `;
 }
 
-function deleteMilestone(id) {
+function deleteMilestone(id) { id=+id;
   state.milestones=state.milestones.filter(x=>x.id!==id);
   save(); renderMilestones(); renderScheduleStats(); updateBadges();
 }
@@ -2887,7 +4208,7 @@ const bugStatusMap={'미확인':'tag-gray','확인됨':'tag-cyan','수정중':'t
 
 function saveBug() {
   const name=document.getElementById('bi-name').value.trim();
-  if(!name){alert('제목을 입력하세요');return;}
+  if(!name){showToast('제목을 입력하세요', 'warn'); return;}
   state.bugs.push({id:Date.now(),name,
     severity:document.getElementById('bi-severity').value,
     status:document.getElementById('bi-status').value,
@@ -2906,7 +4227,7 @@ function renderBugs() {
   tb.innerHTML=state.bugs.map((b,i)=>`
     <tr>
       <td class="mono text-dim">#${i+1}</td>
-      <td><b>${b.name}</b>${b.location?`<div class="text-sm text-dim">${b.location}</div>`:''}</td>
+      <td><b>${b.name}</b>${b.location?'<div class="text-sm text-dim">'+b.location+'</div>':''}</td>
       <td><span class="tag ${sevMap[b.severity]||'tag-gray'}">${b.severity}</span></td>
       <td><span class="tag ${bugStatusMap[b.status]||'tag-gray'}">${b.status}</span></td>
       <td>${b.owner||'-'}</td>
@@ -2914,7 +4235,7 @@ function renderBugs() {
     </tr>
   `).join('');
 }
-function deleteBug(id){state.bugs=state.bugs.filter(x=>x.id!==id);save();renderBugs();updateBadges();}
+function deleteBug(id){ id=+id;state.bugs=state.bugs.filter(x=>x.id!==id);save();renderBugs();updateBadges();}
 
 // ═══════════════════════════════════════
 // TRACKER — FEEDBACK
@@ -2924,7 +4245,7 @@ const fbPriMap={'높음':'tag-red','보통':'tag-yellow','낮음':'tag-gray'};
 
 function saveFeedback() {
   const content=document.getElementById('fbi-content').value.trim();
-  if(!content){alert('내용을 입력하세요');return;}
+  if(!content){showToast('내용을 입력하세요', 'warn'); return;}
   state.feedbacks.push({id:Date.now(),content,
     source:document.getElementById('fbi-source').value,
     cat:document.getElementById('fbi-cat').value,
@@ -2949,7 +4270,7 @@ function renderFeedback() {
     </tr>
   `).join('');
 }
-function deleteFeedback(id){state.feedbacks=state.feedbacks.filter(x=>x.id!==id);save();renderFeedback();updateBadges();}
+function deleteFeedback(id){ id=+id;state.feedbacks=state.feedbacks.filter(x=>x.id!==id);save();renderFeedback();updateBadges();}
 
 // ═══════════════════════════════════════
 // TRACKER — TODO
@@ -2958,7 +4279,7 @@ const todoPriMap={'긴급':'tag-red','높음':'tag-orange','보통':'tag-yellow'
 
 function saveTodo() {
   const name=document.getElementById('toi-name').value.trim();
-  if(!name){alert('할 일을 입력하세요');return;}
+  if(!name){showToast('할 일을 입력하세요', 'warn'); return;}
   state.todos.push({id:Date.now(),name,done:false,
     priority:document.getElementById('toi-priority').value,
     due:document.getElementById('toi-due').value,
@@ -2970,6 +4291,7 @@ function saveTodo() {
 }
 
 function toggleTodo(id) {
+  id=+id;
   const t=state.todos.find(x=>x.id===id);
   if(t) { t.done=!t.done; save(); renderTodos(); updateBadges(); }
 }
@@ -2984,14 +4306,14 @@ function renderTodos() {
       <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${t.id})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);">
       <span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:var(--text-dim);':''}">${t.name}</span>
       <span class="tag ${todoPriMap[t.priority]||'tag-gray'}">${t.priority}</span>
-      ${t.due?`<span class="mono text-sm text-dim">${t.due}</span>`:''}
-      ${t.owner?`<span class="text-sm text-dim">${t.owner}</span>`:''}
+      ${t.due?'<span class="mono text-sm text-dim">'+t.due+'</span>':''}
+      ${t.owner?'<span class="text-sm text-dim">'+t.owner+'</span>':''}
       <button class="btn btn-danger btn-sm" onclick="deleteTodo(${t.id})">삭제</button>
     </div>
   `;
   el.innerHTML=(open.length?open.map(renderItem).join(''):'')+(done.length?`<div class="text-sm text-dim" style="margin:10px 0 6px;">완료됨 (${done.length})</div>`+done.map(renderItem).join(''):'');
 }
-function deleteTodo(id){state.todos=state.todos.filter(x=>x.id!==id);save();renderTodos();updateBadges();}
+function deleteTodo(id){ id=+id;state.todos=state.todos.filter(x=>x.id!==id);save();renderTodos();updateBadges();}
 
 
 // ═══════════════════════════════════════
@@ -3008,7 +4330,7 @@ function switchSoundTab(id, el) {
 
 function saveSound() {
   const name=document.getElementById('snd-name').value.trim();
-  if(!name){alert('트랙명을 입력하세요');return;}
+  if(!name){showToast('트랙명을 입력하세요', 'warn'); return;}
   const mode=document.getElementById('sound-mode').value;
   state.sounds.push({id:Date.now(), name, mode,
     mood: mode==='bgm'?document.getElementById('snd-mood').value:'',
@@ -3032,7 +4354,7 @@ function renderSounds() {
     if(!tb) return;
     if(!arr.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="empty-icon">🎶</div><div class="empty-title">BGM 없음</div></div></td></tr>`;return;}
     tb.innerHTML=arr.map(s=>`<tr>
-      <td><b>${s.name}</b>${s.memo?`<div class="text-sm text-dim">${s.memo}</div>`:''}</td>
+      <td><b>${s.name}</b>${s.memo?'<div class="text-sm text-dim">'+s.memo+'</div>':''}</td>
       <td><span class="tag ${moodTagMap[s.mood]||'tag-gray'}">${s.mood}</span></td>
       <td class="text-dim">${s.scene||'-'}</td>
       <td>${s.loop||'-'}</td>
@@ -3056,7 +4378,7 @@ function renderSounds() {
   };
   renderBgm(bgm); renderSfx(sfx);
 }
-function deleteSound(id){state.sounds=state.sounds.filter(x=>x.id!==id);save();renderSounds();updateBadges();}
+function deleteSound(id){ id=+id;state.sounds=state.sounds.filter(x=>x.id!==id);save();renderSounds();updateBadges();}
 
 // ═══════════════════════════════════════
 // ART ASSETS
@@ -3072,7 +4394,7 @@ function switchArtTab(id, el) {
 
 function saveArt() {
   const name=document.getElementById('art-name').value.trim();
-  if(!name){alert('에셋명을 입력하세요');return;}
+  if(!name){showToast('에셋명을 입력하세요', 'warn'); return;}
   const mode=document.getElementById('art-mode').value;
   state.arts.push({id:Date.now(), name, mode,
     res:document.getElementById('art-res').value,
@@ -3105,14 +4427,14 @@ function renderArts() {
           <span class="tag tag-gray">${a.format}</span>
           <span class="tag ${artStatusMap[a.status]||'tag-gray'}">${a.status}</span>
         </div>
-        ${a.res?`<div class="text-sm text-dim">${a.res}</div>`:''}
-        ${a.ref?`<div class="text-sm text-dim">${a.ref}</div>`:''}
+        ${a.res?'<div class="text-sm text-dim">'+a.res+'</div>':''}
+        ${a.ref?'<div class="text-sm text-dim">'+a.ref+'</div>':''}
         <button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;" onclick="deleteArt(${a.id})">삭제</button>
       </div>
     `).join('');
   }
 }
-function deleteArt(id){state.arts=state.arts.filter(x=>x.id!==id);save();renderArts();updateBadges();}
+function deleteArt(id){ id=+id;state.arts=state.arts.filter(x=>x.id!==id);save();renderArts();updateBadges();}
 
 // ═══════════════════════════════════════
 // REVENUE
@@ -3166,7 +4488,7 @@ function calcRevenue() {
 // ═══════════════════════════════════════
 function savePlaytest() {
   const name=document.getElementById('pt-name').value.trim();
-  if(!name){alert('세션명을 입력하세요');return;}
+  if(!name){showToast('세션명을 입력하세요', 'warn'); return;}
   state.playtests.push({id:Date.now(), name,
     date:document.getElementById('pt-date').value,
     testers:+document.getElementById('pt-testers').value||1,
@@ -3207,11 +4529,11 @@ function renderPlaytests() {
             <div class="stat-label">평점</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${p.rating>=8?'var(--success)':p.rating>=5?'var(--warning)':'var(--danger)'};">${p.rating}/10</div>
           </div>
-          ${p.duration?`<div style="text-align:center;"><div class="stat-label">플레이 시간</div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;padding-top:4px;">${p.duration}</div></div>`:''}
+          ${p.duration?'<div style="text-align:center;"><div class="stat-label">플레이 시간</div><div style="font-size:18px;padding-top:4px;">'+p.duration+'</div></div>':''}
         </div>
-        ${p.issues?`<div style="margin-bottom:8px;"><div class="form-label" style="color:var(--danger);margin-bottom:4px;">⚠️ 이슈 / 막힌 구간</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">${p.issues}</div></div>`:''}
-        ${p.positive?`<div style="margin-bottom:8px;"><div class="form-label" style="color:var(--success);margin-bottom:4px;">✅ 긍정적 피드백</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">${p.positive}</div></div>`:''}
-        ${p.suggest?`<div><div class="form-label" style="color:var(--accent3);margin-bottom:4px;">💡 개선 제안</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">${p.suggest}</div></div>`:''}
+        ${p.issues?'<div style="margin-bottom:8px;"><div class="form-label" style="color:var(--danger);margin-bottom:4px;">⚠️ 이슈 / 막힌 구간</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">'+p.issues+'</div></div>':''}
+        ${p.positive?'<div style="margin-bottom:8px;"><div class="form-label" style="color:var(--success);margin-bottom:4px;">✅ 긍정적 피드백</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">'+p.positive+'</div></div>':''}
+        ${p.suggest?'<div><div class="form-label" style="color:var(--accent3);margin-bottom:4px;">💡 개선 제안</div><div class="text-sm" style="line-height:1.6;white-space:pre-wrap;">'+p.suggest+'</div></div>':''}
       </div>
     </div>
   `).join('');
@@ -3233,51 +4555,116 @@ function renderPlaytestStats() {
     <div class="progress-bar" style="margin-top:10px;height:6px;"><div class="progress-fill" style="width:${avgCompletion}%;"></div></div>
   `;
 }
-function deletePlaytest(id){state.playtests=state.playtests.filter(x=>x.id!==id);save();renderPlaytests();renderPlaytestStats();updateBadges();}
+function deletePlaytest(id){ id=+id;state.playtests=state.playtests.filter(x=>x.id!==id);save();renderPlaytests();renderPlaytestStats();updateBadges();}
 
 // ═══════════════════════════════════════
 // THEME TOGGLE
 // ═══════════════════════════════════════
+// ── 토스트 알림 ──
+function showToast(message, type='info') {
+  const colors = { info:'var(--accent3)', warn:'var(--warning)', success:'var(--success)', error:'var(--danger)' };
+  const toast = document.getElementById('app-toast');
+  const msg = document.getElementById('app-toast-msg');
+  if(!toast || !msg) return;
+  msg.textContent = message;
+  toast.style.background = colors[type] || colors.info;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+  }, 2200);
+}
+
+// ═══════════════════════════════════════
+// CUSTOM CONFIRM (iframe에서 confirm() 차단 우회)
+// ═══════════════════════════════════════
+function customConfirm(message, onOk, title='삭제 확인') {
+  const overlay = document.getElementById('modal-confirm');
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-message').textContent = message;
+  overlay.classList.add('open');
+  const ok = document.getElementById('confirm-ok-btn');
+  const cancel = document.getElementById('confirm-cancel-btn');
+  const close = () => overlay.classList.remove('open');
+  ok.onclick = () => { close(); onOk(); };
+  cancel.onclick = close;
+  overlay.onclick = e => { if(e.target===overlay) close(); };
+}
+
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
-  document.getElementById('theme-icon').textContent = isLight ? '☀️' : '🌙';
-  document.getElementById('theme-label').textContent = isLight ? '라이트' : '다크';
+  const icon = isLight ? '☀️' : '🌙';
+  const label = isLight ? '라이트' : '다크';
+  ['theme-icon','theme-icon-home'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=icon; });
+  ['theme-label','theme-label-home'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=label; });
   localStorage.setItem('horyeong-theme', isLight ? 'light' : 'dark');
 }
 
 function applyTheme() {
   const saved = localStorage.getItem('horyeong-theme');
-  if(saved === 'light') {
+  if (saved === 'light') {
     document.body.classList.add('light');
-    document.getElementById('theme-icon').textContent = '☀️';
-    document.getElementById('theme-label').textContent = '라이트';
+    ['theme-icon','theme-icon-home'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='☀️'; });
+    ['theme-label','theme-label-home'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='라이트'; });
   }
 }
 
 // ── Init ──
-load();
 applyTheme();
+renderHome();
 
-// ── Service Worker 등록 ──
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
-      // 새 SW 대기 중이면 업데이트 토스트 표시
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateToast(newWorker);
-          }
-        });
+// ── 태그 입력 엔터 리스너 ──
+(function() {
+  function attachTagInput() {
+    const inp = document.getElementById('ci-tag-input');
+    if(inp && !inp._tagListenerAttached) {
+      inp._tagListenerAttached = true;
+      inp.addEventListener('keydown', function(e) {
+        if(e.key==='Enter') {
+          e.preventDefault();
+          const val = inp.value.trim();
+          if(val && !_ciTags.includes(val)) { _ciTags.push(val); _renderCiTagsDisplay(); }
+          inp.value = '';
+        }
       });
-    }).catch(err => console.warn('[SW] 등록 실패:', err));
+    }
+  }
+  // 모달이 열릴 때마다 붙여주기 위해 MutationObserver 사용
+  const mo = new MutationObserver(() => attachTagInput());
+  mo.observe(document.body, { childList:true, subtree:true });
+  attachTagInput();
+})();
 
-    // SW 활성화 후 페이지 자동 새로고침
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) { refreshing = true; location.reload(); }
-    });
+// ── Service Worker 등록 (로컬/GitHub Pages 환경에서만) ──
+const SW_ALLOWED = (
+  'serviceWorker' in navigator &&
+  location.protocol === 'https:' &&
+  !location.hostname.includes('claudeusercontent.com') &&
+  !location.hostname.includes('claude.ai') &&
+  !location.hostname.includes('anthropic.com')
+);
+
+if (SW_ALLOWED) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateToast(newWorker);
+            }
+          });
+        });
+        // SW 활성화 후 페이지 자동 새로고침
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) { refreshing = true; location.reload(); }
+        });
+      })
+      .catch(() => { /* 등록 실패 시 무시 */ });
   });
 }
 
@@ -3303,5 +4690,31 @@ function showUpdateToast(worker) {
   };
 }
 </script>
+
+<!-- ── 토스트 알림 ── -->
+<div id="app-toast" style="
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px);
+  background:var(--accent3); color:white; border-radius:6px;
+  padding:10px 18px; font-size:13px; font-family:'Noto Sans KR',sans-serif;
+  z-index:300; opacity:0; transition:opacity 0.2s, transform 0.2s;
+  pointer-events:none; white-space:nowrap;">
+  <span id="app-toast-msg"></span>
+</div>
+
+<!-- ── 커스텀 확인 모달 ── -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <span class="modal-title" id="confirm-title">확인</span>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-message" style="font-size:14px;line-height:1.6;color:var(--text);"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="confirm-cancel-btn">취소</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">삭제</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
