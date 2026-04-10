@@ -510,7 +510,7 @@
 
   /* ── Mobile bottom nav ── */
   .mobile-nav {
-    display: none;
+    display: none !important; /* 데스크탑에서 visible 클래스와 무관하게 항상 숨김 */
     position: fixed;
     bottom: 0; left: 0; right: 0;
     height: 60px;
@@ -522,6 +522,7 @@
     scrollbar-width: none;
   }
   .mobile-nav::-webkit-scrollbar { display: none; }
+  .mobile-add-btn { display: none !important; } /* FAB도 데스크탑에서 항상 숨김 */
   .mobile-nav-inner {
     display: flex;
     align-items: stretch;
@@ -592,8 +593,8 @@
   /* ── Mobile: full override ── */
   @media (max-width: 600px) {
     .sidebar { display: none; }
-    .mobile-nav.visible { display: block; }
-    .mobile-add-btn.visible { display: flex; }
+    .mobile-nav.visible { display: block !important; }
+    .mobile-add-btn.visible { display: flex !important; }
 
     .app { flex-direction: column; height: 100dvh; }
 
@@ -922,7 +923,7 @@
 ══════════════════════════════════════ -->
 <div id="home-screen">
   <div class="home-header">
-    <div class="home-logo">HORYEONG PLANNER<span>게임 기획 관리 시스템</span></div>
+    <div class="home-logo">HORYEONG PLANNER<span>게임 기획 관리 시스템 · v0.1.0 beta</span></div>
     <button class="theme-toggle" onclick="toggleTheme()" title="라이트/다크 전환">
       <span class="theme-icon" id="theme-icon-home">🌙</span>
       <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
@@ -978,6 +979,7 @@
     <div class="logo" style="cursor:pointer;" onclick="goHome()" title="홈으로">
       <div class="logo-title">HORYEONG<br>PLANNER</div>
       <div class="logo-sub" id="sidebar-proj-name">게임 기획 관리 시스템</div>
+      <div style="margin-top:5px;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);letter-spacing:1px;">v0.1.0 beta</div>
     </div>
     <nav class="nav">
       <div class="nav-section">개요</div>
@@ -1286,22 +1288,25 @@
 
       <!-- ═══ PUZZLES ═══ -->
       <div class="page" id="page-puzzles">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-          <div class="tabs" id="puzzle-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;">
-            <div class="tab active" onclick="switchPuzzleTab('all',this)">전체</div>
-            <div class="tab" onclick="switchPuzzleTab('미해결',this)">미해결</div>
-            <div class="tab" onclick="switchPuzzleTab('해결됨',this)">해결됨</div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="openModal('puzzle')">+ 퍼즐 추가</button>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+          <div class="tabs" id="puzzle-group-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="openPuzzleGroupModal()" style="white-space:nowrap;">⚙ 그룹 관리</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('puzzle')" style="white-space:nowrap;">+ 퍼즐 추가</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;" id="puzzle-status-tabs">
+          <div class="tab active" onclick="switchPuzzleStatus('all',this)" style="font-size:11px;padding:4px 10px;">전체</div>
+          <div class="tab" onclick="switchPuzzleStatus('미해결',this)" style="font-size:11px;padding:4px 10px;">미해결</div>
+          <div class="tab" onclick="switchPuzzleStatus('완료',this)" style="font-size:11px;padding:4px 10px;">완료</div>
         </div>
         <div id="puzzle-list"></div>
       </div>
 
       <!-- ═══ SCENES ═══ -->
       <div class="page" id="page-scenes">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:700;">🚪 씬 / 맵 구조</span>
-          <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('scene')">+ 씬 추가</button>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="tabs" id="scene-floor-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="openSceneFloorModal()" style="white-space:nowrap;">⚙ 플로어 관리</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('scene')" style="white-space:nowrap;">+ 씬 추가</button>
         </div>
         <div id="scene-list"></div>
       </div>
@@ -1780,6 +1785,16 @@
       <span>세계관</span>
       <span class="mobile-nav-badge" id="mbadge-world" style="display:none">0</span>
     </div>
+    <div class="mobile-nav-item" id="mnav-puzzles" onclick="goPage('puzzles', null, 'puzzles')">
+      <span class="m-icon">🧩</span>
+      <span>퍼즐</span>
+      <span class="mobile-nav-badge" id="mbadge-puzzles" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-scenes" onclick="goPage('scenes', null, 'scenes')">
+      <span class="m-icon">🚪</span>
+      <span>씬/맵</span>
+      <span class="mobile-nav-badge" id="mbadge-scenes" style="display:none">0</span>
+    </div>
     <div class="mobile-nav-item" id="mnav-script" onclick="goPage('script', null, 'script')">
       <span class="m-icon">💬</span>
       <span>스크립트</span>
@@ -1945,8 +1960,19 @@
             <option>쉬움</option><option>보통</option><option>어려움</option><option>매우 어려움</option>
           </select>
         </div>
+        <div class="form-group"><div class="form-label">그룹</div>
+          <select class="form-control" id="pz-group">
+            <option value="">— 없음 —</option>
+          </select>
+        </div>
         <div class="form-group"><div class="form-label">위치 (씬)</div>
-          <input type="text" class="form-control" id="pz-scene" placeholder="지하실, 서재...">
+          <select class="form-control" id="pz-scene" onchange="onPzSceneChange()">
+            <option value="">— 선택 —</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">플로어</div>
+          <input type="text" class="form-control" id="pz-floor" placeholder="자동 입력" readonly
+            style="background:var(--surface2);color:var(--text-dim);cursor:default;">
         </div>
         <div class="form-group"><div class="form-label">상태</div>
           <select class="form-control" id="pz-status">
@@ -1972,6 +1998,46 @@
   </div>
 </div>
 
+<!-- Puzzle Group Manager Modal -->
+<div class="modal-overlay" id="modal-puzzle-group">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙ 퍼즐 그룹 관리</span>
+      <button class="modal-close" onclick="closeModal('puzzle-group')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="puzzle-group-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-puzzle-group-name" placeholder="그룹 이름 (예: 1층 퍼즐, 최종 퍼즐...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addPuzzleGroup()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('puzzle-group')">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scene Floor Manager Modal -->
+<div class="modal-overlay" id="modal-scene-floor">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙ 플로어 관리</span>
+      <button class="modal-close" onclick="closeModal('scene-floor')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="scene-floor-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-floor-name" placeholder="플로어 이름 (예: 1층, 지하, 옥상...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addSceneFloor()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('scene-floor')">완료</button>
+    </div>
+  </div>
+</div>
+
 <!-- Scene Modal -->
 <div class="modal-overlay" id="modal-scene">
   <div class="modal" style="max-width:560px;">
@@ -1983,6 +2049,11 @@
       <input type="hidden" id="sc-edit-id">
       <div class="grid grid-2">
         <div class="form-group"><div class="form-label">씬명 *</div><input type="text" class="form-control" id="sc-name" placeholder="지하실, 서재, 복도..."></div>
+        <div class="form-group"><div class="form-label">플로어 (층/구역)</div>
+          <select class="form-control" id="sc-floor">
+            <option value="">— 미지정 —</option>
+          </select>
+        </div>
         <div class="form-group"><div class="form-label">장소 유형</div>
           <select class="form-control" id="sc-type">
             <option>실내</option><option>실외</option><option>비밀공간</option><option>이동구간</option><option>기타</option>
@@ -1993,7 +2064,7 @@
             <option>기획중</option><option>제작중</option><option>완료</option>
           </select>
         </div>
-        <div class="form-group"><div class="form-label">진입 조건</div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">진입 조건</div>
           <input type="text" class="form-control" id="sc-entry" placeholder="열쇠 필요, 퍼즐 해결 후...">
         </div>
       </div>
@@ -2571,6 +2642,8 @@ const state = {
   devlogs: [],
   puzzles: [],
   scenes: [],
+  sceneFloors: [],
+  puzzleGroups: [],
 };
 
 function load() {
@@ -2586,6 +2659,8 @@ function load() {
     devlogs:[],
     puzzles:[],
     scenes:[],
+    sceneFloors:[],
+    puzzleGroups:[],
   });
   try {
     const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
@@ -3324,37 +3399,153 @@ function _attachCharDragEvents(tbody) {
 const difficultyColor = {'쉬움':'tag-green','보통':'tag-cyan','어려움':'tag-yellow','매우 어려움':'tag-red'};
 const puzzleStatusColor = {'기획중':'tag-yellow','제작중':'tag-purple','테스트중':'tag-cyan','완료':'tag-green'};
 
-let currentPuzzleTab = 'all';
+let currentPuzzleGroup = 'all';
+let currentPuzzleStatus = 'all';
 
-function switchPuzzleTab(tab, el) {
-  currentPuzzleTab = tab;
-  document.querySelectorAll('#puzzle-tabs .tab').forEach(t => t.classList.remove('active'));
+// ── 그룹 관리 ──
+function getPuzzleGroups() {
+  if(!state.puzzleGroups) state.puzzleGroups = [];
+  return state.puzzleGroups;
+}
+
+function openPuzzleGroupModal() {
+  renderPuzzleGroupList();
+  document.getElementById('modal-puzzle-group').classList.add('open');
+}
+
+function renderPuzzleGroupList() {
+  const el = document.getElementById('puzzle-group-manager-list');
+  if(!el) return;
+  const groups = getPuzzleGroups();
+  if(!groups.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">그룹 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = groups.map((g, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <input type="text" value="${g}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renamePuzzleGroup(${i}, this.value)">
+      <button class="btn btn-danger btn-sm" onclick="deletePuzzleGroup(${i})">삭제</button>
+    </div>`).join('');
+}
+
+function addPuzzleGroup() {
+  const inp = document.getElementById('new-puzzle-group-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  getPuzzleGroups().push(name);
+  inp.value = '';
+  save(); renderPuzzleGroupList(); renderPuzzleGroupTabs(); _updatePzGroupSelect();
+}
+
+function renamePuzzleGroup(idx, newName) {
+  if(!newName.trim()) return;
+  const old = getPuzzleGroups()[idx];
+  getPuzzleGroups()[idx] = newName.trim();
+  state.puzzles.forEach(p => { if(p.group === old) p.group = newName.trim(); });
+  save(); renderPuzzleGroupList(); renderPuzzleGroupTabs(); renderPuzzles(); _updatePzGroupSelect();
+}
+
+function deletePuzzleGroup(idx) {
+  const groups = getPuzzleGroups();
+  const name = groups[idx];
+  const count = state.puzzles.filter(p => p.group === name).length;
+  const msg = count > 0
+    ? `"${name}" 그룹을 삭제하면 소속 퍼즐 ${count}개의 그룹이 해제됩니다.`
+    : `"${name}" 그룹을 삭제할까요?`;
+  customConfirm(msg, () => {
+    groups.splice(idx, 1);
+    state.puzzles.forEach(p => { if(p.group === name) p.group = ''; });
+    if(currentPuzzleGroup === name) currentPuzzleGroup = 'all';
+    save(); renderPuzzleGroupList(); renderPuzzleGroupTabs(); renderPuzzles(); _updatePzGroupSelect();
+  }, '그룹 삭제');
+}
+
+function renderPuzzleGroupTabs() {
+  const wrap = document.getElementById('puzzle-group-tabs');
+  if(!wrap) return;
+  const groups = getPuzzleGroups();
+  wrap.innerHTML =
+    `<div class="tab ${currentPuzzleGroup==='all'?'active':''}" onclick="switchPuzzleGroup('all',this)">전체</div>` +
+    groups.map(g =>
+      `<div class="tab ${currentPuzzleGroup===g?'active':''}" onclick="switchPuzzleGroup(${JSON.stringify(g)},this)">${g}</div>`
+    ).join('') +
+    `<div class="tab ${currentPuzzleGroup==='none'?'active':''}" onclick="switchPuzzleGroup('none',this)" style="color:var(--text-dimmer);">미지정</div>`;
+}
+
+function switchPuzzleGroup(group, el) {
+  currentPuzzleGroup = group;
+  renderPuzzleGroupTabs();
+  renderPuzzles();
+}
+
+function switchPuzzleStatus(status, el) {
+  currentPuzzleStatus = status;
+  document.querySelectorAll('#puzzle-status-tabs .tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   renderPuzzles();
 }
 
+// ── 씬 연동 ──
+function _updatePzSceneSelect(currentVal) {
+  const sel = document.getElementById('pz-scene');
+  if(!sel) return;
+  const scenes = state.scenes || [];
+  sel.innerHTML = `<option value="">— 선택 —</option>` +
+    scenes.map(s => `<option value="${s.name}" ${s.name===currentVal?'selected':''}>${s.name}${s.floor?' ('+s.floor+')':''}</option>`).join('');
+  // 현재 선택된 씬의 플로어 반영
+  const selScene = scenes.find(s => s.name === (currentVal || sel.value));
+  const floorEl = document.getElementById('pz-floor');
+  if(floorEl) floorEl.value = selScene?.floor || '';
+}
+
+function onPzSceneChange() {
+  const sel = document.getElementById('pz-scene');
+  const scene = (state.scenes||[]).find(s => s.name === sel.value);
+  const floorEl = document.getElementById('pz-floor');
+  if(floorEl) floorEl.value = scene?.floor || '';
+}
+
+function _updatePzGroupSelect(currentVal) {
+  const sel = document.getElementById('pz-group');
+  if(!sel) return;
+  const groups = getPuzzleGroups();
+  sel.innerHTML = `<option value="">— 없음 —</option>` +
+    groups.map(g => `<option value="${g}" ${g===currentVal?'selected':''}>${g}</option>`).join('');
+}
+
+// ── 모달 열기 ──
 function openPuzzleModal(editId) {
-  const fields = ['pz-name','pz-scene','pz-prereq','pz-condition','pz-answer','pz-hint1','pz-hint2','pz-hint3','pz-reward','pz-memo'];
-  fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  const textFields = ['pz-name','pz-prereq','pz-condition','pz-answer','pz-hint1','pz-hint2','pz-hint3','pz-reward','pz-memo','pz-floor'];
+  textFields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('pz-edit-id').value = editId || '';
   document.getElementById('modal-puzzle-title').textContent = editId ? '퍼즐 수정' : '퍼즐 추가';
   document.getElementById('pz-save-btn').textContent = editId ? '수정 완료' : '저장';
+
   if(editId) {
     const p = state.puzzles.find(x => x.id === +editId);
     if(!p) return;
-    document.getElementById('pz-name').value       = p.name || '';
-    document.getElementById('pz-type').value       = p.type || '자물쇠/암호';
+    _updatePzSceneSelect(p.scene || '');
+    _updatePzGroupSelect(p.group || '');
+    document.getElementById('pz-name').value       = p.name       || '';
+    document.getElementById('pz-type').value       = p.type       || '자물쇠/암호';
     document.getElementById('pz-difficulty').value = p.difficulty || '보통';
-    document.getElementById('pz-scene').value      = p.scene || '';
-    document.getElementById('pz-status').value     = p.status || '기획중';
-    document.getElementById('pz-prereq').value     = p.prereq || '';
-    document.getElementById('pz-condition').value  = p.condition || '';
-    document.getElementById('pz-answer').value     = p.answer || '';
-    document.getElementById('pz-hint1').value      = p.hint1 || '';
-    document.getElementById('pz-hint2').value      = p.hint2 || '';
-    document.getElementById('pz-hint3').value      = p.hint3 || '';
-    document.getElementById('pz-reward').value     = p.reward || '';
-    document.getElementById('pz-memo').value       = p.memo || '';
+    document.getElementById('pz-status').value     = p.status     || '기획중';
+    document.getElementById('pz-prereq').value     = p.prereq     || '';
+    document.getElementById('pz-condition').value  = p.condition  || '';
+    document.getElementById('pz-answer').value     = p.answer     || '';
+    document.getElementById('pz-hint1').value      = p.hint1      || '';
+    document.getElementById('pz-hint2').value      = p.hint2      || '';
+    document.getElementById('pz-hint3').value      = p.hint3      || '';
+    document.getElementById('pz-reward').value     = p.reward     || '';
+    document.getElementById('pz-memo').value       = p.memo       || '';
+  } else {
+    _updatePzSceneSelect('');
+    _updatePzGroupSelect('');
+    const defaultGroup = (currentPuzzleGroup !== 'all' && currentPuzzleGroup !== 'none') ? currentPuzzleGroup : '';
+    document.getElementById('pz-group').value = defaultGroup;
   }
   document.getElementById('modal-puzzle').classList.add('open');
 }
@@ -3363,11 +3554,15 @@ function savePuzzle() {
   const name = document.getElementById('pz-name').value.trim();
   if(!name) { showToast('퍼즐명을 입력하세요', 'warn'); return; }
   const editId = document.getElementById('pz-edit-id').value;
+  const sceneName = document.getElementById('pz-scene').value;
+  const scene = (state.scenes||[]).find(s => s.name === sceneName);
   const data = {
     name,
+    group:      document.getElementById('pz-group').value     || '',
     type:       document.getElementById('pz-type').value,
     difficulty: document.getElementById('pz-difficulty').value,
-    scene:      document.getElementById('pz-scene').value,
+    scene:      sceneName,
+    floor:      scene?.floor || '',
     status:     document.getElementById('pz-status').value,
     prereq:     document.getElementById('pz-prereq').value,
     condition:  document.getElementById('pz-condition').value,
@@ -3389,23 +3584,54 @@ function savePuzzle() {
 }
 
 function renderPuzzles() {
+  renderPuzzleGroupTabs();
   const el = document.getElementById('puzzle-list');
   if(!el) return;
+
   let list = state.puzzles || [];
-  if(currentPuzzleTab !== 'all') list = list.filter(p => p.status === currentPuzzleTab || (currentPuzzleTab === '미해결' && p.status !== '완료') || (currentPuzzleTab === '해결됨' && p.status === '완료'));
+  // 상태 필터
+  if(currentPuzzleStatus === '미해결') list = list.filter(p => p.status !== '완료');
+  else if(currentPuzzleStatus === '완료') list = list.filter(p => p.status === '완료');
+  // 그룹 필터
+  if(currentPuzzleGroup === 'none') list = list.filter(p => !p.group);
+  else if(currentPuzzleGroup !== 'all') list = list.filter(p => p.group === currentPuzzleGroup);
+
   if(!list.length) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">🧩</div><div class="empty-title">퍼즐 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>`;
     return;
   }
-  el.innerHTML = list.map(p => `
-    <div class="card" style="margin-bottom:10px;">
+
+  // 전체 탭 + 그룹 있을 때 → 그룹별 섹션
+  if(currentPuzzleGroup === 'all' && getPuzzleGroups().length > 0) {
+    const groups = [...getPuzzleGroups(), null];
+    let html = '';
+    for(const group of groups) {
+      const gList = group === null ? list.filter(p => !p.group) : list.filter(p => p.group === group);
+      if(!gList.length) continue;
+      html += `
+        <div style="margin-bottom:16px;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
+                      color:var(--text-dim);font-family:'JetBrains Mono',monospace;
+                      margin-bottom:8px;">${group || '⬜ 미지정'} <span style="color:var(--text-dimmer);">${gList.length}</span></div>
+          ${gList.map(p => _puzzleCard(p)).join('')}
+        </div>`;
+    }
+    el.innerHTML = html;
+  } else {
+    el.innerHTML = list.map(p => _puzzleCard(p)).join('');
+  }
+}
+
+function _puzzleCard(p) {
+  return `
+    <div class="card" style="margin-bottom:8px;">
       <div class="card-header" style="cursor:pointer;" onclick="togglePuzzleDetail(${p.id})">
-        <span style="font-size:16px;margin-right:6px;">🧩</span>
+        <span style="font-size:15px;margin-right:6px;">🧩</span>
         <span class="card-title">${p.name}</span>
-        <span class="tag ${difficultyColor[p.difficulty]||'tag-gray'}" style="margin-left:8px;">${p.difficulty}</span>
+        <span class="tag ${difficultyColor[p.difficulty]||'tag-gray'}" style="margin-left:6px;">${p.difficulty}</span>
         <span class="tag tag-gray" style="margin-left:4px;">${p.type}</span>
         <span class="tag ${puzzleStatusColor[p.status]||'tag-gray'}" style="margin-left:4px;">${p.status}</span>
-        ${p.scene ? `<span class="text-sm text-dim" style="margin-left:8px;">📍 ${p.scene}</span>` : ''}
+        ${p.scene ? `<span class="text-sm text-dim" style="margin-left:8px;">📍 ${p.scene}${p.floor?' · '+p.floor:''}</span>` : ''}
         <div style="margin-left:auto;display:flex;gap:6px;">
           <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openPuzzleModal(${p.id})">수정</button>
           <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deletePuzzle(${p.id})">삭제</button>
@@ -3426,7 +3652,7 @@ function renderPuzzles() {
           ${p.memo ? `<div style="grid-column:span 2;"><div class="form-label">메모</div><div class="text-sm text-dim" style="white-space:pre-wrap;">${p.memo}</div></div>` : ''}
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
 }
 
 function togglePuzzleDetail(id) {
@@ -3456,10 +3682,12 @@ function openSceneModal(editId) {
   document.getElementById('sc-edit-id').value = editId || '';
   document.getElementById('modal-scene-title').textContent = editId ? '씬 수정' : '씬 추가';
   document.getElementById('sc-save-btn').textContent = editId ? '수정 완료' : '저장';
+  _updateSceneFloorSelect();
   if(editId) {
     const s = state.scenes.find(x => x.id === +editId);
     if(!s) return;
     document.getElementById('sc-name').value    = s.name    || '';
+    document.getElementById('sc-floor').value   = s.floor   || '';
     document.getElementById('sc-type').value    = s.type    || '실내';
     document.getElementById('sc-status').value  = s.status  || '기획중';
     document.getElementById('sc-entry').value   = s.entry   || '';
@@ -3467,6 +3695,9 @@ function openSceneModal(editId) {
     document.getElementById('sc-puzzles').value = s.puzzles || '';
     document.getElementById('sc-links').value   = s.links   || '';
     document.getElementById('sc-memo').value    = s.memo    || '';
+  } else {
+    const defaultFloor = (currentSceneFloor !== 'all' && currentSceneFloor !== 'none') ? currentSceneFloor : '';
+    document.getElementById('sc-floor').value = defaultFloor;
   }
   document.getElementById('modal-scene').classList.add('open');
 }
@@ -3477,6 +3708,7 @@ function saveScene() {
   const editId = document.getElementById('sc-edit-id').value;
   const data = {
     name,
+    floor:   document.getElementById('sc-floor').value   || '',
     type:    document.getElementById('sc-type').value,
     status:  document.getElementById('sc-status').value,
     entry:   document.getElementById('sc-entry').value,
@@ -3495,33 +3727,155 @@ function saveScene() {
   save(); renderScenes(); updateBadges(); closeModal('scene');
 }
 
+// ── 플로어 관리 ──
+let currentSceneFloor = 'all';
+
+function getSceneFloors() {
+  if(!state.sceneFloors) state.sceneFloors = [];
+  return state.sceneFloors;
+}
+
+function openSceneFloorModal() {
+  renderSceneFloorList();
+  document.getElementById('modal-scene-floor').classList.add('open');
+}
+
+function renderSceneFloorList() {
+  const el = document.getElementById('scene-floor-manager-list');
+  if(!el) return;
+  const floors = getSceneFloors();
+  if(!floors.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">플로어 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = floors.map((f, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <input type="text" value="${f}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameSceneFloor(${i}, this.value)">
+      <button class="btn btn-danger btn-sm" onclick="deleteSceneFloor(${i})">삭제</button>
+    </div>`).join('');
+}
+
+function addSceneFloor() {
+  const inp = document.getElementById('new-floor-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  getSceneFloors().push(name);
+  inp.value = '';
+  save(); renderSceneFloorList(); renderSceneFloorTabs(); _updateSceneFloorSelect();
+}
+
+function renameSceneFloor(idx, newName) {
+  if(!newName.trim()) return;
+  const old = getSceneFloors()[idx];
+  getSceneFloors()[idx] = newName.trim();
+  state.scenes.forEach(s => { if(s.floor === old) s.floor = newName.trim(); });
+  save(); renderSceneFloorList(); renderSceneFloorTabs(); renderScenes(); _updateSceneFloorSelect();
+}
+
+function deleteSceneFloor(idx) {
+  const floors = getSceneFloors();
+  const name = floors[idx];
+  const count = state.scenes.filter(s => s.floor === name).length;
+  const msg = count > 0
+    ? `"${name}" 플로어를 삭제하면 소속 씬 ${count}개의 플로어가 해제됩니다.`
+    : `"${name}" 플로어를 삭제할까요?`;
+  customConfirm(msg, () => {
+    floors.splice(idx, 1);
+    state.scenes.forEach(s => { if(s.floor === name) s.floor = ''; });
+    if(currentSceneFloor === name) currentSceneFloor = 'all';
+    save(); renderSceneFloorList(); renderSceneFloorTabs(); renderScenes(); _updateSceneFloorSelect();
+  }, '플로어 삭제');
+}
+
+function renderSceneFloorTabs() {
+  const wrap = document.getElementById('scene-floor-tabs');
+  if(!wrap) return;
+  const floors = getSceneFloors();
+  wrap.innerHTML =
+    `<div class="tab ${currentSceneFloor==='all'?'active':''}" onclick="switchSceneFloor('all',this)">전체</div>` +
+    floors.map(f =>
+      `<div class="tab ${currentSceneFloor===f?'active':''}" onclick="switchSceneFloor('${f.replace(/'/g,"\'")}',this)">${f}</div>`
+    ).join('') +
+    `<div class="tab ${currentSceneFloor==='none'?'active':''}" onclick="switchSceneFloor('none',this)" style="color:var(--text-dimmer);">미지정</div>`;
+}
+
+function switchSceneFloor(floor, el) {
+  currentSceneFloor = floor;
+  renderSceneFloorTabs();
+  renderScenes();
+}
+
+function _updateSceneFloorSelect(currentVal) {
+  const sel = document.getElementById('sc-floor');
+  if(!sel) return;
+  const floors = getSceneFloors();
+  sel.innerHTML = `<option value="">— 미지정 —</option>` +
+    floors.map(f => `<option value="${f}" ${f===currentVal?'selected':''}>${f}</option>`).join('');
+}
+
 function renderScenes() {
+  renderSceneFloorTabs();
   const el = document.getElementById('scene-list');
   if(!el) return;
-  if(!state.scenes || !state.scenes.length) {
+
+  let list = state.scenes || [];
+  if(currentSceneFloor === 'none') list = list.filter(s => !s.floor);
+  else if(currentSceneFloor !== 'all') list = list.filter(s => s.floor === currentSceneFloor);
+
+  if(!list.length) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">🚪</div><div class="empty-title">씬 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div>`;
     return;
   }
-  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">` +
-    state.scenes.map(s => `
-      <div class="card">
-        <div class="card-header">
-          <span style="font-size:18px;margin-right:6px;">${sceneTypeIcon[s.type]||'📍'}</span>
-          <span class="card-title">${s.name}</span>
-          <span class="tag ${sceneStatusColor[s.status]||'tag-gray'}" style="margin-left:auto;">${s.status}</span>
-        </div>
-        <div class="card-body" style="font-size:12px;display:flex;flex-direction:column;gap:8px;">
-          ${s.entry   ? `<div><span class="form-label" style="display:inline;">진입 조건</span> <span class="text-dim">${s.entry}</span></div>` : ''}
-          ${s.objects ? `<div><div class="form-label">오브젝트 / 단서</div><div class="text-dim" style="white-space:pre-wrap;">${s.objects}</div></div>` : ''}
-          ${s.puzzles ? `<div><span class="form-label" style="display:inline;">🧩 연결 퍼즐</span> <span class="text-dim">${s.puzzles}</span></div>` : ''}
-          ${s.links   ? `<div><span class="form-label" style="display:inline;">🔗 연결 씬</span> <span class="text-dim">${s.links}</span></div>` : ''}
-          ${s.memo    ? `<div class="text-dim" style="font-style:italic;white-space:pre-wrap;">${s.memo}</div>` : ''}
-          <div style="display:flex;gap:6px;margin-top:4px;">
-            <button class="btn btn-secondary btn-sm" onclick="openSceneModal(${s.id})">수정</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteScene(${s.id})">삭제</button>
+
+  // 전체 탭일 때는 플로어별 섹션으로 나눔
+  if(currentSceneFloor === 'all' && getSceneFloors().length > 0) {
+    const floors = [...getSceneFloors(), null]; // null = 미지정
+    let html = '';
+    for(const floor of floors) {
+      const group = floor === null
+        ? list.filter(s => !s.floor)
+        : list.filter(s => s.floor === floor);
+      if(!group.length) continue;
+      html += `
+        <div style="margin-bottom:20px;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
+                      color:var(--text-dim);font-family:'JetBrains Mono',monospace;
+                      margin-bottom:8px;">${floor || '⬜ 미지정'} <span style="color:var(--text-dimmer);">${group.length}</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+            ${group.map(s => _sceneCard(s)).join('')}
           </div>
+        </div>`;
+    }
+    el.innerHTML = html;
+  } else {
+    el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">` +
+      list.map(s => _sceneCard(s)).join('') + `</div>`;
+  }
+}
+
+function _sceneCard(s) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:16px;margin-right:6px;">${sceneTypeIcon[s.type]||'📍'}</span>
+        <span class="card-title">${s.name}</span>
+        <span class="tag ${sceneStatusColor[s.status]||'tag-gray'}" style="margin-left:auto;">${s.status}</span>
+      </div>
+      <div class="card-body" style="font-size:12px;display:flex;flex-direction:column;gap:7px;">
+        ${s.entry   ? `<div><span class="form-label" style="display:inline;">진입 조건</span> <span class="text-dim">${s.entry}</span></div>` : ''}
+        ${s.objects ? `<div><div class="form-label">오브젝트 / 단서</div><div class="text-dim" style="white-space:pre-wrap;">${s.objects}</div></div>` : ''}
+        ${s.puzzles ? `<div><span class="form-label" style="display:inline;">🧩 연결 퍼즐</span> <span class="text-dim">${s.puzzles}</span></div>` : ''}
+        ${s.links   ? `<div><span class="form-label" style="display:inline;">🔗 연결 씬</span> <span class="text-dim">${s.links}</span></div>` : ''}
+        ${s.memo    ? `<div class="text-dim" style="font-style:italic;white-space:pre-wrap;">${s.memo}</div>` : ''}
+        <div style="display:flex;gap:6px;margin-top:2px;">
+          <button class="btn btn-secondary btn-sm" onclick="openSceneModal(${s.id})">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteScene(${s.id})">삭제</button>
         </div>
-      </div>`).join('') + `</div>`;
+      </div>
+    </div>`;
 }
 
 function deleteScene(id) {
