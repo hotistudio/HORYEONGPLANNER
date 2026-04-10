@@ -1199,30 +1199,12 @@
 
       <!-- ═══ ITEMS ═══ -->
       <div class="page" id="page-items">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">🎒 아이템 DB</span>
-            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('item')">+ 아이템 추가</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>아이템명</th>
-                  <th>카테고리</th>
-                  <th>등급</th>
-                  <th>효과</th>
-                  <th>가격</th>
-                  <th>획득 경로</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="items-table">
-                <tr><td colspan="7"><div class="empty"><div class="empty-icon">💎</div><div class="empty-title">아이템 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
-              </tbody>
-            </table>
-          </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="tabs" id="item-cat-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="openItemCatModal()" style="white-space:nowrap;">⚙ 카테고리 관리</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('item')" style="white-space:nowrap;">+ 아이템 추가</button>
         </div>
+        <div id="item-list"></div>
       </div>
 
       <!-- ═══ QUESTS ═══ -->
@@ -2120,34 +2102,80 @@
 </div>
 
 <!-- Item Modal -->
+<!-- Item Category Manager Modal -->
+<div class="modal-overlay" id="modal-item-cat">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙ 카테고리 관리</span>
+      <button class="modal-close" onclick="closeModal('item-cat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="notice notice-info" style="margin-bottom:12px;">카테고리 안에 하위 그룹을 만들 수 있습니다.</div>
+      <div id="item-cat-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-item-cat-name" placeholder="카테고리 이름 (예: 퍼즐 아이템, 무기류...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addItemCat()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('item-cat')">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Group Manager Modal -->
+<div class="modal-overlay" id="modal-item-group">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title" id="item-group-modal-title">⚙ 그룹 관리</span>
+      <button class="modal-close" onclick="closeModal('item-group')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="item-group-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-item-group-name" placeholder="그룹 이름 (예: 열쇠류, 단서...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addItemGroup()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('item-group')">완료</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-item">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">아이템 추가</span>
+      <span class="modal-title" id="modal-item-title">아이템 추가</span>
       <button class="modal-close" onclick="closeModal('item')">✕</button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="ii-edit-id">
       <div class="grid grid-2">
-        <div class="form-group"><div class="form-label">아이템명 *</div><input type="text" class="form-control" id="ii-name" placeholder="전설의 검"></div>
+        <div class="form-group"><div class="form-label">아이템명 *</div><input type="text" class="form-control" id="ii-name" placeholder="낡은 열쇠"></div>
         <div class="form-group"><div class="form-label">카테고리</div>
-          <select class="form-control" id="ii-cat">
-            <option>무기</option><option>방어구</option><option>소모품</option><option>재료</option><option>퀘스트</option><option>기타</option>
+          <select class="form-control" id="ii-cat" onchange="updateItemGroupSel()">
+            <option value="">— 없음 —</option>
           </select>
         </div>
-        <div class="form-group"><div class="form-label">등급</div>
+        <div class="form-group"><div class="form-label">그룹</div>
+          <select class="form-control" id="ii-group">
+            <option value="">— 없음 —</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">등급/희귀도</div>
           <select class="form-control" id="ii-grade">
             <option>일반</option><option>고급</option><option>희귀</option><option>영웅</option><option>전설</option>
           </select>
         </div>
-        <div class="form-group"><div class="form-label">가격 (골드)</div><input type="number" class="form-control" id="ii-price" value="0"></div>
-        <div class="form-group" style="grid-column:span 2;"><div class="form-label">효과/스탯</div><input type="text" class="form-control" id="ii-effect" placeholder="ATK +50, 공격속도 +10%..."></div>
-        <div class="form-group" style="grid-column:span 2;"><div class="form-label">획득 경로</div><input type="text" class="form-control" id="ii-source" placeholder="던전 드랍, 상점 구매, 제작..."></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">효과 / 용도</div><input type="text" class="form-control" id="ii-effect" placeholder="금고를 열 수 있다, HP +50..."></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">획득 경로 / 위치</div><input type="text" class="form-control" id="ii-source" placeholder="침대 밑, 서랍 안, 상점 구매..."></div>
       </div>
       <div class="form-group"><div class="form-label">설명</div><textarea class="form-control" id="ii-desc" placeholder="아이템 설명..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('item')">취소</button>
-      <button class="btn btn-primary" onclick="saveItem()">저장</button>
+      <button class="btn btn-primary" id="ii-save-btn" onclick="saveItem()">저장</button>
     </div>
   </div>
 </div>
@@ -2644,6 +2672,7 @@ const state = {
   scenes: [],
   sceneFloors: [],
   puzzleGroups: [],
+  itemCats: [],
 };
 
 function load() {
@@ -2661,6 +2690,7 @@ function load() {
     scenes:[],
     sceneFloors:[],
     puzzleGroups:[],
+    itemCats:[],
   });
   try {
     const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
@@ -3107,6 +3137,7 @@ function openModal(type, subtype) {
   if(type==='char') { _openCharModal(); }
   if(type==='puzzle') { openPuzzleModal(); return; }
   if(type==='scene')  { openSceneModal();  return; }
+  if(type==='item')   { openItemModal();   return; }
   el.classList.add('open');
 }
 
@@ -3421,14 +3452,37 @@ function renderPuzzleGroupList() {
     el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">그룹 없음 — 아래에서 추가하세요</div>`;
     return;
   }
+  let _pgSel = null;
   el.innerHTML = groups.map((g, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+    <div id="pgrow-${i}" style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectPuzzleGroupRow(${i})"
+        style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;"
+        title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${g}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
                padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
         onchange="renamePuzzleGroup(${i}, this.value)">
       <button class="btn btn-danger btn-sm" onclick="deletePuzzleGroup(${i})">삭제</button>
     </div>`).join('');
+}
+
+let _pgSelIdx = null;
+function selectPuzzleGroupRow(idx) {
+  const groups = getPuzzleGroups();
+  if(_pgSelIdx === null) {
+    _pgSelIdx = idx;
+    document.querySelectorAll('[id^="pgrow-"]').forEach(r => r.style.background = '');
+    const row = document.getElementById('pgrow-' + idx);
+    if(row) row.style.background = 'rgba(255,107,53,0.1)';
+  } else if(_pgSelIdx === idx) {
+    _pgSelIdx = null;
+    document.querySelectorAll('[id^="pgrow-"]').forEach(r => r.style.background = '');
+  } else {
+    const from = _pgSelIdx, to = idx;
+    _pgSelIdx = null;
+    [groups[from], groups[to]] = [groups[to], groups[from]];
+    save(); renderPuzzleGroupList(); renderPuzzleGroupTabs(); renderPuzzles();
+  }
 }
 
 function addPuzzleGroup() {
@@ -3438,6 +3492,14 @@ function addPuzzleGroup() {
   getPuzzleGroups().push(name);
   inp.value = '';
   save(); renderPuzzleGroupList(); renderPuzzleGroupTabs(); _updatePzGroupSelect();
+}
+
+function movePuzzleGroup(idx, dir) {
+  const groups = getPuzzleGroups();
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= groups.length) return;
+  [groups[idx], groups[newIdx]] = [groups[newIdx], groups[idx]];
+  save(); renderPuzzleGroupList(); renderPuzzleGroupTabs(); renderPuzzles();
 }
 
 function renamePuzzleGroup(idx, newName) {
@@ -3749,13 +3811,35 @@ function renderSceneFloorList() {
     return;
   }
   el.innerHTML = floors.map((f, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+    <div id="sfrow-${i}" style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectSceneFloorRow(${i})"
+        style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;"
+        title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${f}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
                padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
         onchange="renameSceneFloor(${i}, this.value)">
       <button class="btn btn-danger btn-sm" onclick="deleteSceneFloor(${i})">삭제</button>
     </div>`).join('');
+}
+
+let _sfSelIdx = null;
+function selectSceneFloorRow(idx) {
+  const floors = getSceneFloors();
+  if(_sfSelIdx === null) {
+    _sfSelIdx = idx;
+    document.querySelectorAll('[id^="sfrow-"]').forEach(r => r.style.background = '');
+    const row = document.getElementById('sfrow-' + idx);
+    if(row) row.style.background = 'rgba(255,107,53,0.1)';
+  } else if(_sfSelIdx === idx) {
+    _sfSelIdx = null;
+    document.querySelectorAll('[id^="sfrow-"]').forEach(r => r.style.background = '');
+  } else {
+    const from = _sfSelIdx, to = idx;
+    _sfSelIdx = null;
+    [floors[from], floors[to]] = [floors[to], floors[from]];
+    save(); renderSceneFloorList(); renderSceneFloorTabs(); renderScenes();
+  }
 }
 
 function addSceneFloor() {
@@ -3765,6 +3849,14 @@ function addSceneFloor() {
   getSceneFloors().push(name);
   inp.value = '';
   save(); renderSceneFloorList(); renderSceneFloorTabs(); _updateSceneFloorSelect();
+}
+
+function moveSceneFloor(idx, dir) {
+  const floors = getSceneFloors();
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= floors.length) return;
+  [floors[idx], floors[newIdx]] = [floors[newIdx], floors[idx]];
+  save(); renderSceneFloorList(); renderSceneFloorTabs(); renderScenes();
 }
 
 function renameSceneFloor(idx, newName) {
@@ -3949,42 +4041,358 @@ function deleteSkill(id) { id=+id;
 // ═══════════════════════════════════════
 const gradeMap = {'일반':'tag-gray','고급':'tag-green','희귀':'tag-cyan','영웅':'tag-purple','전설':'tag-orange'};
 
+// ── 카테고리 관리 ──
+function getItemCats() {
+  if(!state.itemCats) state.itemCats = [];
+  return state.itemCats;
+}
+
+let currentItemCat = 'all';
+let _icSelIdx = null;
+
+function openItemCatModal() {
+  _icSelIdx = null;
+  renderItemCatManagerList();
+  document.getElementById('modal-item-cat').classList.add('open');
+}
+
+function renderItemCatManagerList() {
+  const el = document.getElementById('item-cat-manager-list');
+  if(!el) return;
+  const cats = getItemCats();
+  if(!cats.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">카테고리 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = cats.map((cat, i) => `
+    <div id="icrow-${i}" style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectItemCatRow(${i})"
+        style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;"
+        title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
+      <input type="text" value="${cat.name}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameItemCat(${i}, this.value)">
+      <button class="btn btn-secondary btn-sm" onclick="openItemGroupModal('${cat.key}','${cat.name}')">그룹</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteItemCat('${cat.key}')">삭제</button>
+    </div>`).join('');
+}
+
+function selectItemCatRow(idx) {
+  const cats = getItemCats();
+  if(_icSelIdx === null) {
+    _icSelIdx = idx;
+    document.querySelectorAll('[id^="icrow-"]').forEach(r => r.style.background = '');
+    const row = document.getElementById('icrow-' + idx);
+    if(row) row.style.background = 'rgba(255,107,53,0.1)';
+  } else if(_icSelIdx === idx) {
+    _icSelIdx = null;
+    document.querySelectorAll('[id^="icrow-"]').forEach(r => r.style.background = '');
+  } else {
+    const from = _icSelIdx, to = idx;
+    _icSelIdx = null;
+    [cats[from], cats[to]] = [cats[to], cats[from]];
+    save(); renderItemCatManagerList(); renderItemCatTabs(); renderItems();
+  }
+}
+
+function addItemCat() {
+  const inp = document.getElementById('new-item-cat-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  const key = 'icat_' + Date.now();
+  getItemCats().push({ key, name, groups: [] });
+  inp.value = '';
+  save(); renderItemCatManagerList(); renderItemCatTabs(); _updateIiCatSel();
+}
+
+function renameItemCat(idx, newName) {
+  if(!newName.trim()) return;
+  getItemCats()[idx].name = newName.trim();
+  save(); renderItemCatManagerList(); renderItemCatTabs(); renderItems(); _updateIiCatSel();
+}
+
+function deleteItemCat(key) {
+  const cats = getItemCats();
+  const cat = cats.find(c => c.key === key);
+  if(!cat) return;
+  const count = state.items.filter(i => i.cat === key).length;
+  const msg = count > 0
+    ? `"${cat.name}" 카테고리를 삭제하면 소속 아이템 ${count}개의 카테고리가 해제됩니다.`
+    : `"${cat.name}" 카테고리를 삭제할까요?`;
+  customConfirm(msg, () => {
+    state.itemCats = cats.filter(c => c.key !== key);
+    state.items.forEach(i => { if(i.cat === key) { i.cat = ''; i.group = ''; } });
+    if(currentItemCat === key) currentItemCat = 'all';
+    save(); renderItemCatManagerList(); renderItemCatTabs(); renderItems(); _updateIiCatSel();
+  }, '카테고리 삭제');
+}
+
+function renderItemCatTabs() {
+  const wrap = document.getElementById('item-cat-tabs');
+  if(!wrap) return;
+  const cats = getItemCats();
+  wrap.innerHTML =
+    `<div class="tab ${currentItemCat==='all'?'active':''}" onclick="switchItemCat('all',this)">전체</div>` +
+    cats.map(cat =>
+      `<div class="tab ${currentItemCat===cat.key?'active':''}" onclick="switchItemCat('${cat.key}',this)">${cat.name}</div>`
+    ).join('');
+}
+
+function switchItemCat(key, el) {
+  currentItemCat = key;
+  renderItemCatTabs();
+  renderItems();
+}
+
+// ── 그룹 관리 ──
+let _currentGroupCatKey = null;
+let _igSelIdx = null;
+
+function openItemGroupModal(catKey, catName) {
+  _currentGroupCatKey = catKey;
+  _igSelIdx = null;
+  document.getElementById('item-group-modal-title').textContent = `⚙ ${catName} — 그룹 관리`;
+  renderItemGroupManagerList();
+  document.getElementById('modal-item-group').classList.add('open');
+}
+
+function renderItemGroupManagerList() {
+  const el = document.getElementById('item-group-manager-list');
+  if(!el) return;
+  const cat = getItemCats().find(c => c.key === _currentGroupCatKey);
+  if(!cat) return;
+  const groups = cat.groups || [];
+  if(!groups.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">그룹 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = groups.map((g, i) => `
+    <div id="igrow-${i}" style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectItemGroupRow(${i})"
+        style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;"
+        title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
+      <input type="text" value="${g}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameItemGroup(${i}, this.value)">
+      <button class="btn btn-danger btn-sm" onclick="deleteItemGroup(${i})">삭제</button>
+    </div>`).join('');
+}
+
+function selectItemGroupRow(idx) {
+  const cat = getItemCats().find(c => c.key === _currentGroupCatKey);
+  if(!cat) return;
+  const groups = cat.groups;
+  if(_igSelIdx === null) {
+    _igSelIdx = idx;
+    document.querySelectorAll('[id^="igrow-"]').forEach(r => r.style.background = '');
+    const row = document.getElementById('igrow-' + idx);
+    if(row) row.style.background = 'rgba(255,107,53,0.1)';
+  } else if(_igSelIdx === idx) {
+    _igSelIdx = null;
+    document.querySelectorAll('[id^="igrow-"]').forEach(r => r.style.background = '');
+  } else {
+    const from = _igSelIdx, to = idx;
+    _igSelIdx = null;
+    [groups[from], groups[to]] = [groups[to], groups[from]];
+    save(); renderItemGroupManagerList(); renderItems();
+  }
+}
+
+function addItemGroup() {
+  const inp = document.getElementById('new-item-group-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  const cat = getItemCats().find(c => c.key === _currentGroupCatKey);
+  if(!cat) return;
+  if(!cat.groups) cat.groups = [];
+  cat.groups.push(name);
+  inp.value = '';
+  save(); renderItemGroupManagerList(); renderItems(); updateItemGroupSel();
+}
+
+function renameItemGroup(idx, newName) {
+  if(!newName.trim()) return;
+  const cat = getItemCats().find(c => c.key === _currentGroupCatKey);
+  if(!cat) return;
+  const old = cat.groups[idx];
+  cat.groups[idx] = newName.trim();
+  state.items.forEach(i => { if(i.cat === _currentGroupCatKey && i.group === old) i.group = newName.trim(); });
+  save(); renderItemGroupManagerList(); renderItems();
+}
+
+function deleteItemGroup(idx) {
+  const cat = getItemCats().find(c => c.key === _currentGroupCatKey);
+  if(!cat) return;
+  const name = cat.groups[idx];
+  const count = state.items.filter(i => i.cat === cat.key && i.group === name).length;
+  const msg = count > 0
+    ? `"${name}" 그룹을 삭제하면 소속 아이템 ${count}개의 그룹이 해제됩니다.`
+    : `"${name}" 그룹을 삭제할까요?`;
+  customConfirm(msg, () => {
+    cat.groups.splice(idx, 1);
+    state.items.forEach(i => { if(i.cat === cat.key && i.group === name) i.group = ''; });
+    save(); renderItemGroupManagerList(); renderItems();
+  }, '그룹 삭제');
+}
+
+// ── 모달 select 업데이트 ──
+function _updateIiCatSel(currentVal) {
+  const sel = document.getElementById('ii-cat');
+  if(!sel) return;
+  const cats = getItemCats();
+  sel.innerHTML = `<option value="">— 없음 —</option>` +
+    cats.map(cat => `<option value="${cat.key}" ${cat.key===currentVal?'selected':''}>${cat.name}</option>`).join('');
+}
+
+function updateItemGroupSel(currentVal) {
+  const catSel = document.getElementById('ii-cat');
+  const grpSel = document.getElementById('ii-group');
+  if(!catSel || !grpSel) return;
+  const cat = getItemCats().find(c => c.key === catSel.value);
+  const groups = cat?.groups || [];
+  grpSel.innerHTML = `<option value="">— 없음 —</option>` +
+    groups.map(g => `<option value="${g}" ${g===currentVal?'selected':''}>${g}</option>`).join('');
+}
+
+// ── 아이템 저장/수정 ──
+function openItemModal(editId) {
+  _updateIiCatSel();
+  document.getElementById('ii-edit-id').value = editId || '';
+  document.getElementById('modal-item-title').textContent = editId ? '아이템 수정' : '아이템 추가';
+  document.getElementById('ii-save-btn').textContent = editId ? '수정 완료' : '저장';
+  if(editId) {
+    const item = state.items.find(x => x.id === +editId);
+    if(!item) return;
+    document.getElementById('ii-name').value   = item.name   || '';
+    document.getElementById('ii-cat').value    = item.cat    || '';
+    document.getElementById('ii-grade').value  = item.grade  || '일반';
+    document.getElementById('ii-effect').value = item.effect || '';
+    document.getElementById('ii-source').value = item.source || '';
+    document.getElementById('ii-desc').value   = item.desc   || '';
+    updateItemGroupSel(item.group || '');
+  } else {
+    ['ii-name','ii-effect','ii-source','ii-desc'].forEach(id => document.getElementById(id).value = '');
+    const defaultCat = currentItemCat !== 'all' ? currentItemCat : '';
+    document.getElementById('ii-cat').value = defaultCat;
+    updateItemGroupSel();
+  }
+  document.getElementById('modal-item').classList.add('open');
+}
+
 function saveItem() {
   const name = document.getElementById('ii-name').value.trim();
-  if(!name) { showToast('아이템명을 입력하세요', 'warn');  return; }
-  const i = {
-    id: Date.now(), name,
-    cat: document.getElementById('ii-cat').value,
-    grade: document.getElementById('ii-grade').value,
-    price: +document.getElementById('ii-price').value,
+  if(!name) { showToast('아이템명을 입력하세요', 'warn'); return; }
+  const editId = document.getElementById('ii-edit-id').value;
+  const data = {
+    name,
+    cat:    document.getElementById('ii-cat').value    || '',
+    group:  document.getElementById('ii-group').value  || '',
+    grade:  document.getElementById('ii-grade').value,
     effect: document.getElementById('ii-effect').value,
     source: document.getElementById('ii-source').value,
-    desc: document.getElementById('ii-desc').value,
+    desc:   document.getElementById('ii-desc').value,
   };
-  state.items.push(i);
-  addActivity(`아이템 <b>${name}</b> 추가됨`, 'var(--success)');
-  save(); renderItems(); renderStats(); updateBadges();
-  closeModal('item');
-  ['ii-name','ii-effect','ii-source','ii-desc'].forEach(id=>document.getElementById(id).value='');
+  if(editId) {
+    const idx = state.items.findIndex(x => x.id === +editId);
+    if(idx !== -1) { state.items[idx] = { ...state.items[idx], ...data }; addActivity(`아이템 <b>${name}</b> 수정됨`, 'var(--success)'); }
+  } else {
+    state.items.push({ id: Date.now(), ...data });
+    addActivity(`아이템 <b>${name}</b> 추가됨`, 'var(--success)');
+  }
+  save(); renderItems(); renderStats(); updateBadges(); closeModal('item');
 }
 
 function renderItems() {
-  const tb = document.getElementById('items-table');
-  if(!state.items.length) {
-    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">💎</div><div class="empty-title">아이템 없음</div></div></td></tr>`;
+  renderItemCatTabs();
+  const wrap = document.getElementById('item-list');
+  if(!wrap) return;
+  const cats = getItemCats();
+
+  let items = state.items || [];
+  if(currentItemCat !== 'all') items = items.filter(i => i.cat === currentItemCat);
+
+  if(!items.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-icon">💎</div><div class="empty-title">아이템 없음</div><div class="empty-desc">카테고리를 만들고 아이템을 추가하세요</div></div>`;
     return;
   }
-  tb.innerHTML = state.items.map(i => `
+
+  // 전체 탭: 카테고리별 섹션
+  if(currentItemCat === 'all' && cats.length > 0) {
+    let html = '';
+    // 카테고리 있는 것들
+    for(const cat of cats) {
+      const catItems = items.filter(i => i.cat === cat.key);
+      if(!catItems.length) continue;
+      const groups = cat.groups || [];
+      html += `<div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catItems.length}</span>
+        </div>`;
+      // 그룹별
+      if(groups.length > 0) {
+        const allGroups = [...groups, null];
+        for(const g of allGroups) {
+          const gItems = g === null ? catItems.filter(i => !i.group) : catItems.filter(i => i.group === g);
+          if(!gItems.length) continue;
+          html += `<div style="margin-bottom:8px;">
+            ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;padding-left:4px;">${g}</div>` : ''}
+            <div class="card"><div class="table-wrap">${_itemTable(gItems)}</div></div>
+          </div>`;
+        }
+      } else {
+        html += `<div class="card"><div class="table-wrap">${_itemTable(catItems)}</div></div>`;
+      }
+      html += `</div>`;
+    }
+    // 카테고리 없는 것들
+    const uncatItems = items.filter(i => !i.cat);
+    if(uncatItems.length) {
+      html += `<div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-dimmer);margin-bottom:8px;">⬜ 미분류</div>
+        <div class="card"><div class="table-wrap">${_itemTable(uncatItems)}</div></div>
+      </div>`;
+    }
+    wrap.innerHTML = html;
+  } else {
+    // 특정 카테고리 탭
+    const cat = cats.find(c => c.key === currentItemCat);
+    const groups = cat?.groups || [];
+    if(groups.length > 0) {
+      let html = '';
+      for(const g of [...groups, null]) {
+        const gItems = g === null ? items.filter(i => !i.group) : items.filter(i => i.group === g);
+        if(!gItems.length) continue;
+        html += `<div style="margin-bottom:12px;">
+          ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">${g}</div>` : ''}
+          <div class="card"><div class="table-wrap">${_itemTable(gItems)}</div></div>
+        </div>`;
+      }
+      wrap.innerHTML = html;
+    } else {
+      wrap.innerHTML = `<div class="card"><div class="table-wrap">${_itemTable(items)}</div></div>`;
+    }
+  }
+}
+
+function _itemTable(items) {
+  return `<table><thead><tr>
+    <th>아이템명</th><th>등급</th><th>효과/용도</th><th>위치/획득</th><th></th>
+  </tr></thead><tbody>` +
+  items.map(i => `
     <tr>
-      <td><b>${i.name}</b></td>
-      <td>${i.cat}</td>
+      <td><b>${i.name}</b>${i.desc?'<div class="text-sm text-dim">'+i.desc+'</div>':''}</td>
       <td><span class="tag ${gradeMap[i.grade]||'tag-gray'}">${i.grade}</span></td>
       <td class="text-dim">${i.effect||'-'}</td>
-      <td class="mono">${i.price.toLocaleString()}G</td>
-      <td>${i.source||'-'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteItem(${i.id})">삭제</button></td>
-    </tr>
-  `).join('');
+      <td class="text-dim">${i.source||'-'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" onclick="openItemModal(${i.id})" style="margin-right:4px;">수정</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteItem(${i.id})">삭제</button>
+      </td>
+    </tr>`).join('') +
+  `</tbody></table>`;
 }
 
 function deleteItem(id) { id=+id;
