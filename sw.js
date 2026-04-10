@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════
-// HORYEONG PLANNER — Service Worker v6
+// HORYEONG PLANNER — Service Worker v8
 // ═══════════════════════════════════════
-const CACHE_NAME = 'horyeong-v14';
+const CACHE_NAME = 'horyeong-v16';
 const CACHE_ASSETS = [
   './',
   './index.html',
