@@ -1169,32 +1169,12 @@
 
       <!-- ═══ SKILLS ═══ -->
       <div class="page" id="page-skills">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">⚡ 스킬 DB</span>
-            <button class="btn btn-primary btn-sm ml-auto" onclick="openModal('skill')">+ 스킬 추가</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>스킬명</th>
-                  <th>타입</th>
-                  <th>데미지</th>
-                  <th>MP 소모</th>
-                  <th>쿨타임</th>
-                  <th>사거리</th>
-                  <th>대상</th>
-                  <th>설명</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="skills-table">
-                <tr><td colspan="9"><div class="empty"><div class="empty-icon">✨</div><div class="empty-title">스킬 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
-              </tbody>
-            </table>
-          </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="tabs" id="skill-cat-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="openSkillCatModal()" style="white-space:nowrap;">⚙ 카테고리 관리</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('skill')" style="white-space:nowrap;">+ 스킬 추가</button>
         </div>
+        <div id="skill-list"></div>
       </div>
 
       <!-- ═══ ITEMS ═══ -->
@@ -2082,18 +2062,69 @@
 </div>
 
 <!-- Skill Modal -->
+<!-- Skill Category Manager Modal -->
+<div class="modal-overlay" id="modal-skill-cat">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙ 스킬 카테고리 관리</span>
+      <button class="modal-close" onclick="closeModal('skill-cat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="skill-cat-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-skill-cat-name" placeholder="카테고리 이름 (예: 전투기술, 마법, 패시브...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addSkillCat()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('skill-cat')">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- Skill Group Manager Modal -->
+<div class="modal-overlay" id="modal-skill-group">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title" id="skill-group-modal-title">⚙ 그룹 관리</span>
+      <button class="modal-close" onclick="closeModal('skill-group')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="skill-group-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-skill-group-name" placeholder="그룹 이름 (예: 1티어, 2티어...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addSkillGroup()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('skill-group')">완료</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-skill">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">스킬 추가</span>
+      <span class="modal-title" id="modal-skill-title">스킬 추가</span>
       <button class="modal-close" onclick="closeModal('skill')">✕</button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="si-edit-id">
       <div class="grid grid-2">
         <div class="form-group"><div class="form-label">스킬명 *</div><input type="text" class="form-control" id="si-name" placeholder="파이어볼"></div>
         <div class="form-group"><div class="form-label">타입</div>
           <select class="form-control" id="si-type">
             <option>액티브</option><option>패시브</option><option>궁극기</option><option>버프</option><option>디버프</option><option>힐</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">카테고리</div>
+          <select class="form-control" id="si-cat" onchange="updateSkillGroupSel()">
+            <option value="">— 없음 —</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">그룹</div>
+          <select class="form-control" id="si-group">
+            <option value="">— 없음 —</option>
           </select>
         </div>
         <div class="form-group"><div class="form-label">데미지 계수 (%)</div><input type="number" class="form-control" id="si-dmg" value="150"></div>
@@ -2115,7 +2146,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('skill')">취소</button>
-      <button class="btn btn-primary" onclick="saveSkill()">저장</button>
+      <button class="btn btn-primary" id="si-save-btn" onclick="saveSkill()">저장</button>
     </div>
   </div>
 </div>
@@ -2773,6 +2804,7 @@ const state = {
   itemCats: [],
   combatItems: [],
   combatItemCats: [],
+  skillCats: [],
 };
 
 function load() {
@@ -2793,6 +2825,7 @@ function load() {
     itemCats:[],
     combatItems:[],
     combatItemCats:[],
+    skillCats:[],
   });
   try {
     const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
@@ -3241,6 +3274,7 @@ function openModal(type, subtype) {
   if(type==='scene')  { openSceneModal();  return; }
   if(type==='item')        { openItemModal();       return; }
   if(type==='combat-item') { openCombatItemModal(); return; }
+  if(type==='skill')       { openSkillModal();      return; }
   el.classList.add('open');
 }
 
@@ -3371,30 +3405,29 @@ let _dragCharId = null;
 let _dragOverId = null;
 let _charMoveSelId = null; // 클릭 선택 이동용
 
-function charSelectForMove(id, tdEl) {
+function charSelectForMove(id, targetTeam) {
   id = +id;
 
-  // 이미 선택된 상태에서 같은 행 클릭 → 선택 해제
   if (_charMoveSelId === id) {
     _charMoveSelId = null;
     _syncCharMoveHighlight();
     return;
   }
 
-  // 선택된 행이 있고 다른 행 클릭 → 이동 실행
   if (_charMoveSelId !== null) {
     const fromIdx = state.chars.findIndex(x => x.id === _charMoveSelId);
     const toIdx   = state.chars.findIndex(x => x.id === id);
     if (fromIdx !== -1 && toIdx !== -1) {
       const [moved] = state.chars.splice(fromIdx, 1);
       state.chars.splice(toIdx, 0, moved);
+      // 대상 팀으로 팀 변경
+      if(targetTeam) moved.team = targetTeam;
       _charMoveSelId = null;
       save(); renderChars();
       return;
     }
   }
 
-  // 새로 선택
   _charMoveSelId = id;
   _syncCharMoveHighlight();
 }
@@ -3460,7 +3493,7 @@ function renderChars() {
           : `<div class="char-avatar">${ch.type==='보스'?'👹':ch.type==='플레이어'?'🧑':ch.type==='NPC'?'🗣️':ch.type==='파티원'?'🤝':'⚔️'}</div>`;
         return `
           <tr data-char-id="${ch.id}" style="transition:opacity 0.15s,background 0.1s;">
-            <td onclick="charSelectForMove(${ch.id}, this)" style="padding:0 8px;cursor:pointer;font-size:15px;text-align:center;user-select:none;color:var(--text-dimmer);transition:color 0.15s;" title="클릭 → 다른 행 클릭으로 이동">⠿</td>
+            <td onclick="charSelectForMove(${ch.id}, '${cat.key}')" style="padding:0 8px;cursor:pointer;font-size:15px;text-align:center;user-select:none;color:var(--text-dimmer);transition:color 0.15s;" title="클릭 → 다른 행 클릭으로 이동 (팀 간 이동도 가능)">⠿</td>
             <td>${avatarHtml}</td>
             <td>
               <b>${ch.name}</b>
@@ -4088,52 +4121,300 @@ function deleteScene(id) {
 // ═══════════════════════════════════════
 const skillTypeMap = {'액티브':'tag-orange','패시브':'tag-gray','궁극기':'tag-red','버프':'tag-green','디버프':'tag-yellow','힐':'tag-cyan'};
 
+// ── 스킬 카테고리 관리 ──
+function getSkillCats() {
+  if(!state.skillCats) state.skillCats = [];
+  return state.skillCats;
+}
+
+let currentSkillCat = 'all';
+let _scSelIdx = null;
+
+function openSkillCatModal() {
+  _scSelIdx = null;
+  renderSkillCatManagerList();
+  document.getElementById('modal-skill-cat').classList.add('open');
+}
+
+function renderSkillCatManagerList() {
+  const el = document.getElementById('skill-cat-manager-list');
+  if(!el) return;
+  const cats = getSkillCats();
+  if(!cats.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">카테고리 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = cats.map((cat, i) => `
+    <div id="scrow-${i}" style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectSkillCatRow(${i})" style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
+      <input type="text" value="${cat.name}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameSkillCat(${i}, this.value)">
+      <button class="btn btn-secondary btn-sm" onclick="openSkillGroupModal('${cat.key}','${cat.name}')">그룹</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteSkillCat('${cat.key}')">삭제</button>
+    </div>`).join('');
+}
+
+function selectSkillCatRow(idx) {
+  const cats = getSkillCats();
+  if(_scSelIdx === null) { _scSelIdx = idx; document.querySelectorAll('[id^="scrow-"]').forEach(r=>r.style.background=''); const row=document.getElementById('scrow-'+idx); if(row) row.style.background='rgba(255,107,53,0.1)'; }
+  else if(_scSelIdx === idx) { _scSelIdx = null; document.querySelectorAll('[id^="scrow-"]').forEach(r=>r.style.background=''); }
+  else { const f=_scSelIdx,t=idx; _scSelIdx=null; [cats[f],cats[t]]=[cats[t],cats[f]]; save(); renderSkillCatManagerList(); renderSkillCatTabs(); renderSkills(); }
+}
+
+function addSkillCat() {
+  const inp = document.getElementById('new-skill-cat-name');
+  const name = inp.value.trim(); if(!name){inp.focus();return;}
+  getSkillCats().push({key:'scat_'+Date.now(), name, groups:[]});
+  inp.value=''; save(); renderSkillCatManagerList(); renderSkillCatTabs(); _updateSiCatSel();
+}
+function renameSkillCat(idx, newName) {
+  if(!newName.trim()) return;
+  getSkillCats()[idx].name = newName.trim();
+  save(); renderSkillCatManagerList(); renderSkillCatTabs(); renderSkills(); _updateSiCatSel();
+}
+function deleteSkillCat(key) {
+  const cats = getSkillCats(); const cat = cats.find(c=>c.key===key); if(!cat) return;
+  const count = state.skills.filter(s=>s.cat===key).length;
+  customConfirm(count>0?`"${cat.name}" 카테고리를 삭제하면 소속 스킬 ${count}개의 카테고리가 해제됩니다.`:`"${cat.name}" 카테고리를 삭제할까요?`, ()=>{
+    state.skillCats = cats.filter(c=>c.key!==key);
+    state.skills.forEach(s=>{if(s.cat===key){s.cat='';s.group='';}});
+    if(currentSkillCat===key) currentSkillCat='all';
+    save(); renderSkillCatManagerList(); renderSkillCatTabs(); renderSkills(); _updateSiCatSel();
+  }, '카테고리 삭제');
+}
+
+function renderSkillCatTabs() {
+  const wrap = document.getElementById('skill-cat-tabs'); if(!wrap) return;
+  const cats = getSkillCats();
+  wrap.innerHTML = `<div class="tab ${currentSkillCat==='all'?'active':''}" onclick="switchSkillCat('all',this)">전체</div>` +
+    cats.map(cat=>`<div class="tab ${currentSkillCat===cat.key?'active':''}" onclick="switchSkillCat('${cat.key}',this)">${cat.name}</div>`).join('');
+}
+function switchSkillCat(key, el) { currentSkillCat=key; renderSkillCatTabs(); renderSkills(); }
+
+// ── 스킬 그룹 관리 ──
+let _currentSkillGroupCatKey = null;
+let _sgSelIdx = null;
+function openSkillGroupModal(catKey, catName) {
+  _currentSkillGroupCatKey=catKey; _sgSelIdx=null;
+  document.getElementById('skill-group-modal-title').textContent=`⚙ ${catName} — 그룹 관리`;
+  renderSkillGroupManagerList();
+  document.getElementById('modal-skill-group').classList.add('open');
+}
+function renderSkillGroupManagerList() {
+  const el=document.getElementById('skill-group-manager-list'); if(!el) return;
+  const cat=getSkillCats().find(c=>c.key===_currentSkillGroupCatKey); if(!cat) return;
+  const groups=cat.groups||[];
+  if(!groups.length){el.innerHTML=`<div class="text-sm text-dim" style="padding:10px 0;">그룹 없음</div>`;return;}
+  el.innerHTML=groups.map((g,i)=>`
+    <div id="sgrow-${i}" style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectSkillGroupRow(${i})" style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 이동">⠿</span>
+      <input type="text" value="${g}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;" onchange="renameSkillGroup(${i},this.value)">
+      <button class="btn btn-danger btn-sm" onclick="deleteSkillGroup(${i})">삭제</button>
+    </div>`).join('');
+}
+function selectSkillGroupRow(idx) {
+  const cat=getSkillCats().find(c=>c.key===_currentSkillGroupCatKey); if(!cat) return;
+  const groups=cat.groups;
+  if(_sgSelIdx===null){_sgSelIdx=idx;document.querySelectorAll('[id^="sgrow-"]').forEach(r=>r.style.background='');const row=document.getElementById('sgrow-'+idx);if(row)row.style.background='rgba(255,107,53,0.1)';}
+  else if(_sgSelIdx===idx){_sgSelIdx=null;document.querySelectorAll('[id^="sgrow-"]').forEach(r=>r.style.background='');}
+  else{const f=_sgSelIdx,t=idx;_sgSelIdx=null;[groups[f],groups[t]]=[groups[t],groups[f]];save();renderSkillGroupManagerList();renderSkills();}
+}
+function addSkillGroup() {
+  const inp=document.getElementById('new-skill-group-name'); const name=inp.value.trim(); if(!name){inp.focus();return;}
+  const cat=getSkillCats().find(c=>c.key===_currentSkillGroupCatKey); if(!cat) return;
+  if(!cat.groups) cat.groups=[];
+  cat.groups.push(name); inp.value=''; save(); renderSkillGroupManagerList(); renderSkills(); updateSkillGroupSel();
+}
+function renameSkillGroup(idx, newName) {
+  if(!newName.trim()) return;
+  const cat=getSkillCats().find(c=>c.key===_currentSkillGroupCatKey); if(!cat) return;
+  const old=cat.groups[idx]; cat.groups[idx]=newName.trim();
+  state.skills.forEach(s=>{if(s.cat===cat.key&&s.group===old)s.group=newName.trim();});
+  save(); renderSkillGroupManagerList(); renderSkills();
+}
+function deleteSkillGroup(idx) {
+  const cat=getSkillCats().find(c=>c.key===_currentSkillGroupCatKey); if(!cat) return;
+  const name=cat.groups[idx];
+  customConfirm(`"${name}" 그룹을 삭제할까요?`, ()=>{
+    cat.groups.splice(idx,1);
+    state.skills.forEach(s=>{if(s.cat===cat.key&&s.group===name)s.group='';});
+    save(); renderSkillGroupManagerList(); renderSkills();
+  }, '그룹 삭제');
+}
+
+function _updateSiCatSel(currentVal) {
+  const sel=document.getElementById('si-cat'); if(!sel) return;
+  sel.innerHTML=`<option value="">— 없음 —</option>`+getSkillCats().map(cat=>`<option value="${cat.key}" ${cat.key===currentVal?'selected':''}>${cat.name}</option>`).join('');
+}
+function updateSkillGroupSel(currentVal) {
+  const catSel=document.getElementById('si-cat'); const grpSel=document.getElementById('si-group'); if(!catSel||!grpSel) return;
+  const cat=getSkillCats().find(c=>c.key===catSel.value);
+  grpSel.innerHTML=`<option value="">— 없음 —</option>`+(cat?.groups||[]).map(g=>`<option value="${g}" ${g===currentVal?'selected':''}>${g}</option>`).join('');
+}
+
+// ── 스킬 선택 이동 ──
+let _skillSelId = null;
+function selectSkillRow(id, targetCat, targetGroup) {
+  id = +id;
+  // data-* 속성으로 받거나 직접 넘길 수 있게
+  if(targetCat === undefined) { const el = document.querySelector(`[data-skill-sel][data-skill-id="${id}"]`); targetCat = el?.dataset?.cat||''; targetGroup = el?.dataset?.grp||''; }
+  if(_skillSelId === null) {
+    _skillSelId = id;
+    document.querySelectorAll('[data-skill-sel]').forEach(el => { const sid=+el.dataset.skillId; el.closest('tr').style.background=sid===id?'rgba(255,107,53,0.1)':''; el.style.color=sid===id?'var(--accent)':'var(--text-dimmer)'; });
+    return;
+  }
+  if(_skillSelId === id) {
+    _skillSelId = null;
+    document.querySelectorAll('[data-skill-sel]').forEach(el => { el.closest('tr').style.background=''; el.style.color='var(--text-dimmer)'; });
+    return;
+  }
+  const fromIdx = state.skills.findIndex(x=>x.id===_skillSelId);
+  const toIdx   = state.skills.findIndex(x=>x.id===id);
+  if(fromIdx !== -1 && toIdx !== -1) {
+    const [moved] = state.skills.splice(fromIdx, 1);
+    state.skills.splice(toIdx, 0, moved);
+    moved.cat   = targetCat   || '';
+    moved.group = targetGroup || '';
+  }
+  _skillSelId = null;
+  save(); renderSkills();
+}
+
+// ── 스킬 모달/저장/렌더 ──
+function openSkillModal(editId) {
+  _updateSiCatSel();
+  document.getElementById('si-edit-id').value = editId || '';
+  document.getElementById('modal-skill-title').textContent = editId ? '스킬 수정' : '스킬 추가';
+  document.getElementById('si-save-btn').textContent = editId ? '수정 완료' : '저장';
+  if(editId) {
+    const s = state.skills.find(x=>x.id===+editId); if(!s) return;
+    document.getElementById('si-name').value    = s.name    || '';
+    document.getElementById('si-type').value    = s.type    || '액티브';
+    document.getElementById('si-cat').value     = s.cat     || '';
+    document.getElementById('si-dmg').value     = s.dmg     || 150;
+    document.getElementById('si-mp').value      = s.mp      || 30;
+    document.getElementById('si-cd').value      = s.cd      || 5;
+    document.getElementById('si-range').value   = s.range   || '';
+    document.getElementById('si-target').value  = s.target  || '단일';
+    document.getElementById('si-element').value = s.element || '없음';
+    document.getElementById('si-desc').value    = s.desc    || '';
+    updateSkillGroupSel(s.group || '');
+  } else {
+    ['si-name','si-range','si-desc'].forEach(id=>document.getElementById(id).value='');
+    const defaultCat = currentSkillCat !== 'all' ? currentSkillCat : '';
+    document.getElementById('si-cat').value = defaultCat;
+    updateSkillGroupSel();
+  }
+  document.getElementById('modal-skill').classList.add('open');
+}
+
 function saveSkill() {
   const name = document.getElementById('si-name').value.trim();
-  if(!name) { showToast('스킬명을 입력하세요', 'warn');  return; }
-  const s = {
-    id: Date.now(), name,
-    type: document.getElementById('si-type').value,
-    dmg: +document.getElementById('si-dmg').value,
-    mp: +document.getElementById('si-mp').value,
-    cd: +document.getElementById('si-cd').value,
-    range: document.getElementById('si-range').value,
-    target: document.getElementById('si-target').value,
+  if(!name) { showToast('스킬명을 입력하세요', 'warn'); return; }
+  const editId = document.getElementById('si-edit-id').value;
+  const data = {
+    name,
+    cat:     document.getElementById('si-cat').value    || '',
+    group:   document.getElementById('si-group').value  || '',
+    type:    document.getElementById('si-type').value,
+    dmg:    +document.getElementById('si-dmg').value,
+    mp:     +document.getElementById('si-mp').value,
+    cd:     +document.getElementById('si-cd').value,
+    range:   document.getElementById('si-range').value,
+    target:  document.getElementById('si-target').value,
     element: document.getElementById('si-element').value,
-    desc: document.getElementById('si-desc').value,
+    desc:    document.getElementById('si-desc').value,
   };
-  state.skills.push(s);
-  addActivity(`스킬 <b>${name}</b> 추가됨`, 'var(--warning)');
-  save(); renderSkills(); renderStats(); updateBadges();
-  closeModal('skill');
-  ['si-name','si-range','si-desc'].forEach(id => document.getElementById(id).value='');
+  if(editId) {
+    const idx = state.skills.findIndex(x=>x.id===+editId);
+    if(idx !== -1) { state.skills[idx]={...state.skills[idx],...data}; addActivity(`스킬 <b>${name}</b> 수정됨`,'var(--warning)'); }
+  } else {
+    state.skills.push({id:Date.now(),...data});
+    addActivity(`스킬 <b>${name}</b> 추가됨`,'var(--warning)');
+  }
+  save(); renderSkills(); renderStats(); updateBadges(); closeModal('skill');
+}
+
+function skillTable(list, catKey, groupKey) {
+  catKey = catKey || ''; groupKey = groupKey || '';
+  return `<table><thead><tr>
+    <th style="width:28px;"></th><th>스킬명</th><th>타입</th><th>데미지</th><th>MP</th><th>쿨타임</th><th>사거리</th><th>대상</th><th>설명</th><th></th>
+  </tr></thead><tbody>` +
+  list.map(s=>`<tr>
+    <td><span data-skill-sel data-skill-id="${s.id}"
+      onclick="selectSkillRow(${s.id})" data-cat="${catKey}" data-grp="${groupKey}"
+      style="cursor:pointer;font-size:15px;padding:0 6px;color:var(--text-dimmer);user-select:none;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span></td>
+    <td><b>${s.name}</b></td>
+    <td><span class="tag ${skillTypeMap[s.type]||'tag-gray'}">${s.type}</span></td>
+    <td class="mono">${s.type==='패시브'?'-':s.dmg+'%'}</td>
+    <td class="mono">${s.type==='패시브'?'-':s.mp}</td>
+    <td class="mono">${s.cd}s</td>
+    <td>${s.range||'-'}</td>
+    <td>${s.target}</td>
+    <td class="text-dim" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.desc||'-'}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn btn-secondary btn-sm" onclick="openSkillModal(${s.id})" style="margin-right:4px;">수정</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id})">삭제</button>
+    </td>
+  </tr>`).join('') + `</tbody></table>`;
 }
 
 function renderSkills() {
-  const tb = document.getElementById('skills-table');
-  if(!state.skills.length) {
-    tb.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">✨</div><div class="empty-title">스킬 없음</div></div></td></tr>`;
+  renderSkillCatTabs();
+  const wrap = document.getElementById('skill-list'); if(!wrap) return;
+  const cats = getSkillCats();
+  let skills = state.skills || [];
+  if(currentSkillCat !== 'all') skills = skills.filter(s=>s.cat===currentSkillCat);
+
+  if(!skills.length) {
+    wrap.innerHTML=`<div class="empty"><div class="empty-icon">✨</div><div class="empty-title">스킬 없음</div><div class="empty-desc">카테고리를 만들고 스킬을 추가하세요</div></div>`;
     return;
   }
-  tb.innerHTML = state.skills.map(s => `
-    <tr>
-      <td><b>${s.name}</b></td>
-      <td><span class="tag ${skillTypeMap[s.type]||'tag-gray'}">${s.type}</span></td>
-      <td class="mono">${s.type==='패시브'?'-':s.dmg+'%'}</td>
-      <td class="mono">${s.type==='패시브'?'-':s.mp}</td>
-      <td class="mono">${s.cd}s</td>
-      <td>${s.range||'-'}</td>
-      <td>${s.target}</td>
-      <td class="text-dim" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.desc||'-'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id})">삭제</button></td>
-    </tr>
-  `).join('');
+
+
+
+  if(currentSkillCat === 'all' && cats.length > 0) {
+    let html = '';
+    for(const cat of cats) {
+      const catSkills = skills.filter(s=>s.cat===cat.key);
+      if(!catSkills.length) continue;
+      const groups = cat.groups || [];
+      html += `<div style="margin-bottom:20px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span><span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catSkills.length}</span></div>`;
+      if(groups.length > 0) {
+        for(const g of [...groups, null]) {
+          const gSkills = g===null ? catSkills.filter(s=>!s.group) : catSkills.filter(s=>s.group===g);
+          if(!gSkills.length) continue;
+          html += `<div style="margin-bottom:8px;">${_groupHeader(g)}<div class="card"><div class="table-wrap">${skillTable(gSkills, cat.key, g||'')}</div></div></div>`;
+        }
+      } else {
+        html += `<div class="card"><div class="table-wrap">${skillTable(catSkills, cat.key, '')}</div></div>`;
+      }
+      html += `</div>`;
+    }
+    const uncatSkills = skills.filter(s=>!s.cat);
+    if(uncatSkills.length) html += `<div style="margin-bottom:20px;"><div style="font-size:13px;font-weight:700;color:var(--text-dimmer);margin-bottom:8px;">⬜ 미분류</div><div class="card"><div class="table-wrap">${skillTable(uncatSkills,'','')}</div></div></div>`;
+    wrap.innerHTML = html;
+  } else {
+    const cat = cats.find(c=>c.key===currentSkillCat);
+    const groups = cat?.groups || [];
+    if(groups.length > 0) {
+      let html = '';
+      for(const g of [...groups, null]) {
+        const gSkills = g===null ? skills.filter(s=>!s.group) : skills.filter(s=>s.group===g);
+        if(!gSkills.length) continue;
+        html += `<div style="margin-bottom:12px;">${_groupHeader(g)}<div class="card"><div class="table-wrap">${skillTable(gSkills, currentSkillCat, g||'')}</div></div></div>`;
+      }
+      wrap.innerHTML = html;
+    } else {
+      wrap.innerHTML = `<div class="card"><div class="table-wrap">${skillTable(skills, currentSkillCat, '')}</div></div>`;
+    }
+  }
 }
 
 function deleteSkill(id) { id=+id;
-  const s = state.skills.find(x=>x.id===id);
-  if(!s) return;
-  customConfirm(`"${s.name}" 스킬을 삭제할까요?`, () => {
+  const s = state.skills.find(x=>x.id===id); if(!s) return;
+  customConfirm(`"${s.name}" 스킬을 삭제할까요?`, ()=>{
     state.skills = state.skills.filter(x=>x.id!==id);
     save(); renderSkills(); renderStats(); updateBadges();
   });
@@ -4142,6 +4423,11 @@ function deleteSkill(id) { id=+id;
 // ═══════════════════════════════════════
 // ITEMS
 // ═══════════════════════════════════════
+function _groupHeader(g) {
+  if(!g) return '';
+  return '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:JetBrains Mono,monospace;margin-bottom:6px;padding-left:4px;">' + g + '</div>';
+}
+
 const gradeMap = {'일반':'tag-gray','고급':'tag-green','희귀':'tag-cyan','영웅':'tag-purple','전설':'tag-orange'};
 
 // ── 메인 탭 전환 ──
@@ -4414,6 +4700,29 @@ function saveCombatItem() {
   save(); renderCombatItems(); updateBadges(); closeModal('combat-item');
 }
 
+function combatTable(list, catKey, groupKey) {
+  catKey = catKey || ''; groupKey = groupKey || '';
+  return `<table><thead><tr>
+    <th style="width:28px;"></th>
+    <th>아이템명</th><th>등급</th><th>효과/스탯</th><th>가격</th><th>획득 경로</th><th></th>
+  </tr></thead><tbody>` +
+  list.map(i => `<tr>
+    <td><span data-item-sel="combat" data-item-id="${i.id}"
+      onclick="selectCombatItemRow(${i.id},this)" data-cat="${catKey}" data-grp="${groupKey}"
+      style="cursor:pointer;font-size:15px;padding:0 6px;color:var(--text-dimmer);user-select:none;"
+      title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span></td>
+    <td><b>${i.name}</b>${i.desc?'<div class="text-sm text-dim">'+i.desc+'</div>':''}</td>
+    <td><span class="tag ${gradeMap[i.grade]||'tag-gray'}">${i.grade}</span></td>
+    <td class="text-dim">${i.effect||'-'}</td>
+    <td class="mono">${(i.price||0).toLocaleString()}G</td>
+    <td class="text-dim">${i.source||'-'}</td>
+    <td style="white-space:nowrap;">
+      <button class="btn btn-secondary btn-sm" onclick="openCombatItemModal(${i.id})" style="margin-right:4px;">수정</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteCombatItem(${i.id})">삭제</button>
+    </td>
+  </tr>`).join('') + `</tbody></table>`;
+}
+
 function renderCombatItems() {
   renderCombatCatTabs();
   const wrap = document.getElementById('combat-item-list');
@@ -4427,22 +4736,7 @@ function renderCombatItems() {
     return;
   }
 
-  function combatTable(list) {
-    return `<table><thead><tr>
-      <th>아이템명</th><th>등급</th><th>효과/스탯</th><th>가격</th><th>획득 경로</th><th></th>
-    </tr></thead><tbody>` +
-    list.map(i => `<tr>
-      <td><b>${i.name}</b>${i.desc?'<div class="text-sm text-dim">'+i.desc+'</div>':''}</td>
-      <td><span class="tag ${gradeMap[i.grade]||'tag-gray'}">${i.grade}</span></td>
-      <td class="text-dim">${i.effect||'-'}</td>
-      <td class="mono">${(i.price||0).toLocaleString()}G</td>
-      <td class="text-dim">${i.source||'-'}</td>
-      <td style="white-space:nowrap;">
-        <button class="btn btn-secondary btn-sm" onclick="openCombatItemModal(${i.id})" style="margin-right:4px;">수정</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCombatItem(${i.id})">삭제</button>
-      </td>
-    </tr>`).join('') + `</tbody></table>`;
-  }
+
 
   if(currentCombatCat === 'all' && cats.length > 0) {
     let html = '';
@@ -4460,12 +4754,11 @@ function renderCombatItems() {
           const gItems = g === null ? catItems.filter(i => !i.group) : catItems.filter(i => i.group === g);
           if(!gItems.length) continue;
           html += `<div style="margin-bottom:8px;">
-            ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;padding-left:4px;">${g}</div>` : ''}
-            <div class="card"><div class="table-wrap">${combatTable(gItems)}</div></div>
+            ${_groupHeader(g)}<div class="card"><div class="table-wrap">${combatTable(gItems, cat.key, g)}</div></div>
           </div>`;
         }
       } else {
-        html += `<div class="card"><div class="table-wrap">${combatTable(catItems)}</div></div>`;
+        html += `<div class="card"><div class="table-wrap">${combatTable(catItems, cat.key, "")}</div></div>`;
       }
       html += `</div>`;
     }
@@ -4473,7 +4766,7 @@ function renderCombatItems() {
     if(uncatItems.length) {
       html += `<div style="margin-bottom:20px;">
         <div style="font-size:13px;font-weight:700;color:var(--text-dimmer);margin-bottom:8px;">⬜ 미분류</div>
-        <div class="card"><div class="table-wrap">${combatTable(uncatItems)}</div></div>
+        <div class="card"><div class="table-wrap">${combatTable(uncatItems, "", "")}</div>
       </div>`;
     }
     wrap.innerHTML = html;
@@ -4486,15 +4779,42 @@ function renderCombatItems() {
         const gItems = g === null ? items.filter(i => !i.group) : items.filter(i => i.group === g);
         if(!gItems.length) continue;
         html += `<div style="margin-bottom:12px;">
-          ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">${g}</div>` : ''}
-          <div class="card"><div class="table-wrap">${combatTable(gItems)}</div></div>
+          ${_groupHeader(g)}<div class="card"><div class="table-wrap">${combatTable(gItems, currentCombatCat, g)}</div></div>
         </div>`;
       }
       wrap.innerHTML = html;
     } else {
-      wrap.innerHTML = `<div class="card"><div class="table-wrap">${combatTable(items)}</div></div>`;
+      wrap.innerHTML = `<div class="card"><div class="table-wrap">${combatTable(items, currentCombatCat, "")}</div></div>`;
     }
   }
+}
+
+
+let _combatItemSelId = null;
+function selectCombatItemRow(id, el) {
+  id = +id;
+  const targetCat   = el ? (el.dataset.cat || '') : '';
+  const targetGroup = el ? (el.dataset.grp || '') : '';
+  if(_combatItemSelId === null) {
+    _combatItemSelId = id;
+    _syncItemHighlight('combat');
+    return;
+  }
+  if(_combatItemSelId === id) {
+    _combatItemSelId = null;
+    _syncItemHighlight('combat');
+    return;
+  }
+  const fromIdx = state.combatItems.findIndex(x => x.id === _combatItemSelId);
+  const toIdx   = state.combatItems.findIndex(x => x.id === id);
+  if(fromIdx !== -1 && toIdx !== -1) {
+    const [moved] = state.combatItems.splice(fromIdx, 1);
+    state.combatItems.splice(toIdx, 0, moved);
+    moved.cat   = targetCat;
+    moved.group = targetGroup;
+  }
+  _combatItemSelId = null;
+  save(); renderCombatItems();
 }
 
 function deleteCombatItem(id) {
@@ -4804,12 +5124,11 @@ function renderItems() {
           const gItems = g === null ? catItems.filter(i => !i.group) : catItems.filter(i => i.group === g);
           if(!gItems.length) continue;
           html += `<div style="margin-bottom:8px;">
-            ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;padding-left:4px;">${g}</div>` : ''}
-            <div class="card"><div class="table-wrap">${_itemTable(gItems)}</div></div>
+            ${_groupHeader(g)}<div class="card"><div class="table-wrap">${_itemTable(gItems, cat.key, g)}</div></div>
           </div>`;
         }
       } else {
-        html += `<div class="card"><div class="table-wrap">${_itemTable(catItems)}</div></div>`;
+        html += `<div class="card"><div class="table-wrap">${_itemTable(catItems, cat.key, "")}</div></div>`;
       }
       html += `</div>`;
     }
@@ -4818,7 +5137,7 @@ function renderItems() {
     if(uncatItems.length) {
       html += `<div style="margin-bottom:20px;">
         <div style="font-size:13px;font-weight:700;color:var(--text-dimmer);margin-bottom:8px;">⬜ 미분류</div>
-        <div class="card"><div class="table-wrap">${_itemTable(uncatItems)}</div></div>
+        <div class="card"><div class="table-wrap">${_itemTable(uncatItems, "", "")}
       </div>`;
     }
     wrap.innerHTML = html;
@@ -4832,23 +5151,64 @@ function renderItems() {
         const gItems = g === null ? items.filter(i => !i.group) : items.filter(i => i.group === g);
         if(!gItems.length) continue;
         html += `<div style="margin-bottom:12px;">
-          ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">${g}</div>` : ''}
-          <div class="card"><div class="table-wrap">${_itemTable(gItems)}</div></div>
+          ${_groupHeader(g)}<div class="card"><div class="table-wrap">${_itemTable(gItems, currentItemCat, g)}</div></div>
         </div>`;
       }
       wrap.innerHTML = html;
     } else {
-      wrap.innerHTML = `<div class="card"><div class="table-wrap">${_itemTable(items)}</div></div>`;
+      wrap.innerHTML = `<div class="card"><div class="table-wrap">${_itemTable(items, currentItemCat, "")}</div></div>`;
     }
   }
 }
 
-function _itemTable(items) {
+// ── 일반 아이템 선택 이동 ──
+let _itemSelId = null;
+function selectItemRow(id, el) {
+  id = +id;
+  const targetCat   = el ? (el.dataset.cat   || '') : '';
+  const targetGroup = el ? (el.dataset.grp   || '') : '';
+  if(_itemSelId === null) {
+    _itemSelId = id;
+    _syncItemHighlight('item');
+    return;
+  }
+  if(_itemSelId === id) {
+    _itemSelId = null;
+    _syncItemHighlight('item');
+    return;
+  }
+  const fromIdx = state.items.findIndex(x => x.id === _itemSelId);
+  const toIdx   = state.items.findIndex(x => x.id === id);
+  if(fromIdx !== -1 && toIdx !== -1) {
+    const [moved] = state.items.splice(fromIdx, 1);
+    state.items.splice(toIdx, 0, moved);
+    moved.cat   = targetCat;
+    moved.group = targetGroup;
+  }
+  _itemSelId = null;
+  save(); renderItems();
+}
+
+function _syncItemHighlight(type) {
+  const selId = type === 'item' ? _itemSelId : _combatItemSelId;
+  document.querySelectorAll(`[data-item-sel="${type}"]`).forEach(el => {
+    const id = +el.dataset.itemId;
+    el.closest('tr').style.background = (id === selId) ? 'rgba(255,107,53,0.1)' : '';
+    el.style.color = (id === selId) ? 'var(--accent)' : 'var(--text-dimmer)';
+  });
+}
+
+function _itemTable(items, catKey, groupKey) {
   return `<table><thead><tr>
+    <th style="width:28px;"></th>
     <th>아이템명</th><th>등급</th><th>효과/용도</th><th>위치/획득</th><th></th>
   </tr></thead><tbody>` +
   items.map(i => `
     <tr>
+      <td><span data-item-sel="item" data-item-id="${i.id}"
+        onclick="selectItemRow(${i.id},this)" data-cat="${catKey||''}" data-grp="${groupKey||''}"
+        style="cursor:pointer;font-size:15px;padding:0 6px;color:var(--text-dimmer);user-select:none;"
+        title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span></td>
       <td><b>${i.name}</b>${i.desc?'<div class="text-sm text-dim">'+i.desc+'</div>':''}</td>
       <td><span class="tag ${gradeMap[i.grade]||'tag-gray'}">${i.grade}</span></td>
       <td class="text-dim">${i.effect||'-'}</td>
