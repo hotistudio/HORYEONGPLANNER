@@ -1199,12 +1199,31 @@
 
       <!-- ═══ ITEMS ═══ -->
       <div class="page" id="page-items">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-          <div class="tabs" id="item-cat-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
-          <button class="btn btn-ghost btn-sm" onclick="openItemCatModal()" style="white-space:nowrap;">⚙ 카테고리 관리</button>
-          <button class="btn btn-primary btn-sm" onclick="openModal('item')" style="white-space:nowrap;">+ 아이템 추가</button>
+        <!-- 메인 탭: 일반 / 전투 -->
+        <div class="tabs" style="margin-bottom:14px;">
+          <div class="tab active" id="item-main-tab-general" onclick="switchItemMainTab('general',this)">🎒 일반 아이템</div>
+          <div class="tab"        id="item-main-tab-combat"  onclick="switchItemMainTab('combat',this)">⚔️ 전투 아이템</div>
         </div>
-        <div id="item-list"></div>
+
+        <!-- 일반 아이템 패널 -->
+        <div id="item-panel-general">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <div class="tabs" id="item-cat-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+            <button class="btn btn-ghost btn-sm" onclick="openItemCatModal()" style="white-space:nowrap;">⚙ 카테고리 관리</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('item')" style="white-space:nowrap;">+ 추가</button>
+          </div>
+          <div id="item-list"></div>
+        </div>
+
+        <!-- 전투 아이템 패널 -->
+        <div id="item-panel-combat" style="display:none;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <div class="tabs" id="combat-cat-tabs" style="margin-bottom:0;border:none;gap:4px;flex:1;flex-wrap:wrap;"></div>
+            <button class="btn btn-ghost btn-sm" onclick="openCombatCatModal()" style="white-space:nowrap;">⚙ 카테고리 관리</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('combat-item')" style="white-space:nowrap;">+ 추가</button>
+          </div>
+          <div id="combat-item-list"></div>
+        </div>
       </div>
 
       <!-- ═══ QUESTS ═══ -->
@@ -2103,6 +2122,85 @@
 
 <!-- Item Modal -->
 <!-- Item Category Manager Modal -->
+<!-- Combat Item Modal -->
+<!-- Combat Item Category Manager Modal -->
+<div class="modal-overlay" id="modal-combat-cat">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙ 전투 아이템 카테고리 관리</span>
+      <button class="modal-close" onclick="closeModal('combat-cat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="combat-cat-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-combat-cat-name" placeholder="카테고리 이름 (예: 무기, 방어구, 소모품...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addCombatCat()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('combat-cat')">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- Combat Item Group Manager Modal -->
+<div class="modal-overlay" id="modal-combat-group">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <span class="modal-title" id="combat-group-modal-title">⚙ 그룹 관리</span>
+      <button class="modal-close" onclick="closeModal('combat-group')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="combat-group-manager-list"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <input type="text" class="form-control" id="new-combat-group-name" placeholder="그룹 이름 (예: 근접 무기, 원거리...)" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addCombatGroup()" style="white-space:nowrap;">+ 추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('combat-group')">완료</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-combat-item">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-combat-item-title">전투 아이템 추가</span>
+      <button class="modal-close" onclick="closeModal('combat-item')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ci2-edit-id">
+      <div class="grid grid-2">
+        <div class="form-group"><div class="form-label">아이템명 *</div><input type="text" class="form-control" id="ci2-name" placeholder="전설의 검"></div>
+        <div class="form-group"><div class="form-label">카테고리</div>
+          <select class="form-control" id="ci2-cat" onchange="updateCombatGroupSel()">
+            <option value="">— 없음 —</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">그룹</div>
+          <select class="form-control" id="ci2-group">
+            <option value="">— 없음 —</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">등급</div>
+          <select class="form-control" id="ci2-grade">
+            <option>일반</option><option>고급</option><option>희귀</option><option>영웅</option><option>전설</option>
+          </select>
+        </div>
+        <div class="form-group"><div class="form-label">가격 (골드)</div><input type="number" class="form-control" id="ci2-price" value="0"></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">효과/스탯</div><input type="text" class="form-control" id="ci2-effect" placeholder="ATK +50, 공격속도 +10%..."></div>
+        <div class="form-group" style="grid-column:span 2;"><div class="form-label">획득 경로</div><input type="text" class="form-control" id="ci2-source" placeholder="던전 드랍, 상점 구매, 제작..."></div>
+      </div>
+      <div class="form-group"><div class="form-label">설명</div><textarea class="form-control" id="ci2-desc" placeholder="아이템 설명..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('combat-item')">취소</button>
+      <button class="btn btn-primary" id="ci2-save-btn" onclick="saveCombatItem()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-item-cat">
   <div class="modal" style="max-width:460px;">
     <div class="modal-header">
@@ -2673,6 +2771,8 @@ const state = {
   sceneFloors: [],
   puzzleGroups: [],
   itemCats: [],
+  combatItems: [],
+  combatItemCats: [],
 };
 
 function load() {
@@ -2691,6 +2791,8 @@ function load() {
     sceneFloors:[],
     puzzleGroups:[],
     itemCats:[],
+    combatItems:[],
+    combatItemCats:[],
   });
   try {
     const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
@@ -2830,7 +2932,7 @@ function renderAll() {
   renderCharCatTabs();
   renderChars();
   renderPuzzles();
-  renderScenes(); renderSkills(); renderItems(); renderQuests(); renderDocs();
+  renderScenes(); renderSkills(); renderItems(); renderCombatItems(); renderQuests(); renderDocs();
   renderRegions(); renderFactions(); renderTimeline();
   renderScripts(); renderMilestones(); renderScheduleStats();
   renderBugs(); renderFeedback(); renderTodos();
@@ -3137,7 +3239,8 @@ function openModal(type, subtype) {
   if(type==='char') { _openCharModal(); }
   if(type==='puzzle') { openPuzzleModal(); return; }
   if(type==='scene')  { openSceneModal();  return; }
-  if(type==='item')   { openItemModal();   return; }
+  if(type==='item')        { openItemModal();       return; }
+  if(type==='combat-item') { openCombatItemModal(); return; }
   el.classList.add('open');
 }
 
@@ -4040,6 +4143,369 @@ function deleteSkill(id) { id=+id;
 // ITEMS
 // ═══════════════════════════════════════
 const gradeMap = {'일반':'tag-gray','고급':'tag-green','희귀':'tag-cyan','영웅':'tag-purple','전설':'tag-orange'};
+
+// ── 메인 탭 전환 ──
+let currentItemMainTab = 'general';
+function switchItemMainTab(tab, el) {
+  currentItemMainTab = tab;
+  document.querySelectorAll('#page-items > .tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('item-panel-general').style.display = tab === 'general' ? '' : 'none';
+  document.getElementById('item-panel-combat').style.display  = tab === 'combat'  ? '' : 'none';
+}
+
+// ── 전투 아이템 ──
+// ── 전투 아이템 카테고리 관리 ──
+function getCombatItemCats() {
+  if(!state.combatItemCats) state.combatItemCats = [];
+  return state.combatItemCats;
+}
+
+let currentCombatCat = 'all';
+let _ccSelIdx = null;
+
+function openCombatCatModal() {
+  _ccSelIdx = null;
+  renderCombatCatManagerList();
+  document.getElementById('modal-combat-cat').classList.add('open');
+}
+
+function renderCombatCatManagerList() {
+  const el = document.getElementById('combat-cat-manager-list');
+  if(!el) return;
+  const cats = getCombatItemCats();
+  if(!cats.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">카테고리 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = cats.map((cat, i) => `
+    <div id="ccrow-${i}" style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectCombatCatRow(${i})"
+        style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
+      <input type="text" value="${cat.name}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameCombatCat(${i}, this.value)">
+      <button class="btn btn-secondary btn-sm" onclick="openCombatGroupModal('${cat.key}','${cat.name}')">그룹</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteCombatCat('${cat.key}')">삭제</button>
+    </div>`).join('');
+}
+
+function selectCombatCatRow(idx) {
+  const cats = getCombatItemCats();
+  if(_ccSelIdx === null) {
+    _ccSelIdx = idx;
+    document.querySelectorAll('[id^="ccrow-"]').forEach(r => r.style.background = '');
+    const row = document.getElementById('ccrow-' + idx);
+    if(row) row.style.background = 'rgba(255,107,53,0.1)';
+  } else if(_ccSelIdx === idx) {
+    _ccSelIdx = null;
+    document.querySelectorAll('[id^="ccrow-"]').forEach(r => r.style.background = '');
+  } else {
+    const from = _ccSelIdx, to = idx;
+    _ccSelIdx = null;
+    [cats[from], cats[to]] = [cats[to], cats[from]];
+    save(); renderCombatCatManagerList(); renderCombatCatTabs(); renderCombatItems();
+  }
+}
+
+function addCombatCat() {
+  const inp = document.getElementById('new-combat-cat-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  getCombatItemCats().push({ key: 'ccat_' + Date.now(), name, groups: [] });
+  inp.value = '';
+  save(); renderCombatCatManagerList(); renderCombatCatTabs(); _updateCi2CatSel();
+}
+
+function renameCombatCat(idx, newName) {
+  if(!newName.trim()) return;
+  getCombatItemCats()[idx].name = newName.trim();
+  save(); renderCombatCatManagerList(); renderCombatCatTabs(); renderCombatItems(); _updateCi2CatSel();
+}
+
+function deleteCombatCat(key) {
+  const cats = getCombatItemCats();
+  const cat = cats.find(c => c.key === key);
+  if(!cat) return;
+  const count = (state.combatItems||[]).filter(i => i.cat === key).length;
+  const msg = count > 0
+    ? `"${cat.name}" 카테고리를 삭제하면 소속 아이템 ${count}개의 카테고리가 해제됩니다.`
+    : `"${cat.name}" 카테고리를 삭제할까요?`;
+  customConfirm(msg, () => {
+    state.combatItemCats = cats.filter(c => c.key !== key);
+    (state.combatItems||[]).forEach(i => { if(i.cat === key) { i.cat = ''; i.group = ''; } });
+    if(currentCombatCat === key) currentCombatCat = 'all';
+    save(); renderCombatCatManagerList(); renderCombatCatTabs(); renderCombatItems(); _updateCi2CatSel();
+  }, '카테고리 삭제');
+}
+
+function renderCombatCatTabs() {
+  const wrap = document.getElementById('combat-cat-tabs');
+  if(!wrap) return;
+  const cats = getCombatItemCats();
+  wrap.innerHTML =
+    `<div class="tab ${currentCombatCat==='all'?'active':''}" onclick="switchCombatCat('all',this)">전체</div>` +
+    cats.map(cat =>
+      `<div class="tab ${currentCombatCat===cat.key?'active':''}" onclick="switchCombatCat('${cat.key}',this)">${cat.name}</div>`
+    ).join('');
+}
+
+function switchCombatCat(key, el) {
+  currentCombatCat = key;
+  renderCombatCatTabs();
+  renderCombatItems();
+}
+
+// ── 전투 아이템 그룹 관리 ──
+let _currentCombatGroupCatKey = null;
+let _cgSelIdx = null;
+
+function openCombatGroupModal(catKey, catName) {
+  _currentCombatGroupCatKey = catKey;
+  _cgSelIdx = null;
+  document.getElementById('combat-group-modal-title').textContent = `⚙ ${catName} — 그룹 관리`;
+  renderCombatGroupManagerList();
+  document.getElementById('modal-combat-group').classList.add('open');
+}
+
+function renderCombatGroupManagerList() {
+  const el = document.getElementById('combat-group-manager-list');
+  if(!el) return;
+  const cat = getCombatItemCats().find(c => c.key === _currentCombatGroupCatKey);
+  if(!cat) return;
+  const groups = cat.groups || [];
+  if(!groups.length) {
+    el.innerHTML = `<div class="text-sm text-dim" style="padding:10px 0;">그룹 없음 — 아래에서 추가하세요</div>`;
+    return;
+  }
+  el.innerHTML = groups.map((g, i) => `
+    <div id="cgrow-${i}" style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);">
+      <span onclick="selectCombatGroupRow(${i})"
+        style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
+      <input type="text" value="${g}"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        onchange="renameCombatGroup(${i}, this.value)">
+      <button class="btn btn-danger btn-sm" onclick="deleteCombatGroup(${i})">삭제</button>
+    </div>`).join('');
+}
+
+function selectCombatGroupRow(idx) {
+  const cat = getCombatItemCats().find(c => c.key === _currentCombatGroupCatKey);
+  if(!cat) return;
+  const groups = cat.groups;
+  if(_cgSelIdx === null) {
+    _cgSelIdx = idx;
+    document.querySelectorAll('[id^="cgrow-"]').forEach(r => r.style.background = '');
+    const row = document.getElementById('cgrow-' + idx);
+    if(row) row.style.background = 'rgba(255,107,53,0.1)';
+  } else if(_cgSelIdx === idx) {
+    _cgSelIdx = null;
+    document.querySelectorAll('[id^="cgrow-"]').forEach(r => r.style.background = '');
+  } else {
+    const from = _cgSelIdx, to = idx;
+    _cgSelIdx = null;
+    [groups[from], groups[to]] = [groups[to], groups[from]];
+    save(); renderCombatGroupManagerList(); renderCombatItems();
+  }
+}
+
+function addCombatGroup() {
+  const inp = document.getElementById('new-combat-group-name');
+  const name = inp.value.trim();
+  if(!name) { inp.focus(); return; }
+  const cat = getCombatItemCats().find(c => c.key === _currentCombatGroupCatKey);
+  if(!cat) return;
+  if(!cat.groups) cat.groups = [];
+  cat.groups.push(name);
+  inp.value = '';
+  save(); renderCombatGroupManagerList(); renderCombatItems(); updateCombatGroupSel();
+}
+
+function renameCombatGroup(idx, newName) {
+  if(!newName.trim()) return;
+  const cat = getCombatItemCats().find(c => c.key === _currentCombatGroupCatKey);
+  if(!cat) return;
+  const old = cat.groups[idx];
+  cat.groups[idx] = newName.trim();
+  (state.combatItems||[]).forEach(i => { if(i.cat === cat.key && i.group === old) i.group = newName.trim(); });
+  save(); renderCombatGroupManagerList(); renderCombatItems();
+}
+
+function deleteCombatGroup(idx) {
+  const cat = getCombatItemCats().find(c => c.key === _currentCombatGroupCatKey);
+  if(!cat) return;
+  const name = cat.groups[idx];
+  customConfirm(`"${name}" 그룹을 삭제할까요?`, () => {
+    cat.groups.splice(idx, 1);
+    (state.combatItems||[]).forEach(i => { if(i.cat === cat.key && i.group === name) i.group = ''; });
+    save(); renderCombatGroupManagerList(); renderCombatItems();
+  }, '그룹 삭제');
+}
+
+function _updateCi2CatSel(currentVal) {
+  const sel = document.getElementById('ci2-cat');
+  if(!sel) return;
+  const cats = getCombatItemCats();
+  sel.innerHTML = `<option value="">— 없음 —</option>` +
+    cats.map(cat => `<option value="${cat.key}" ${cat.key===currentVal?'selected':''}>${cat.name}</option>`).join('');
+}
+
+function updateCombatGroupSel(currentVal) {
+  const catSel = document.getElementById('ci2-cat');
+  const grpSel = document.getElementById('ci2-group');
+  if(!catSel || !grpSel) return;
+  const cat = getCombatItemCats().find(c => c.key === catSel.value);
+  const groups = cat?.groups || [];
+  grpSel.innerHTML = `<option value="">— 없음 —</option>` +
+    groups.map(g => `<option value="${g}" ${g===currentVal?'selected':''}>${g}</option>`).join('');
+}
+
+// ── 전투 아이템 모달/저장/렌더 ──
+function openCombatItemModal(editId) {
+  _updateCi2CatSel();
+  document.getElementById('ci2-edit-id').value = editId || '';
+  document.getElementById('modal-combat-item-title').textContent = editId ? '전투 아이템 수정' : '전투 아이템 추가';
+  document.getElementById('ci2-save-btn').textContent = editId ? '수정 완료' : '저장';
+  if(editId) {
+    const item = (state.combatItems||[]).find(x => x.id === +editId);
+    if(!item) return;
+    document.getElementById('ci2-name').value   = item.name   || '';
+    document.getElementById('ci2-cat').value    = item.cat    || '';
+    document.getElementById('ci2-grade').value  = item.grade  || '일반';
+    document.getElementById('ci2-price').value  = item.price  || 0;
+    document.getElementById('ci2-effect').value = item.effect || '';
+    document.getElementById('ci2-source').value = item.source || '';
+    document.getElementById('ci2-desc').value   = item.desc   || '';
+    updateCombatGroupSel(item.group || '');
+  } else {
+    ['ci2-name','ci2-effect','ci2-source','ci2-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ci2-price').value = 0;
+    const defaultCat = currentCombatCat !== 'all' ? currentCombatCat : '';
+    document.getElementById('ci2-cat').value = defaultCat;
+    updateCombatGroupSel();
+  }
+  document.getElementById('modal-combat-item').classList.add('open');
+}
+
+function saveCombatItem() {
+  const name = document.getElementById('ci2-name').value.trim();
+  if(!name) { showToast('아이템명을 입력하세요', 'warn'); return; }
+  const editId = document.getElementById('ci2-edit-id').value;
+  const data = {
+    name,
+    cat:    document.getElementById('ci2-cat').value    || '',
+    group:  document.getElementById('ci2-group').value  || '',
+    grade:  document.getElementById('ci2-grade').value,
+    price:  +document.getElementById('ci2-price').value,
+    effect: document.getElementById('ci2-effect').value,
+    source: document.getElementById('ci2-source').value,
+    desc:   document.getElementById('ci2-desc').value,
+  };
+  if(!state.combatItems) state.combatItems = [];
+  if(editId) {
+    const idx = state.combatItems.findIndex(x => x.id === +editId);
+    if(idx !== -1) { state.combatItems[idx] = { ...state.combatItems[idx], ...data }; addActivity(`전투 아이템 <b>${name}</b> 수정됨`, 'var(--warning)'); }
+  } else {
+    state.combatItems.push({ id: Date.now(), ...data });
+    addActivity(`전투 아이템 <b>${name}</b> 추가됨`, 'var(--warning)');
+  }
+  save(); renderCombatItems(); updateBadges(); closeModal('combat-item');
+}
+
+function renderCombatItems() {
+  renderCombatCatTabs();
+  const wrap = document.getElementById('combat-item-list');
+  if(!wrap) return;
+  const cats = getCombatItemCats();
+  let items = state.combatItems || [];
+  if(currentCombatCat !== 'all') items = items.filter(i => i.cat === currentCombatCat);
+
+  if(!items.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-icon">⚔️</div><div class="empty-title">전투 아이템 없음</div><div class="empty-desc">카테고리를 만들고 아이템을 추가하세요</div></div>`;
+    return;
+  }
+
+  function combatTable(list) {
+    return `<table><thead><tr>
+      <th>아이템명</th><th>등급</th><th>효과/스탯</th><th>가격</th><th>획득 경로</th><th></th>
+    </tr></thead><tbody>` +
+    list.map(i => `<tr>
+      <td><b>${i.name}</b>${i.desc?'<div class="text-sm text-dim">'+i.desc+'</div>':''}</td>
+      <td><span class="tag ${gradeMap[i.grade]||'tag-gray'}">${i.grade}</span></td>
+      <td class="text-dim">${i.effect||'-'}</td>
+      <td class="mono">${(i.price||0).toLocaleString()}G</td>
+      <td class="text-dim">${i.source||'-'}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" onclick="openCombatItemModal(${i.id})" style="margin-right:4px;">수정</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCombatItem(${i.id})">삭제</button>
+      </td>
+    </tr>`).join('') + `</tbody></table>`;
+  }
+
+  if(currentCombatCat === 'all' && cats.length > 0) {
+    let html = '';
+    for(const cat of cats) {
+      const catItems = items.filter(i => i.cat === cat.key);
+      if(!catItems.length) continue;
+      const groups = cat.groups || [];
+      html += `<div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catItems.length}</span>
+        </div>`;
+      if(groups.length > 0) {
+        for(const g of [...groups, null]) {
+          const gItems = g === null ? catItems.filter(i => !i.group) : catItems.filter(i => i.group === g);
+          if(!gItems.length) continue;
+          html += `<div style="margin-bottom:8px;">
+            ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;padding-left:4px;">${g}</div>` : ''}
+            <div class="card"><div class="table-wrap">${combatTable(gItems)}</div></div>
+          </div>`;
+        }
+      } else {
+        html += `<div class="card"><div class="table-wrap">${combatTable(catItems)}</div></div>`;
+      }
+      html += `</div>`;
+    }
+    const uncatItems = items.filter(i => !i.cat);
+    if(uncatItems.length) {
+      html += `<div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-dimmer);margin-bottom:8px;">⬜ 미분류</div>
+        <div class="card"><div class="table-wrap">${combatTable(uncatItems)}</div></div>
+      </div>`;
+    }
+    wrap.innerHTML = html;
+  } else {
+    const cat = cats.find(c => c.key === currentCombatCat);
+    const groups = cat?.groups || [];
+    if(groups.length > 0) {
+      let html = '';
+      for(const g of [...groups, null]) {
+        const gItems = g === null ? items.filter(i => !i.group) : items.filter(i => i.group === g);
+        if(!gItems.length) continue;
+        html += `<div style="margin-bottom:12px;">
+          ${g ? `<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">${g}</div>` : ''}
+          <div class="card"><div class="table-wrap">${combatTable(gItems)}</div></div>
+        </div>`;
+      }
+      wrap.innerHTML = html;
+    } else {
+      wrap.innerHTML = `<div class="card"><div class="table-wrap">${combatTable(items)}</div></div>`;
+    }
+  }
+}
+
+function deleteCombatItem(id) {
+  const i = (state.combatItems||[]).find(x => x.id === +id);
+  if(!i) return;
+  customConfirm(`"${i.name}" 전투 아이템을 삭제할까요?`, () => {
+    state.combatItems = state.combatItems.filter(x => x.id !== +id);
+    addActivity(`전투 아이템 <b>${i.name}</b> 삭제됨`, 'var(--danger)');
+    save(); renderCombatItems(); updateBadges();
+  });
+}
 
 // ── 카테고리 관리 ──
 function getItemCats() {
