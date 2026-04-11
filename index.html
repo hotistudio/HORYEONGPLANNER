@@ -2119,6 +2119,8 @@
             <option value="player">PLAYER</option>
             <option value="npc">NPC</option>
             <option value="enemy">ENEMY</option>
+            <option value="party">PARTY MEMBER</option>
+            <option value="companion">COMPANION</option>
           </select>
         </div>
         <div class="form-group"><div class="form-label">그룹 (선택)</div>
@@ -2128,7 +2130,7 @@
         </div>
         <div class="form-group"><div class="form-label">타입</div>
           <select class="form-control" id="ci-type">
-            <option>플레이어</option><option>NPC</option><option>파티원</option><option>보스</option><option>일반 몬스터</option>
+            <option>Player</option><option>NPC</option><option>Enemy</option><option>Party Member</option><option>Companion</option><option>Boss</option>
           </select>
         </div>
         <div class="form-group"><div class="form-label">상태</div>
@@ -3408,8 +3410,9 @@ function _updateCharImgPreview(src) {
 // CHARACTERS
 // ═══════════════════════════════════════
 const typeTagMap = {
-  '플레이어':'tag-cyan', 'NPC':'tag-gray', '파티원':'tag-green',
-  '보스':'tag-red', '일반 몬스터':'tag-yellow'
+  'Player':'tag-cyan', 'NPC':'tag-gray', 'Enemy':'tag-red',
+  'Party Member':'tag-green', 'Companion':'tag-purple',
+  'Boss':'tag-orange'
 };
 const statusTagMap = {
   '기획중':'tag-yellow', '작성완료':'tag-cyan', '검토중':'tag-purple', '확정':'tag-green'
@@ -3421,9 +3424,11 @@ let _ciTags = [];
 // CHARACTERS — 카테고리 / 그룹 시스템
 // ═══════════════════════════════════════
 const CHAR_CATS = [
-  { key:'player', label:'PLAYER', color:'#06b6d4' },
-  { key:'npc',    label:'NPC',    color:'#a78bfa' },
-  { key:'enemy',  label:'ENEMY',  color:'#ef4444' },
+  { key:'player',  label:'PLAYER',       color:'#06b6d4' },
+  { key:'npc',     label:'NPC',          color:'#a78bfa' },
+  { key:'enemy',   label:'ENEMY',        color:'#ef4444' },
+  { key:'party',   label:'PARTY MEMBER', color:'#10b981' },
+  { key:'companion',label:'COMPANION',   color:'#f59e0b' },
 ];
 
 function getCharGroups(cat) {
@@ -3769,7 +3774,7 @@ function renderChars() {
         ).join('');
         const avatarHtml = ch.img
           ? `<div class="char-avatar" style="padding:0;overflow:hidden;"><img src="${ch.img}" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`
-          : `<div class="char-avatar">${ch.type==='보스'?'👹':ch.type==='플레이어'?'🧑':ch.type==='NPC'?'🗣️':ch.type==='파티원'?'🤝':'⚔️'}</div>`;
+          : `<div class="char-avatar">${ch.type==='Boss'?'👹':ch.type==='Player'?'🧑':ch.type==='NPC'?'🗣️':ch.type==='Party Member'?'🤝':ch.type==='Companion'?'🐾':'⚔️'}</div>`;
         return `
           <tr data-char-id="${ch.id}" style="transition:opacity 0.15s,background 0.1s;">
             <td onclick="charSelectForMove(${ch.id}, '${cat.key}')" style="padding:0 8px;cursor:pointer;font-size:15px;text-align:center;user-select:none;color:var(--text-dimmer);transition:color 0.15s;" title="클릭 → 다른 행 클릭으로 이동 (팀 간 이동도 가능)">⠿</td>
