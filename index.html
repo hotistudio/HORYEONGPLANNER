@@ -5784,8 +5784,22 @@ function exportData() {
 }
 
 // Close modal on overlay click
-// 모달 바깥 클릭 시 닫힘 — 단, 캐릭터 추가/편집 모달은 입력 내용 보호를 위해 제외
-const NO_OUTSIDE_CLOSE = new Set(['modal-char']);
+// 모달 바깥 클릭 닫힘 — 입력 폼이 있는 모달은 전부 차단, confirm만 유지
+const NO_OUTSIDE_CLOSE = new Set([
+  'modal-char', 'modal-char-group',
+  'modal-puzzle', 'modal-puzzle-group',
+  'modal-scene', 'modal-scene-floor',
+  'modal-skill', 'modal-skill-cat', 'modal-skill-group',
+  'modal-item', 'modal-item-cat', 'modal-item-group',
+  'modal-combat-item', 'modal-combat-cat', 'modal-combat-group',
+  'modal-quest', 'modal-doc',
+  'modal-region', 'modal-faction', 'modal-timeline',
+  'modal-script', 'modal-milestone',
+  'modal-bug', 'modal-feedback', 'modal-todo',
+  'modal-sound', 'modal-art',
+  'modal-playtest',
+  'modal-new-project',
+]);
 document.querySelectorAll('.modal-overlay').forEach(el => {
   if(NO_OUTSIDE_CLOSE.has(el.id)) return;
   el.addEventListener('click', e => {
