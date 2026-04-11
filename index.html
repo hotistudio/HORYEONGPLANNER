@@ -953,7 +953,7 @@
         <select class="form-control" id="np-genre">
           <option value="">선택 안함</option>
           <option>RPG</option><option>전략</option><option>액션</option>
-          <option>캐주얼</option><option>어드벤처</option><option>시뮬레이션</option>
+          <option>아케이드</option><option>캐주얼</option><option>어드벤처</option><option>시뮬레이션</option>
           <option>공포</option><option>퍼즐</option><option>기타</option>
         </select>
       </div>
@@ -1023,6 +1023,10 @@
       <div class="nav-item" onclick="goPage('scenes', this)">
         <span class="icon">🚪</span> 씬/맵
         <span class="nav-badge" id="badge-scenes">0</span>
+      </div>
+      <div class="nav-section" style="margin-top:8px;">아케이드</div>
+      <div class="nav-item" onclick="goPage('arcade', this)">
+        <span class="icon">🕹️</span> 아케이드 설계
       </div>
       <div class="nav-section" style="margin-top:8px;">관리</div>
       <div class="nav-item" onclick="goPage('schedule', this)">
@@ -1112,7 +1116,7 @@
                   <select class="form-control" id="proj-genre" onchange="saveProjInfo()">
                     <option value="">선택하세요</option>
                     <option>RPG</option><option>전략</option><option>액션</option>
-                    <option>캐주얼</option><option>어드벤처</option><option>시뮬레이션</option>
+                    <option>아케이드</option><option>캐주얼</option><option>어드벤처</option><option>시뮬레이션</option>
                   </select>
                 </div>
               </div>
@@ -1694,6 +1698,263 @@
         </div>
       </div>
 
+      <!-- ═══ ARCADE ═══ -->
+      <div class="page" id="page-arcade">
+        <div class="notice notice-info">🕹️ 아케이드 설계 — 코어 루프, 스코어링, 라이프, 난이도 곡선, 피드백 요소를 기록합니다.</div>
+        <div class="tabs" id="arcade-tabs">
+          <div class="tab active" onclick="switchArcadeTab('loop',this)">🔄 코어 루프</div>
+          <div class="tab" onclick="switchArcadeTab('score',this)">🏆 스코어링</div>
+          <div class="tab" onclick="switchArcadeTab('life',this)">❤️ 라이프 설계</div>
+          <div class="tab" onclick="switchArcadeTab('difficulty',this)">📈 난이도 곡선</div>
+          <div class="tab" onclick="switchArcadeTab('feedback',this)">💥 피드백 목록</div>
+        </div>
+
+        <!-- ① 코어 루프 -->
+        <div id="arcade-loop" class="arcade-panel">
+          <div class="row" style="align-items:flex-start;">
+            <div style="flex:1;">
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-header"><span class="card-title">🔄 코어 루프 사이클</span></div>
+                <div class="card-body">
+                  <div class="notice notice-warn" style="margin-bottom:14px;">목표 → 행동 → 피드백 → 보상 → 난이도 상승 순서로 한 사이클을 정의하세요.</div>
+                  <div class="grid grid-2" style="gap:10px;margin-bottom:14px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                      <div class="form-label">🎯 목표 (Goal)</div>
+                      <input type="text" class="form-control" id="arc-goal" placeholder="예) 공을 놓치지 않고 받아낸다" oninput="saveArcade()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                      <div class="form-label">🕹️ 행동 (Action)</div>
+                      <input type="text" class="form-control" id="arc-action" placeholder="예) 패들을 좌우로 이동" oninput="saveArcade()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                      <div class="form-label">⚡ 즉각 피드백 (Feedback)</div>
+                      <input type="text" class="form-control" id="arc-feedback-loop" placeholder="예) 타격음 + 점수 팝업" oninput="saveArcade()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                      <div class="form-label">🏅 보상 (Reward)</div>
+                      <input type="text" class="form-control" id="arc-reward" placeholder="예) 점수 +100, 콤보 누적" oninput="saveArcade()">
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-label">📈 루프 반복 시 상승 요소</div>
+                    <input type="text" class="form-control" id="arc-escalation" placeholder="예) 공 속도 5% 증가, AI 반응속도 향상" oninput="saveArcade()">
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">🎮 게임 모드</span></div>
+                <div class="card-body">
+                  <div class="form-group"><div class="form-label">지원 모드</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;" id="arc-modes-check">
+                      <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" id="arc-mode-1p" onchange="saveArcade()"> 1인 vs AI</label>
+                      <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" id="arc-mode-2p" onchange="saveArcade()"> 2인 로컬 대전</label>
+                      <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" id="arc-mode-time" onchange="saveArcade()"> 타임어택</label>
+                      <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" id="arc-mode-endless" onchange="saveArcade()"> 엔들리스</label>
+                      <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" id="arc-mode-online" onchange="saveArcade()"> 온라인 대전</label>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;"><div class="form-label">승리 / 종료 조건</div>
+                    <input type="text" class="form-control" id="arc-win-cond" placeholder="예) 11점 선취 / 생명 0개 → 게임오버" oninput="saveArcade()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="flex:0 0 260px;">
+              <div class="card">
+                <div class="card-header"><span class="card-title">📋 루프 미리보기</span></div>
+                <div class="card-body">
+                  <div id="arc-loop-preview" style="font-size:12px;line-height:2;">
+                    <div style="color:var(--text-dimmer);text-align:center;padding:12px 0;">항목을 입력하면 루프 흐름이 표시됩니다</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 스코어링 -->
+        <div id="arcade-score" class="arcade-panel" style="display:none;">
+          <div class="row" style="align-items:flex-start;">
+            <div style="flex:1;">
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-header"><span class="card-title">🏆 점수 체계</span></div>
+                <div class="card-body">
+                  <div class="grid grid-2">
+                    <div class="form-group"><div class="form-label">기본 득점 단위</div><input type="number" class="form-control" id="arc-base-score" placeholder="예) 100" oninput="saveArcade()"></div>
+                    <div class="form-group"><div class="form-label">콤보 배율</div>
+                      <select class="form-control" id="arc-combo-type" onchange="saveArcade()">
+                        <option value="none">없음</option>
+                        <option value="add">가산 (+N점씩 증가)</option>
+                        <option value="multi">승수 (×1.1, ×1.2…)</option>
+                        <option value="custom">커스텀</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><div class="form-label">콤보 초기화 조건</div><input type="text" class="form-control" id="arc-combo-reset" placeholder="예) 공을 한 번 놓치면 초기화" oninput="saveArcade()"></div>
+                    <div class="form-group"><div class="form-label">보너스 점수 조건</div><input type="text" class="form-control" id="arc-bonus-cond" placeholder="예) 10연속 랠리 시 +500" oninput="saveArcade()"></div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;"><div class="form-label">추가 점수 규칙 메모</div>
+                    <textarea class="form-control" id="arc-score-memo" rows="3" placeholder="스킬샷, 퍼펙트 클리어 보너스 등 자유롭게 기록" oninput="saveArcade()"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">📊 하이스코어 & 랭킹</span></div>
+                <div class="card-body">
+                  <div class="grid grid-2">
+                    <div class="form-group"><div class="form-label">로컬 하이스코어 저장</div>
+                      <select class="form-control" id="arc-hs-local" onchange="saveArcade()">
+                        <option>저장 (TOP 10)</option><option>저장 (TOP 5)</option><option>저장 (TOP 1)</option><option>저장 안함</option>
+                      </select>
+                    </div>
+                    <div class="form-group"><div class="form-label">온라인 리더보드</div>
+                      <select class="form-control" id="arc-hs-online" onchange="saveArcade()">
+                        <option>미정</option><option>구현 예정</option><option>구현 안함</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;"><div class="form-label">점수 리셋 조건</div>
+                    <input type="text" class="form-control" id="arc-score-reset" placeholder="예) 게임오버 시 현재 점수 초기화, 하이스코어만 유지" oninput="saveArcade()">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="flex:0 0 260px;">
+              <div class="card">
+                <div class="card-header"><span class="card-title">🧮 점수 시뮬레이터</span></div>
+                <div class="card-body">
+                  <div class="form-group"><div class="form-label">랠리 횟수</div><input type="number" class="form-control" id="sim-rally" value="10" min="1" oninput="simScore()"></div>
+                  <div class="form-group"><div class="form-label">실수 없이 이어진 콤보</div><input type="number" class="form-control" id="sim-combo" value="5" min="0" oninput="simScore()"></div>
+                  <hr>
+                  <div class="calc-display" id="arc-score-sim">설정을 입력하면 예상 점수가 표시됩니다</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ 라이프 설계 -->
+        <div id="arcade-life" class="arcade-panel" style="display:none;">
+          <div class="row" style="align-items:flex-start;">
+            <div style="flex:1;">
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-header"><span class="card-title">❤️ 라이프 시스템</span></div>
+                <div class="card-body">
+                  <div class="grid grid-2">
+                    <div class="form-group"><div class="form-label">시작 목숨 수</div><input type="number" class="form-control" id="arc-lives" value="3" min="1" oninput="saveArcade()"></div>
+                    <div class="form-group"><div class="form-label">최대 목숨 수</div><input type="number" class="form-control" id="arc-max-lives" value="5" min="1" oninput="saveArcade()"></div>
+                    <div class="form-group"><div class="form-label">목숨 획득 조건</div><input type="text" class="form-control" id="arc-life-gain" placeholder="예) 1000점마다 +1 / 없음" oninput="saveArcade()"></div>
+                    <div class="form-group"><div class="form-label">컨티뉴</div>
+                      <select class="form-control" id="arc-continue" onchange="saveArcade()">
+                        <option value="none">없음</option>
+                        <option value="infinite">무제한</option>
+                        <option value="limited">횟수 제한</option>
+                      </select>
+                    </div>
+                    <div class="form-group" id="arc-continue-count-wrap"><div class="form-label">컨티뉴 가능 횟수</div><input type="number" class="form-control" id="arc-continue-count" value="3" min="1" oninput="saveArcade()"></div>
+                    <div class="form-group"><div class="form-label">컨티뉴 시 점수 처리</div>
+                      <select class="form-control" id="arc-continue-score" onchange="saveArcade()">
+                        <option>유지</option><option>초기화</option><option>일부 감점</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;"><div class="form-label">실패 연출 / 페널티 메모</div>
+                    <textarea class="form-control" id="arc-fail-memo" rows="3" placeholder="예) 공을 놓치면 심장 하나 감소 + 화면 붉게 플래시, 3초 후 재시작" oninput="saveArcade()"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="flex:0 0 260px;">
+              <div class="card">
+                <div class="card-header"><span class="card-title">❤️ 라이프 미리보기</span></div>
+                <div class="card-body" id="arc-life-preview" style="font-size:13px;line-height:2;">
+                  <div style="color:var(--text-dimmer);text-align:center;padding:12px 0;">설정을 입력하세요</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ④ 난이도 곡선 -->
+        <div id="arcade-difficulty" class="arcade-panel" style="display:none;">
+          <div class="card" style="margin-bottom:12px;">
+            <div class="card-header">
+              <span class="card-title">📈 구간별 난이도 설정</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="addDiffStage()">+ 구간 추가</button>
+            </div>
+            <div class="card-body">
+              <div class="notice notice-warn" style="margin-bottom:12px;">각 구간의 수치 변화를 기록하세요. 플레이테스트 시 이 곡선을 기준으로 조정합니다.</div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>구간명</th><th>시작 조건</th><th>공 속도</th><th>AI 반응속도</th><th>기타 변화</th><th></th></tr></thead>
+                  <tbody id="diff-stage-table">
+                    <tr><td colspan="6"><div class="empty"><div class="empty-icon">📈</div><div class="empty-title">구간 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="align-items:flex-start;">
+            <div class="card" style="flex:1;">
+              <div class="card-header"><span class="card-title">⚙️ 전역 난이도 파라미터</span></div>
+              <div class="card-body">
+                <div class="grid grid-2">
+                  <div class="form-group"><div class="form-label">초기 공 속도 (px/s)</div><input type="number" class="form-control" id="arc-init-speed" value="300" oninput="saveArcade()"></div>
+                  <div class="form-group"><div class="form-label">최대 공 속도 (px/s)</div><input type="number" class="form-control" id="arc-max-speed" value="900" oninput="saveArcade()"></div>
+                  <div class="form-group"><div class="form-label">속도 증가 단위 (%)</div><input type="number" class="form-control" id="arc-speed-step" value="5" oninput="saveArcade()"></div>
+                  <div class="form-group"><div class="form-label">난이도 곡선 타입</div>
+                    <select class="form-control" id="arc-diff-curve" onchange="saveArcade()">
+                      <option value="linear">선형 (일정하게 상승)</option>
+                      <option value="exp">지수형 (후반 급상승)</option>
+                      <option value="log">로그형 (초반 급상승 후 완만)</option>
+                      <option value="saw">난이도 톱니 (새 구간마다 리셋 후 상승)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0;"><div class="form-label">추가 난이도 요소 메모</div>
+                  <textarea class="form-control" id="arc-diff-memo" rows="3" placeholder="예) 100점마다 공 분열, 500점 이상 시 바람 효과 추가" oninput="saveArcade()"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑤ 피드백 목록 -->
+        <div id="arcade-feedback" class="arcade-panel" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">💥 피드백 이벤트 목록</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="addFeedbackItem()">+ 항목 추가</button>
+            </div>
+            <div class="card-body">
+              <div class="notice notice-warn" style="margin-bottom:12px;">게임 내 모든 이벤트에 시각·청각 피드백을 매핑하세요. 개발 중 빠지는 항목이 없도록 미리 목록화합니다.</div>
+
+              <!-- 빠른 추가 프리셋 -->
+              <div style="margin-bottom:14px;">
+                <div class="form-label">빠른 추가 (프리셋)</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button class="btn btn-secondary btn-sm" onclick="addFeedbackPreset('득점','🏆 점수 팝업 + 득점음','score_popup.wav','화면 글로우 0.2s')">+ 득점</button>
+                  <button class="btn btn-secondary btn-sm" onclick="addFeedbackPreset('실점','❤️ 라이프 감소 표시','life_lost.wav','화면 붉은 플래시 + 진동')">+ 실점</button>
+                  <button class="btn btn-secondary btn-sm" onclick="addFeedbackPreset('공 충돌','패들/벽 반사 효과','hit.wav','패들 살짝 흔들림')">+ 공 충돌</button>
+                  <button class="btn btn-secondary btn-sm" onclick="addFeedbackPreset('콤보','🔥 콤보 카운터 표시','combo.wav','콤보 텍스트 애니메이션')">+ 콤보</button>
+                  <button class="btn btn-secondary btn-sm" onclick="addFeedbackPreset('게임오버','GAME OVER 연출','gameover.wav','화면 슬로우 → 정지 → 페이드')">+ 게임오버</button>
+                  <button class="btn btn-secondary btn-sm" onclick="addFeedbackPreset('하이스코어','🎉 NEW RECORD 연출','hiscore.wav','파티클 + 특수 BGM 전환')">+ 하이스코어</button>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>이벤트</th><th>시각 피드백</th><th>효과음</th><th>기타 연출</th><th>완료</th><th></th></tr></thead>
+                  <tbody id="feedback-table">
+                    <tr><td colspan="6"><div class="empty"><div class="empty-icon">💥</div><div class="empty-title">피드백 없음</div><div class="empty-desc">+ 버튼이나 프리셋으로 추가하세요</div></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-arcade -->
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1756,6 +2017,10 @@
       <span class="m-icon">📄</span>
       <span>문서</span>
       <span class="mobile-nav-badge" id="mbadge-docs" style="display:none">0</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-arcade" onclick="goPage('arcade', null, 'arcade')">
+      <span class="m-icon">🕹️</span>
+      <span>아케이드</span>
     </div>
     <div class="mobile-nav-item" id="mnav-balance" onclick="goPage('balance', null, 'balance')">
       <span class="m-icon">⚖️</span>
@@ -2805,6 +3070,12 @@ const state = {
   combatItems: [],
   combatItemCats: [],
   skillCats: [],
+  arcade: { goal:'',action:'',feedbackLoop:'',reward:'',escalation:'',modes:{},winCond:'',
+    baseScore:100,comboType:'none',comboReset:'',bonusCond:'',scoreMemo:'',
+    hsLocal:'저장 (TOP 10)',hsOnline:'미정',scoreReset:'',
+    lives:3,maxLives:5,lifeGain:'',continueType:'none',continueCount:3,continueScore:'유지',failMemo:'',
+    initSpeed:300,maxSpeed:900,speedStep:5,diffCurve:'linear',diffMemo:'',
+    diffStages:[],feedbackItems:[] },
 };
 
 function load() {
@@ -2826,6 +3097,12 @@ function load() {
     combatItems:[],
     combatItemCats:[],
     skillCats:[],
+    arcade: { goal:'',action:'',feedbackLoop:'',reward:'',escalation:'',modes:{},winCond:'',
+      baseScore:100,comboType:'none',comboReset:'',bonusCond:'',scoreMemo:'',
+      hsLocal:'저장 (TOP 10)',hsOnline:'미정',scoreReset:'',
+      lives:3,maxLives:5,lifeGain:'',continueType:'none',continueCount:3,continueScore:'유지',failMemo:'',
+      initSpeed:300,maxSpeed:900,speedStep:5,diffCurve:'linear',diffMemo:'',
+      diffStages:[],feedbackItems:[] },
   });
   try {
     const key = currentProjectId ? 'horyeong-proj-' + currentProjectId : 'horyeong';
@@ -2861,6 +3138,7 @@ const pageMap = {
   playtest: {title:'PLAYTEST', crumb:'플레이테스트 기록'},
   puzzles: {title:'PUZZLES', crumb:'퍼즐 데이터베이스'},
   scenes:  {title:'SCENES',  crumb:'씬 · 맵 구조'},
+  arcade:  {title:'ARCADE',  crumb:'아케이드 게임 설계'},
 };
 
 let currentPage = 'dashboard';
@@ -2975,6 +3253,7 @@ function renderAll() {
   if(state.projName) document.getElementById('proj-name').value = state.projName;
   if(state.projGenre) document.getElementById('proj-genre').value = state.projGenre;
   calcStatCurve(); calcCombat(); calcEconomy(); calcRevenue();
+  renderArcade();
 }
 
 function renderStats() {
@@ -5500,7 +5779,10 @@ function exportData() {
 }
 
 // Close modal on overlay click
+// 모달 바깥 클릭 시 닫힘 — 단, 캐릭터 추가/편집 모달은 입력 내용 보호를 위해 제외
+const NO_OUTSIDE_CLOSE = new Set(['modal-char']);
 document.querySelectorAll('.modal-overlay').forEach(el => {
+  if(NO_OUTSIDE_CLOSE.has(el.id)) return;
   el.addEventListener('click', e => {
     if(e.target === el) el.classList.remove('open');
   });
@@ -6199,7 +6481,246 @@ function applyTheme() {
   }
 }
 
-// ── Init ──
+// ═══════════════════════════════════════
+// ARCADE
+// ═══════════════════════════════════════
+function switchArcadeTab(id, el) {
+  document.querySelectorAll('.arcade-panel').forEach(p => p.style.display='none');
+  document.getElementById('arcade-'+id).style.display='';
+  document.querySelectorAll('#arcade-tabs .tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+function saveArcade() {
+  if(!state.arcade) state.arcade = {};
+  const a = state.arcade;
+  const g = id => document.getElementById(id);
+  a.goal       = g('arc-goal')?.value||'';
+  a.action     = g('arc-action')?.value||'';
+  a.feedbackLoop = g('arc-feedback-loop')?.value||'';
+  a.reward     = g('arc-reward')?.value||'';
+  a.escalation = g('arc-escalation')?.value||'';
+  a.winCond    = g('arc-win-cond')?.value||'';
+  a.modes = {
+    '1p':    g('arc-mode-1p')?.checked||false,
+    '2p':    g('arc-mode-2p')?.checked||false,
+    'time':  g('arc-mode-time')?.checked||false,
+    'endless':g('arc-mode-endless')?.checked||false,
+    'online':g('arc-mode-online')?.checked||false,
+  };
+  a.baseScore   = +g('arc-base-score')?.value||100;
+  a.comboType   = g('arc-combo-type')?.value||'none';
+  a.comboReset  = g('arc-combo-reset')?.value||'';
+  a.bonusCond   = g('arc-bonus-cond')?.value||'';
+  a.scoreMemo   = g('arc-score-memo')?.value||'';
+  a.hsLocal     = g('arc-hs-local')?.value||'저장 (TOP 10)';
+  a.hsOnline    = g('arc-hs-online')?.value||'미정';
+  a.scoreReset  = g('arc-score-reset')?.value||'';
+  a.lives       = +g('arc-lives')?.value||3;
+  a.maxLives    = +g('arc-max-lives')?.value||5;
+  a.lifeGain    = g('arc-life-gain')?.value||'';
+  a.continueType= g('arc-continue')?.value||'none';
+  a.continueCount=+g('arc-continue-count')?.value||3;
+  a.continueScore=g('arc-continue-score')?.value||'유지';
+  a.failMemo    = g('arc-fail-memo')?.value||'';
+  a.initSpeed   = +g('arc-init-speed')?.value||300;
+  a.maxSpeed    = +g('arc-max-speed')?.value||900;
+  a.speedStep   = +g('arc-speed-step')?.value||5;
+  a.diffCurve   = g('arc-diff-curve')?.value||'linear';
+  a.diffMemo    = g('arc-diff-memo')?.value||'';
+  // continue 횟수 입력 표시
+  const cw = g('arc-continue-count-wrap');
+  if(cw) cw.style.display = a.continueType==='limited' ? '' : 'none';
+  updateLoopPreview();
+  updateLifePreview();
+  simScore();
+  save();
+}
+
+function renderArcade() {
+  const a = state.arcade;
+  if(!a) return;
+  const s = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  const c = (id, val) => { const el=document.getElementById(id); if(el) el.checked=!!val; };
+  const sel = (id, val) => { const el=document.getElementById(id); if(el && val) el.value=val; };
+  s('arc-goal', a.goal); s('arc-action', a.action);
+  s('arc-feedback-loop', a.feedbackLoop); s('arc-reward', a.reward);
+  s('arc-escalation', a.escalation); s('arc-win-cond', a.winCond);
+  if(a.modes) {
+    c('arc-mode-1p', a.modes['1p']); c('arc-mode-2p', a.modes['2p']);
+    c('arc-mode-time', a.modes['time']); c('arc-mode-endless', a.modes['endless']);
+    c('arc-mode-online', a.modes['online']);
+  }
+  s('arc-base-score', a.baseScore||100);
+  sel('arc-combo-type', a.comboType);
+  s('arc-combo-reset', a.comboReset); s('arc-bonus-cond', a.bonusCond);
+  s('arc-score-memo', a.scoreMemo);
+  sel('arc-hs-local', a.hsLocal); sel('arc-hs-online', a.hsOnline);
+  s('arc-score-reset', a.scoreReset);
+  s('arc-lives', a.lives||3); s('arc-max-lives', a.maxLives||5);
+  s('arc-life-gain', a.lifeGain);
+  sel('arc-continue', a.continueType);
+  s('arc-continue-count', a.continueCount||3);
+  sel('arc-continue-score', a.continueScore);
+  s('arc-fail-memo', a.failMemo);
+  s('arc-init-speed', a.initSpeed||300); s('arc-max-speed', a.maxSpeed||900);
+  s('arc-speed-step', a.speedStep||5);
+  sel('arc-diff-curve', a.diffCurve);
+  s('arc-diff-memo', a.diffMemo);
+  // continue 표시
+  const cw = document.getElementById('arc-continue-count-wrap');
+  if(cw) cw.style.display = (a.continueType==='limited') ? '' : 'none';
+  renderDiffStages(); renderFeedbackTable();
+  updateLoopPreview(); updateLifePreview(); simScore();
+}
+
+function updateLoopPreview() {
+  const el = document.getElementById('arc-loop-preview');
+  if(!el) return;
+  const a = state.arcade;
+  const steps = [
+    {icon:'🎯', label:'목표', val: a.goal},
+    {icon:'🕹️', label:'행동', val: a.action},
+    {icon:'⚡', label:'피드백', val: a.feedbackLoop},
+    {icon:'🏅', label:'보상', val: a.reward},
+    {icon:'📈', label:'상승', val: a.escalation},
+  ];
+  const filled = steps.filter(s=>s.val);
+  if(!filled.length) { el.innerHTML='<div style="color:var(--text-dimmer);text-align:center;padding:12px 0;">항목을 입력하면 루프 흐름이 표시됩니다</div>'; return; }
+  el.innerHTML = steps.map((s,i) => s.val ? `
+    <div style="display:flex;align-items:flex-start;gap:8px;${i>0&&steps[i-1].val?'':''}">
+      ${i>0 && steps.find((x,xi)=>xi<i&&x.val) ? '<div style="width:20px;text-align:center;color:var(--text-dimmer);font-size:16px;line-height:1;margin-top:-4px;">↓</div>' : '<div style="width:20px;"></div>'}
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 10px;flex:1;">
+        <span style="font-size:10px;color:var(--text-dim);letter-spacing:1px;">${s.icon} ${s.label}</span>
+        <div style="font-size:12px;margin-top:2px;">${s.val}</div>
+      </div>
+    </div>` : '').join('');
+}
+
+function updateLifePreview() {
+  const el = document.getElementById('arc-life-preview');
+  if(!el) return;
+  const a = state.arcade;
+  const lives = a.lives||3;
+  const hearts = '❤️'.repeat(Math.min(lives,10)) + (lives>10?` +${lives-10}`:'');
+  const contLabel = a.continueType==='none'?'없음':a.continueType==='infinite'?'무제한':`${a.continueCount}회`;
+  el.innerHTML = `
+    <div style="text-align:center;font-size:22px;margin-bottom:10px;">${hearts}</div>
+    <div class="calc-row"><span>시작 목숨</span><span class="mono">${lives}개</span></div>
+    <div class="calc-row"><span>최대 목숨</span><span class="mono">${a.maxLives||5}개</span></div>
+    <div class="calc-row"><span>목숨 회복</span><span class="mono">${a.lifeGain||'없음'}</span></div>
+    <div class="calc-row calc-total"><span>컨티뉴</span><span class="mono">${contLabel}</span></div>
+    ${a.continueType!=='none'?`<div class="calc-row"><span>컨티뉴 시 점수</span><span class="mono">${a.continueScore||'유지'}</span></div>`:''}
+  `;
+}
+
+function simScore() {
+  const el = document.getElementById('arc-score-sim');
+  if(!el) return;
+  const a = state.arcade;
+  const base = a.baseScore||100;
+  const rally = +document.getElementById('sim-rally')?.value||10;
+  const combo = +document.getElementById('sim-combo')?.value||0;
+  let score = rally * base;
+  let comboBonus = 0;
+  if(a.comboType==='add') comboBonus = combo * 50;
+  else if(a.comboType==='multi') comboBonus = Math.round(score * (Math.pow(1.1, combo)-1));
+  const total = score + comboBonus;
+  el.innerHTML = `
+    <div class="calc-row"><span>기본 점수</span><span class="mono">${rally} × ${base} = ${score.toLocaleString()}</span></div>
+    ${combo>0?`<div class="calc-row"><span>콤보 보너스 (${combo}콤보)</span><span class="mono" style="color:var(--warning);">+${comboBonus.toLocaleString()}</span></div>`:''}
+    <div class="calc-row calc-total"><span>예상 합계</span><span style="color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:18px;">${total.toLocaleString()}</span></div>
+  `;
+}
+
+// 난이도 구간
+let _diffStageId = Date.now();
+function addDiffStage() {
+  if(!state.arcade) state.arcade={};
+  if(!state.arcade.diffStages) state.arcade.diffStages=[];
+  state.arcade.diffStages.push({id:_diffStageId++, name:'', trigger:'', speed:'', ai:'', etc:''});
+  save(); renderDiffStages();
+}
+function deleteDiffStage(id) {
+  id=+id; state.arcade.diffStages=state.arcade.diffStages.filter(x=>x.id!==id);
+  save(); renderDiffStages();
+}
+function updateDiffStage(id, field, val) {
+  id=+id; const s=state.arcade.diffStages.find(x=>x.id===id);
+  if(s) { s[field]=val; save(); }
+}
+function renderDiffStages() {
+  const tb = document.getElementById('diff-stage-table');
+  if(!tb) return;
+  const stages = state.arcade?.diffStages||[];
+  if(!stages.length) {
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">📈</div><div class="empty-title">구간 없음</div><div class="empty-desc">+ 버튼으로 추가하세요</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = stages.map(s=>`
+    <tr>
+      <td><input class="form-control" style="min-width:90px;" value="${s.name||''}" placeholder="예) 초반" oninput="updateDiffStage(${s.id},'name',this.value)"></td>
+      <td><input class="form-control" style="min-width:110px;" value="${s.trigger||''}" placeholder="예) 0~100점" oninput="updateDiffStage(${s.id},'trigger',this.value)"></td>
+      <td><input class="form-control" style="min-width:80px;" value="${s.speed||''}" placeholder="예) 300" oninput="updateDiffStage(${s.id},'speed',this.value)"></td>
+      <td><input class="form-control" style="min-width:90px;" value="${s.ai||''}" placeholder="예) 느림" oninput="updateDiffStage(${s.id},'ai',this.value)"></td>
+      <td><input class="form-control" style="min-width:120px;" value="${s.etc||''}" placeholder="예) 장애물 없음" oninput="updateDiffStage(${s.id},'etc',this.value)"></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteDiffStage(${s.id})">삭제</button></td>
+    </tr>`).join('');
+}
+
+// 피드백 항목
+let _feedbackId = Date.now()+1;
+function addFeedbackItem() {
+  if(!state.arcade) state.arcade={};
+  if(!state.arcade.feedbackItems) state.arcade.feedbackItems=[];
+  state.arcade.feedbackItems.push({id:_feedbackId++, event:'', visual:'', sfx:'', extra:'', done:false});
+  save(); renderFeedbackTable();
+}
+function addFeedbackPreset(event, visual, sfx, extra) {
+  if(!state.arcade) state.arcade={};
+  if(!state.arcade.feedbackItems) state.arcade.feedbackItems=[];
+  // 이미 있으면 스킵
+  if(state.arcade.feedbackItems.find(x=>x.event===event)) { showToast(`'${event}' 항목이 이미 있습니다`,'warn'); return; }
+  state.arcade.feedbackItems.push({id:_feedbackId++, event, visual, sfx, extra, done:false});
+  save(); renderFeedbackTable();
+  showToast(`'${event}' 피드백 추가됨`,'success');
+}
+function deleteFeedbackItem(id) {
+  id=+id; state.arcade.feedbackItems=state.arcade.feedbackItems.filter(x=>x.id!==id);
+  save(); renderFeedbackTable();
+}
+function updateFeedbackItem(id, field, val) {
+  id=+id; const f=state.arcade.feedbackItems.find(x=>x.id===id);
+  if(f) { f[field]= field==='done'?!!val:val; save(); }
+}
+function renderFeedbackTable() {
+  const tb = document.getElementById('feedback-table');
+  if(!tb) return;
+  const items = state.arcade?.feedbackItems||[];
+  if(!items.length) {
+    tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">💥</div><div class="empty-title">피드백 없음</div><div class="empty-desc">+ 버튼이나 프리셋으로 추가하세요</div></div></td></tr>`;
+    return;
+  }
+  const done = items.filter(x=>x.done).length;
+  tb.innerHTML = items.map(f=>`
+    <tr style="${f.done?'opacity:0.5;':''}">
+      <td><input class="form-control" style="min-width:80px;" value="${f.event||''}" placeholder="이벤트명" oninput="updateFeedbackItem(${f.id},'event',this.value)"></td>
+      <td><input class="form-control" style="min-width:130px;" value="${f.visual||''}" placeholder="시각 효과" oninput="updateFeedbackItem(${f.id},'visual',this.value)"></td>
+      <td><input class="form-control" style="min-width:110px;" value="${f.sfx||''}" placeholder="효과음 파일명" oninput="updateFeedbackItem(${f.id},'sfx',this.value)"></td>
+      <td><input class="form-control" style="min-width:120px;" value="${f.extra||''}" placeholder="기타 연출" oninput="updateFeedbackItem(${f.id},'extra',this.value)"></td>
+      <td style="text-align:center;"><input type="checkbox" ${f.done?'checked':''} onchange="updateFeedbackItem(${f.id},'done',this.checked)" title="구현 완료"></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteFeedbackItem(${f.id})">삭제</button></td>
+    </tr>`).join('') +
+    `<tr style="background:var(--surface2);"><td colspan="4" style="font-size:11px;color:var(--text-dim);">진행률</td>
+    <td colspan="2">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="progress-bar" style="flex:1;height:6px;"><div class="progress-fill" style="width:${items.length?Math.round(done/items.length*100):0}%;background:var(--success);"></div></div>
+        <span class="mono" style="font-size:11px;color:var(--success);">${done}/${items.length}</span>
+      </div>
+    </td></tr>`;
+}
+
+// ── applyTheme 앞 ──
 applyTheme();
 renderHome();
 
