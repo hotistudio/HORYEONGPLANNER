@@ -3008,6 +3008,17 @@ function openProject(id) {
   document.getElementById('mobile-fab').classList.add('visible');
 
   load();
+
+  // 홈 프로젝트 이름/장르 → 대시보드 입력란 초기값 동기화
+  if (!state.projName) {
+    state.projName = proj.name;
+    document.getElementById('proj-name').value = proj.name;
+  }
+  if (!state.projGenre && proj.genre) {
+    state.projGenre = proj.genre;
+    document.getElementById('proj-genre').value = proj.genre;
+  }
+
   goPage('dashboard', null, 'dashboard');
 }
 
@@ -5663,6 +5674,20 @@ function saveProjInfo() {
   state.projName = document.getElementById('proj-name').value;
   state.projGenre = document.getElementById('proj-genre').value;
   save();
+
+  // 홈 프로젝트 목록에도 즉시 반영
+  if (currentProjectId) {
+    const projects = loadProjects();
+    const proj = projects.find(p => p.id === currentProjectId);
+    if (proj) {
+      proj.name = state.projName || proj.name;
+      proj.genre = state.projGenre || proj.genre;
+      proj.updatedAt = Date.now();
+      saveProjects(projects);
+      // 사이드바 이름도 갱신
+      document.getElementById('sidebar-proj-name').textContent = proj.emoji + ' ' + proj.name;
+    }
+  }
 }
 
 // ═══════════════════════════════════════
@@ -5773,7 +5798,8 @@ function switchBalanceTab(id, el) {
 function exportData() {
   const projects = loadProjects();
   const proj = currentProjectId ? projects.find(p=>p.id===currentProjectId) : null;
-  const filename = proj ? `horyeong-${proj.name}-${Date.now()}.json` : `horyeong-${Date.now()}.json`;
+  const safeName = (proj?.name || 'horyeong').replace(/[\\/:*?"<>|]/g, '_').trim() || 'horyeong';
+  const filename = `${safeName}.json`;
   const json = JSON.stringify(state, null, 2);
   const blob = new Blob([json], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -5781,6 +5807,7 @@ function exportData() {
   a.href = url;
   a.download = filename;
   a.click();
+  URL.revokeObjectURL(url);
 }
 
 // Close modal on overlay click
