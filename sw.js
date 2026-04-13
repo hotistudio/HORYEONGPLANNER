@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════
-// HORYEONG PLANNER — Service Worker v14
+// HORYEONG PLANNER — Service Worker v17
 // ═══════════════════════════════════════
-const CACHE_NAME = 'horyeong-v22';
+const CACHE_NAME = 'horyeong-v25';
 const CACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap',
+  './Moneygraphy-Pixel.ttf',
 ];
 
 // ── Install: 핵심 파일 캐시 ──

@@ -7,8 +7,13 @@
 <meta name="description" content="인디게임 기획 관리 시스템 — 호령 플래너">
 <link rel="manifest" href="./manifest.json">
 <title>HORYEONG PLANNER — 게임 기획 툴</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  @font-face {
+    font-family: 'Moneygraphy';
+    src: url('./Moneygraphy-Pixel.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
   :root {
     --bg: #0a0a0f;
     --surface: #12121a;
@@ -65,7 +70,7 @@
     color: var(--text-dim);
     transition: all 0.2s;
     white-space: nowrap;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
   }
   .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
   .theme-toggle-track {
@@ -94,7 +99,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-size: 14px;
     min-height: 100vh;
     overflow-x: hidden;
@@ -119,7 +124,7 @@
     border-bottom: 1px solid var(--border);
   }
   .logo-title {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-size: 22px;
     letter-spacing: 2px;
     color: var(--accent);
@@ -141,7 +146,7 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--text-dimmer);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
   }
 
   .nav-item {
@@ -170,7 +175,7 @@
     font-size: 9px;
     padding: 1px 6px;
     border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
   }
 
   /* ── Main ── */
@@ -192,7 +197,7 @@
   }
 
   .topbar-title {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-size: 20px;
     letter-spacing: 1px;
     color: var(--text);
@@ -201,7 +206,7 @@
   .topbar-crumb {
     font-size: 11px;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
   }
 
   .topbar-sep { color: var(--text-dimmer); }
@@ -217,7 +222,7 @@
     border: none;
     cursor: pointer;
     font-size: 12px;
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-weight: 500;
     transition: all 0.15s;
   }
@@ -285,7 +290,7 @@
   .stat-card.green::before { background: var(--success); }
 
   .stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--text); margin: 4px 0 0; line-height: 1; }
+  .stat-value { font-family: 'Moneygraphy', sans-serif; font-size: 32px; color: var(--text); margin: 4px 0 0; line-height: 1; }
   .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
   /* ── Forms ── */
@@ -298,7 +303,7 @@
     border-radius: 4px;
     padding: 8px 10px;
     color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-size: 13px;
     outline: none;
     transition: border-color 0.15s;
@@ -319,7 +324,7 @@
     text-transform: uppercase;
     color: var(--text-dim);
     border-bottom: 1px solid var(--border);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
     white-space: nowrap;
   }
   td {
@@ -469,7 +474,7 @@
     flex-shrink: 0;
   }
   .activity-text { font-size: 12px; line-height: 1.5; }
-  .activity-time { font-size: 10px; color: var(--text-dimmer); font-family: 'JetBrains Mono', monospace; }
+  .activity-time { font-size: 10px; color: var(--text-dimmer); font-family: 'Moneygraphy', monospace; }
 
   /* ── Balance calculator ── */
   .calc-display {
@@ -477,7 +482,7 @@
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 12px 14px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
     font-size: 13px;
   }
   .calc-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
@@ -566,7 +571,7 @@
     border-radius: 7px;
     display: flex; align-items: center; justify-content: center;
     padding: 0 3px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
   }
 
   /* ── Mobile topbar add button ── */
@@ -589,6 +594,30 @@
     transition: transform 0.15s, box-shadow 0.15s;
   }
   .mobile-add-btn:active { transform: scale(0.93); }
+
+  /* ── Mobile IO buttons (내보내기/불러오기) ── */
+  .mobile-io-btns {
+    display: none;
+    position: fixed;
+    bottom: 76px;
+    left: 16px;
+    z-index: 51;
+    gap: 8px;
+  }
+  .mobile-io-btns.visible { display: flex !important; }
+  .mobile-io-btn {
+    width: 40px; height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-dim);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: transform 0.15s;
+  }
+  .mobile-io-btn:active { transform: scale(0.93); }
 
   /* ── Mobile: full override ── */
   @media (max-width: 600px) {
@@ -719,7 +748,7 @@
   .text-dim { color: var(--text-dim); }
   .text-accent { color: var(--accent); }
   .text-sm { font-size: 11px; }
-  .mono { font-family: 'JetBrains Mono', monospace; }
+  .mono { font-family: 'Moneygraphy', monospace; }
   .mt-8 { margin-top: 8px; }
   .mt-12 { margin-top: 12px; }
   .mb-12 { margin-bottom: 12px; }
@@ -760,7 +789,7 @@
   }
 
   .home-logo {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-size: 26px;
     letter-spacing: 3px;
     color: var(--accent);
@@ -771,7 +800,7 @@
     color: var(--text-dim);
     letter-spacing: 2px;
     display: block;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
     margin-top: 2px;
   }
 
@@ -788,7 +817,7 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
     margin-bottom: 16px;
   }
 
@@ -875,13 +904,13 @@
   .project-stat {
     font-size: 10px;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
   }
   .project-stat b { color: var(--text); }
   .project-date {
     font-size: 10px;
     color: var(--text-dimmer);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Moneygraphy', monospace;
     margin-top: 12px;
   }
   .project-actions {
@@ -979,7 +1008,7 @@
     <div class="logo" style="cursor:pointer;" onclick="goHome()" title="홈으로">
       <div class="logo-title">HORYEONG<br>PLANNER</div>
       <div class="logo-sub" id="sidebar-proj-name">게임 기획 관리 시스템</div>
-      <div style="margin-top:5px;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);letter-spacing:1px;">v0.1.2</div>
+      <div style="margin-top:5px;font-size:9px;font-family:'Moneygraphy',monospace;color:var(--text-dimmer);letter-spacing:1px;">v0.1.2</div>
     </div>
     <nav class="nav">
       <div class="nav-section">개요</div>
@@ -1073,9 +1102,11 @@
         <div class="theme-toggle-track"><div class="theme-toggle-thumb"></div></div>
         <span id="theme-label">다크</span>
       </button>
+      <button class="btn btn-secondary btn-sm" onclick="importData()">📥 불러오기</button>
       <button class="btn btn-secondary btn-sm" onclick="exportData()">📤 내보내기</button>
       <button class="btn btn-primary btn-sm" onclick="handleAdd()">+ 추가</button>
     </div>
+    <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="handleImportFile(this)">
 
     <div class="content">
 
@@ -1088,7 +1119,7 @@
             <div class="card" style="margin-bottom:12px;">
               <div class="card-header">
                 <span class="card-title">📓 DEV LOG</span>
-                <span class="text-sm text-dim ml-auto" id="devlog-date-display" style="font-family:'JetBrains Mono',monospace;"></span>
+                <span class="text-sm text-dim ml-auto" id="devlog-date-display" style="font-family:'Moneygraphy',monospace;"></span>
               </div>
               <div class="card-body" style="padding-bottom:10px;">
                 <textarea class="form-control" id="devlog-input" rows="3"
@@ -1970,7 +2001,7 @@
   <span>🔄 새 버전이 있습니다</span>
   <button id="sw-update-btn" style="
     background:var(--accent);color:white;border:none;border-radius:4px;
-    padding:4px 10px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+    padding:4px 10px;font-size:12px;cursor:pointer;font-family:'Moneygraphy',sans-serif;">
     업데이트
   </button>
   <button id="sw-dismiss-btn" style="
@@ -2080,6 +2111,12 @@
 
 <!-- ── Mobile FAB ── -->
 <button class="mobile-add-btn" id="mobile-fab" onclick="handleAdd()" title="추가">＋</button>
+
+<!-- ── Mobile 내보내기/불러오기 ── -->
+<div class="mobile-io-btns" id="mobile-io-btns">
+  <button class="mobile-io-btn" onclick="importData()" title="불러오기">📥</button>
+  <button class="mobile-io-btn" onclick="exportData()" title="내보내기">📤</button>
+</div>
 
 <!-- ═══ MODALS ═══ -->
 
@@ -3006,6 +3043,7 @@ function openProject(id) {
   document.getElementById('app-screen').style.display = 'flex';
   document.getElementById('mobile-nav').classList.add('visible');
   document.getElementById('mobile-fab').classList.add('visible');
+  document.getElementById('mobile-io-btns').classList.add('visible');
 
   load();
 
@@ -3034,6 +3072,7 @@ function goHome() {
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('mobile-nav').classList.remove('visible');
   document.getElementById('mobile-fab').classList.remove('visible');
+  document.getElementById('mobile-io-btns').classList.remove('visible');
   document.getElementById('home-screen').style.display = 'flex';
   document.getElementById('home-screen').style.flexDirection = 'column';
 
@@ -3299,7 +3338,7 @@ function renderDashSummary() {
          onmouseout="this.style.background=''">
       <span style="font-size:14px;width:20px;text-align:center;flex-shrink:0;">${it.icon}</span>
       <span style="flex:1;font-size:12px;color:var(--text-dim);">${it.label}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;
+      <span style="font-family:'Moneygraphy',monospace;font-size:13px;font-weight:700;
                    color:${it.val>0?'var(--text)':'var(--text-dimmer)'};">${it.val}</span>
     </div>`).join('');
 }
@@ -3346,7 +3385,7 @@ function renderDevLog() {
   el.innerHTML = Object.entries(grouped).map(([date, logs]) => `
     <div style="margin-bottom:12px;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);
-                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;
+                  font-family:'Moneygraphy',monospace;margin-bottom:6px;
                   text-transform:uppercase;">${date}</div>
       ${logs.map(d => `
         <div class="card" style="margin-bottom:6px;">
@@ -3501,7 +3540,7 @@ function renderCharGroupList() {
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
       <input type="text" value="${g}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameCharGroup('${_groupMgrCat}',${i},this.value)">
       <button class="btn btn-danger btn-sm" onclick="deleteCharGroup('${_groupMgrCat}',${i})">삭제</button>
     </div>`).join('');
@@ -3775,7 +3814,7 @@ function renderChars() {
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
           <span style="width:10px;height:10px;border-radius:50%;background:${cat.color};display:inline-block;"></span>
           <span style="font-size:12px;font-weight:700;letter-spacing:2px;color:${cat.color};">${cat.label}</span>
-          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catChars.length}</span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'Moneygraphy',monospace;">${catChars.length}</span>
         </div>`;
 
     for(const sec of sections) {
@@ -3891,7 +3930,7 @@ function renderPuzzleGroupList() {
         title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${g}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renamePuzzleGroup(${i}, this.value)">
       <button class="btn btn-danger btn-sm" onclick="deletePuzzleGroup(${i})">삭제</button>
     </div>`).join('');
@@ -4104,7 +4143,7 @@ function renderPuzzles() {
       html += `
         <div style="margin-bottom:16px;">
           <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
-                      color:var(--text-dim);font-family:'JetBrains Mono',monospace;
+                      color:var(--text-dim);font-family:'Moneygraphy',monospace;
                       margin-bottom:8px;">${group || '⬜ 미지정'} <span style="color:var(--text-dimmer);">${gList.length}</span></div>
           ${gList.map(p => _puzzleCard(p)).join('')}
         </div>`;
@@ -4248,7 +4287,7 @@ function renderSceneFloorList() {
         title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${f}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameSceneFloor(${i}, this.value)">
       <button class="btn btn-danger btn-sm" onclick="deleteSceneFloor(${i})">삭제</button>
     </div>`).join('');
@@ -4365,7 +4404,7 @@ function renderScenes() {
       html += `
         <div style="margin-bottom:20px;">
           <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;
-                      color:var(--text-dim);font-family:'JetBrains Mono',monospace;
+                      color:var(--text-dim);font-family:'Moneygraphy',monospace;
                       margin-bottom:8px;">${floor || '⬜ 미지정'} <span style="color:var(--text-dimmer);">${group.length}</span></div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
             ${group.map(s => _sceneCard(s)).join('')}
@@ -4443,7 +4482,7 @@ function renderSkillCatManagerList() {
     <div id="scrow-${i}" style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);">
       <span onclick="selectSkillCatRow(${i})" style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${cat.name}"
-        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameSkillCat(${i}, this.value)">
       <button class="btn btn-secondary btn-sm" onclick="openSkillGroupModal('${cat.key}','${cat.name}')">그룹</button>
       <button class="btn btn-danger btn-sm" onclick="deleteSkillCat('${cat.key}')">삭제</button>
@@ -4504,7 +4543,7 @@ function renderSkillGroupManagerList() {
   el.innerHTML=groups.map((g,i)=>`
     <div id="sgrow-${i}" style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);">
       <span onclick="selectSkillGroupRow(${i})" style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 이동">⠿</span>
-      <input type="text" value="${g}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;" onchange="renameSkillGroup(${i},this.value)">
+      <input type="text" value="${g}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;" onchange="renameSkillGroup(${i},this.value)">
       <button class="btn btn-danger btn-sm" onclick="deleteSkillGroup(${i})">삭제</button>
     </div>`).join('');
 }
@@ -4675,7 +4714,7 @@ function renderSkills() {
       const catSkills = skills.filter(s=>s.cat===cat.key);
       if(!catSkills.length) continue;
       const groups = cat.groups || [];
-      html += `<div style="margin-bottom:20px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span><span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catSkills.length}</span></div>`;
+      html += `<div style="margin-bottom:20px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span><span style="font-size:11px;color:var(--text-dim);font-family:'Moneygraphy',monospace;">${catSkills.length}</span></div>`;
       if(groups.length > 0) {
         for(const g of [...groups, null]) {
           const gSkills = g===null ? catSkills.filter(s=>!s.group) : catSkills.filter(s=>s.group===g);
@@ -4720,7 +4759,7 @@ function deleteSkill(id) { id=+id;
 // ═══════════════════════════════════════
 function _groupHeader(g) {
   if(!g) return '';
-  return '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:JetBrains Mono,monospace;margin-bottom:6px;padding-left:4px;">' + g + '</div>';
+  return '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-family:Moneygraphy,monospace;margin-bottom:6px;padding-left:4px;">' + g + '</div>';
 }
 
 const gradeMap = {'일반':'tag-gray','고급':'tag-green','희귀':'tag-cyan','영웅':'tag-purple','전설':'tag-orange'};
@@ -4765,7 +4804,7 @@ function renderCombatCatManagerList() {
         style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${cat.name}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameCombatCat(${i}, this.value)">
       <button class="btn btn-secondary btn-sm" onclick="openCombatGroupModal('${cat.key}','${cat.name}')">그룹</button>
       <button class="btn btn-danger btn-sm" onclick="deleteCombatCat('${cat.key}')">삭제</button>
@@ -4866,7 +4905,7 @@ function renderCombatGroupManagerList() {
         style="cursor:pointer;font-size:16px;padding:0 4px;color:var(--text-dimmer);user-select:none;flex-shrink:0;" title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${g}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameCombatGroup(${i}, this.value)">
       <button class="btn btn-danger btn-sm" onclick="deleteCombatGroup(${i})">삭제</button>
     </div>`).join('');
@@ -5042,7 +5081,7 @@ function renderCombatItems() {
       html += `<div style="margin-bottom:20px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
           <span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span>
-          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catItems.length}</span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'Moneygraphy',monospace;">${catItems.length}</span>
         </div>`;
       if(groups.length > 0) {
         for(const g of [...groups, null]) {
@@ -5152,7 +5191,7 @@ function renderItemCatManagerList() {
         title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${cat.name}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameItemCat(${i}, this.value)">
       <button class="btn btn-secondary btn-sm" onclick="openItemGroupModal('${cat.key}','${cat.name}')">그룹</button>
       <button class="btn btn-danger btn-sm" onclick="deleteItemCat('${cat.key}')">삭제</button>
@@ -5255,7 +5294,7 @@ function renderItemGroupManagerList() {
         title="클릭 선택 → 다른 항목 클릭으로 이동">⠿</span>
       <input type="text" value="${g}"
         style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
-               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;"
+               padding:5px 8px;color:var(--text);font-size:13px;font-family:'Moneygraphy',sans-serif;"
         onchange="renameItemGroup(${i}, this.value)">
       <button class="btn btn-danger btn-sm" onclick="deleteItemGroup(${i})">삭제</button>
     </div>`).join('');
@@ -5410,7 +5449,7 @@ function renderItems() {
       html += `<div style="margin-bottom:20px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
           <span style="font-size:13px;font-weight:700;letter-spacing:1px;">${cat.name}</span>
-          <span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${catItems.length}</span>
+          <span style="font-size:11px;color:var(--text-dim);font-family:'Moneygraphy',monospace;">${catItems.length}</span>
         </div>`;
       // 그룹별
       if(groups.length > 0) {
@@ -5810,7 +5849,51 @@ function exportData() {
   URL.revokeObjectURL(url);
 }
 
-// Close modal on overlay click
+function importData() {
+  document.getElementById('import-file-input').click();
+}
+
+function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.json')) { showToast('JSON 파일만 불러올 수 있습니다', 'warn'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      customConfirm(
+        `"${file.name}" 파일을 불러오면 현재 데이터가 덮어씌워집니다. 계속할까요?`,
+        () => {
+          Object.assign(state, data);
+          save();
+          renderAll();
+          // 대시보드 입력란 동기화
+          if (state.projName) document.getElementById('proj-name').value = state.projName;
+          if (state.projGenre) document.getElementById('proj-genre').value = state.projGenre;
+          // 홈 프로젝트 목록에도 반영
+          if (currentProjectId) {
+            const projects = loadProjects();
+            const proj = projects.find(p => p.id === currentProjectId);
+            if (proj && state.projName) {
+              proj.name = state.projName;
+              proj.genre = state.projGenre || proj.genre;
+              proj.updatedAt = Date.now();
+              saveProjects(projects);
+              document.getElementById('sidebar-proj-name').textContent = proj.emoji + ' ' + proj.name;
+            }
+          }
+          showToast('불러오기 완료!', 'success');
+        },
+        '데이터 불러오기',
+        '불러오기'
+      );
+    } catch(err) {
+      showToast('파일을 읽을 수 없습니다. 올바른 JSON인지 확인해주세요', 'error');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
 // 모달 바깥 클릭 닫힘 — 입력 폼이 있는 모달은 전부 차단, confirm만 유지
 const NO_OUTSIDE_CLOSE = new Set([
   'modal-char', 'modal-char-group',
@@ -6015,7 +6098,7 @@ function openScriptDoc(id) { id=+id;
       <button class="btn btn-danger btn-sm ml-auto" onclick="deleteScript(${s.id})">삭제</button>
     </div>
     <div class="notice notice-info" style="margin-bottom:10px;">💡 형식 예: [캐릭터명] 대사 내용 / (지문) 행동 묘사</div>
-    <textarea class="form-control" id="script-content" style="min-height:360px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;" placeholder="[주인공] 이게... 운명인가.\n(잠시 침묵)\n[마왕] 어리석은 자여, 이제 모든 것이 끝났다.">${s.content||''}</textarea>
+    <textarea class="form-control" id="script-content" style="min-height:360px;font-size:13px;line-height:1.8;font-family:'Moneygraphy',monospace;" placeholder="[주인공] 이게... 운명인가.\n(잠시 침묵)\n[마왕] 어리석은 자여, 이제 모든 것이 끝났다.">${s.content||''}</textarea>
   `;
 }
 
@@ -6435,15 +6518,15 @@ function renderPlaytests() {
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
           <div style="text-align:center;">
             <div class="stat-label">테스터</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent3);">${p.testers}명</div>
+            <div style="font-family:'Moneygraphy',sans-serif;font-size:24px;color:var(--accent3);">${p.testers}명</div>
           </div>
           <div style="text-align:center;">
             <div class="stat-label">완주율</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${p.completion>=80?'var(--success)':p.completion>=50?'var(--warning)':'var(--danger)'};">${p.completion}%</div>
+            <div style="font-family:'Moneygraphy',sans-serif;font-size:24px;color:${p.completion>=80?'var(--success)':p.completion>=50?'var(--warning)':'var(--danger)'};">${p.completion}%</div>
           </div>
           <div style="text-align:center;">
             <div class="stat-label">평점</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${p.rating>=8?'var(--success)':p.rating>=5?'var(--warning)':'var(--danger)'};">${p.rating}/10</div>
+            <div style="font-family:'Moneygraphy',sans-serif;font-size:24px;color:${p.rating>=8?'var(--success)':p.rating>=5?'var(--warning)':'var(--danger)'};">${p.rating}/10</div>
           </div>
           ${p.duration?'<div style="text-align:center;"><div class="stat-label">플레이 시간</div><div style="font-size:18px;padding-top:4px;">'+p.duration+'</div></div>':''}
         </div>
@@ -6496,10 +6579,11 @@ function showToast(message, type='info') {
 // ═══════════════════════════════════════
 // CUSTOM CONFIRM (iframe에서 confirm() 차단 우회)
 // ═══════════════════════════════════════
-function customConfirm(message, onOk, title='삭제 확인') {
+function customConfirm(message, onOk, title='삭제 확인', okLabel='삭제') {
   const overlay = document.getElementById('modal-confirm');
   document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-message').textContent = message;
+  document.getElementById('confirm-ok-btn').textContent = okLabel;
   overlay.classList.add('open');
   const ok = document.getElementById('confirm-ok-btn');
   const cancel = document.getElementById('confirm-cancel-btn');
@@ -6675,7 +6759,7 @@ function simScore() {
   el.innerHTML = `
     <div class="calc-row"><span>기본 점수</span><span class="mono">${rally} × ${base} = ${score.toLocaleString()}</span></div>
     ${combo>0?`<div class="calc-row"><span>콤보 보너스 (${combo}콤보)</span><span class="mono" style="color:var(--warning);">+${comboBonus.toLocaleString()}</span></div>`:''}
-    <div class="calc-row calc-total"><span>예상 합계</span><span style="color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:18px;">${total.toLocaleString()}</span></div>
+    <div class="calc-row calc-total"><span>예상 합계</span><span style="color:var(--accent);font-family:'Moneygraphy',sans-serif;font-size:18px;">${total.toLocaleString()}</span></div>
   `;
 }
 
@@ -6850,7 +6934,7 @@ function showUpdateToast(worker) {
 <div id="app-toast" style="
   position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px);
   background:var(--accent3); color:white; border-radius:6px;
-  padding:10px 18px; font-size:13px; font-family:'Noto Sans KR',sans-serif;
+  padding:10px 18px; font-size:13px; font-family:'Moneygraphy',sans-serif;
   z-index:300; opacity:0; transition:opacity 0.2s, transform 0.2s;
   pointer-events:none; white-space:nowrap;">
   <span id="app-toast-msg"></span>
